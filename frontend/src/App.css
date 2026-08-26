@@ -1,0 +1,132 @@
+/* =========================
+   GLOBAL RESET
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+
+/* =========================
+   APP
+========================= */
+
+.App {
+  width: 100%;
+  min-height: 100vh;
+}
+
+
+/* =========================
+   GLOBAL CONTENT ALIGNMENT
+========================= */
+
+.App > * {
+  width: calc(100% - 128px);
+  margin-left: 64px;
+  margin-right: 64px;
+}
+
+
+/* =========================
+   NAVBAR
+========================= */
+
+.App > .navbar {
+  width: calc(100% - 128px);
+  margin-left: 64px;
+  margin-right: 64px;
+}
+
+
+/* =========================
+   CATEGORY NAV
+========================= */
+
+.App > .category-nav {
+  width: calc(100% - 128px);
+  margin-left: 64px;
+  margin-right: 64px;
+}
+
+
+/* =========================
+   HOME
+========================= */
+
+.App > .home-page {
+  width: calc(100% - 128px);
+  margin-left: 64px;
+  margin-right: 64px;
+}
+
+
+/* =========================
+   IMAGES
+========================= */
+
+img {
+  max-width: 100%;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 992px) {
+  .App > *,
+  .App > .navbar,
+  .App > .category-nav,
+  .App > .home-page {
+    width: calc(100% - 64px);
+    margin-left: 32px;
+    margin-right: 32px;
+  }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .App > *,
+  .App > .navbar,
+  .App > .category-nav,
+  .App > .home-page {
+    width: calc(100% - 32px);
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+}
+
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 480px) {
+  .App > *,
+  .App > .navbar,
+  .App > .category-nav,
+  .App > .home-page {
+    width: calc(100% - 20px);
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}

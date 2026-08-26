@@ -1,0 +1,400 @@
+/* RAINY DAY COLLECTION*/
+
+.rainy-day-section {
+  width: 110%;
+
+  padding: 20px 0 14px;
+
+  margin-left: -50px;
+
+  background: #fff;
+
+  box-sizing: border-box;
+}
+
+.rainy-day-container {
+  width: calc(100% - 128px);
+
+  max-width: 1225px;
+
+  margin: 0 auto;
+
+  box-sizing: border-box;
+}
+
+
+/* TITLE*/
+
+.rainy-day-title {
+  margin: 0 0 13px;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 17px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  color: #111;
+}
+
+
+/* GRID*/
+
+.rainy-day-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+
+/* CARD*/
+
+.rainy-day-card {
+  position: relative;
+
+  width: 100%;
+
+  height: 326px;
+
+  overflow: hidden;
+
+  background: #eee;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+
+/* IMAGE*/
+
+.rainy-day-image {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.4s ease;
+}
+
+
+/* IMAGE HOVER*/
+
+.rainy-day-card:hover
+.rainy-day-image {
+  transform: scale(1.04);
+}
+
+
+/* NO IMAGE*/
+
+.rainy-day-no-image {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #eeeeee;
+
+  color: #888;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+
+/* OVERLAY*/
+
+.rainy-day-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.25) 40%,
+      rgba(0, 0, 0, 0) 70%
+    );
+
+  pointer-events: none;
+}
+
+
+/* CONTENT*/
+
+.rainy-day-content {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  bottom: 27px;
+
+  z-index: 2;
+
+  text-align: center;
+
+  color: #fff;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  padding: 0 8px;
+
+  box-sizing: border-box;
+}
+
+
+/* TITLE*/
+
+.rainy-day-content h3 {
+  margin: 0 0 4px;
+
+  font-size: 24px;
+
+  font-weight: 700;
+
+  line-height: 1.1;
+
+  color: #fff;
+
+  text-shadow:
+    0 1px 3px
+    rgba(0, 0, 0, 0.5);
+}
+
+
+/* PRICE */
+
+.rainy-day-content p {
+  margin: 0;
+
+  font-size: 22px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  color: #fff;
+
+  text-shadow:
+    0 1px 3px
+    rgba(0, 0, 0, 0.5);
+}
+
+
+/* ONWARDS */
+
+.rainy-day-content p span {
+  font-size: 18px;
+
+  font-weight: 400;
+}
+
+
+/* TABLET*/
+
+@media (max-width: 1100px) {
+
+  .rainy-day-section {
+    width: 100%;
+
+    margin-left: 0;
+  }
+
+  .rainy-day-container {
+    width: calc(100% - 60px);
+  }
+
+  .rainy-day-grid {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+
+    gap: 8px;
+  }
+
+  .rainy-day-card {
+    height: 300px;
+  }
+
+  .rainy-day-content h3 {
+    font-size: 21px;
+  }
+
+  .rainy-day-content p {
+    font-size: 19px;
+  }
+
+  .rainy-day-content p span {
+    font-size: 16px;
+  }
+
+}
+
+
+/*SMALL TABLET */
+
+@media (max-width: 900px) {
+
+  .rainy-day-container {
+    width: calc(100% - 40px);
+  }
+
+  .rainy-day-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+  }
+
+  .rainy-day-card {
+    height: 300px;
+  }
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 550px) {
+
+  .rainy-day-section {
+    width: 100%;
+
+    padding: 16px 0;
+
+    margin-left: 0;
+  }
+
+  .rainy-day-container {
+    width: calc(100% - 24px);
+  }
+
+  .rainy-day-title {
+    margin-bottom: 10px;
+
+    font-size: 15px;
+
+    line-height: 1.25;
+  }
+
+  .rainy-day-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 7px;
+  }
+
+  .rainy-day-card {
+    height: 220px;
+  }
+
+  .rainy-day-content {
+    bottom: 17px;
+
+    padding: 0 5px;
+  }
+
+  .rainy-day-content h3 {
+    padding: 0 5px;
+
+    font-size: 16px;
+
+    line-height: 1.1;
+  }
+
+  .rainy-day-content p {
+    font-size: 16px;
+  }
+
+  .rainy-day-content p span {
+    font-size: 13px;
+  }
+
+}
+
+
+/* SMALL MOBILE */
+
+@media (max-width: 400px) {
+
+  .rainy-day-container {
+    width: calc(100% - 16px);
+  }
+
+  .rainy-day-grid {
+    gap: 6px;
+  }
+
+  .rainy-day-card {
+    height: 205px;
+  }
+
+  .rainy-day-content {
+    bottom: 14px;
+  }
+
+  .rainy-day-content h3 {
+    font-size: 14px;
+  }
+
+  .rainy-day-content p {
+    font-size: 14px;
+  }
+
+  .rainy-day-content p span {
+    font-size: 12px;
+  }
+
+}
+
+
+/*VERY SMALL MOBILE*/
+
+@media (max-width: 340px) {
+
+  .rainy-day-card {
+    height: 190px;
+  }
+
+  .rainy-day-content h3 {
+    font-size: 13px;
+  }
+
+  .rainy-day-content p {
+    font-size: 13px;
+  }
+
+  .rainy-day-content p span {
+    font-size: 11px;
+  }
+
+}

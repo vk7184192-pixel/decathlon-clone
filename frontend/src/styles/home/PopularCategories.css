@@ -1,0 +1,126 @@
+/* ========================================
+   POPULAR CATEGORIES
+======================================== */
+
+.popular-categories {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+
+  gap: 8px;
+
+  margin: 20px 0 16px;
+
+  padding: 0 10px;
+}
+
+
+/* ========================================
+   CATEGORY CARD
+======================================== */
+
+.category-card {
+  position: relative;
+
+  width: 100%;
+  height: 146px;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  background: #eee;
+}
+
+
+/* ========================================
+   IMAGE
+======================================== */
+
+.category-card img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition: transform 0.4s ease;
+}
+
+
+/* IMAGE HOVER */
+
+.category-card:hover img {
+  transform: scale(1.05);
+}
+
+
+/* ========================================
+   OVERLAY
+======================================== */
+
+.category-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  padding: 12px 5px;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.65),
+    rgba(0, 0, 0, 0) 60%
+  );
+}
+
+
+/* ========================================
+   TITLE
+======================================== */
+
+.category-overlay h3 {
+  margin: 0;
+
+  color: #fff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  line-height: 1.2;
+
+  text-align: center;
+
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1100px) {
+  .popular-categories {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+
+@media (max-width: 600px) {
+  .popular-categories {
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 8px;
+
+    padding: 0 8px;
+  }
+
+  .category-card {
+    height: 150px;
+  }
+}

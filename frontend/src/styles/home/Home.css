@@ -1,0 +1,9 @@
+.home-page {
+  width: 100%;
+}
+
+.home-container {
+  width: calc(100% - 128px);
+  max-width: 1400px;
+  margin: 0 auto;
+}
