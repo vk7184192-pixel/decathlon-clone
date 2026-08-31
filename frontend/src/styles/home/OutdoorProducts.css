@@ -457,11 +457,17 @@
 }
 
 .outdoor-wishlist:hover {
-  background: #f6f6f6;
-
-  border-color: #777777;
+  border-color: #222222;
 
   color: #222222;
+}
+
+.outdoor-wishlist.active {
+  border-color: #3945bd;
+
+  color: #3945bd;
+
+  background: #f4f6ff;
 }
 
 

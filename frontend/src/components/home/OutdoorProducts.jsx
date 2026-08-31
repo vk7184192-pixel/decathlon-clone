@@ -1,27 +1,27 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-
 import "../../styles/home/OutdoorProducts.css";
-
+import "../../styles/ProductSizeModal.css";
+import toast from "react-hot-toast";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
+import ProductSizeModal from "../ProductSizeModal";
+import { useWishlist } from "../../utils/useWishlist";
 
 const OutdoorProducts = () => {
+  const { isWishlisted, handleToggle } = useWishlist();
   const sliderRef = useRef(null);
 
   const [products, setProducts] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
-  /*
-  ========================================
-  IMAGE URL
-  ========================================
-  */
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
 
   const getImageUrl = (image) => {
-    if (!image) {
-      return "";
-    }
+    if (!image) return "";
 
     if (image.startsWith("http")) {
       return image;
@@ -30,47 +30,25 @@ const OutdoorProducts = () => {
     return `http://localhost:5000${image}`;
   };
 
-  /*
-  ========================================
-  FETCH HOMEPAGE SECTION
-  ========================================
-  */
+  const formatPrice = (price) => {
+    return `₹${Number(price || 0).toLocaleString("en-IN")}`;
+  };
 
   const fetchSection = useCallback(async () => {
     try {
       setLoading(true);
 
       const response = await api.get("/homepage-sections/active");
-
       const sections = response.data.sections || [];
-
-      /*
-        IMPORTANT:
-        Admin Section Name:
-        Outdoor Products
-        */
 
       const section = sections.find((item) => item.name === "Outdoor Products");
 
-      /*
-        SECTION NOT FOUND
-        */
-
       if (!section) {
         setProducts([]);
-
         return;
       }
 
-      /*
-        SELECTED PRODUCTS
-        */
-
       setProducts(section.products || []);
-
-      /*
-        RESET SCROLL POSITION
-        */
 
       if (sliderRef.current) {
         sliderRef.current.scrollTo({
@@ -80,51 +58,29 @@ const OutdoorProducts = () => {
       }
     } catch (error) {
       console.error("Outdoor Products Error:", error);
-
       setProducts([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /*
-  ========================================
-  INITIAL LOAD
-  ========================================
-  */
-
   useEffect(() => {
     fetchSection();
   }, [fetchSection]);
 
-  /*
-  ========================================
-  REALTIME UPDATE
-  ========================================
-  */
-
   useEffect(() => {
     const handleHomepageUpdate = (data) => {
-      const sectionEvents = [
+      const events = [
         "section_created",
         "section_updated",
         "section_deleted",
         "section_reordered",
-      ];
-
-      const productEvents = [
         "product_created",
         "product_updated",
         "product_deleted",
       ];
 
-      if (sectionEvents.includes(data?.type)) {
-        fetchSection();
-
-        return;
-      }
-
-      if (productEvents.includes(data?.type)) {
+      if (events.includes(data?.type)) {
         fetchSection();
       }
     };
@@ -136,27 +92,15 @@ const OutdoorProducts = () => {
     };
   }, [fetchSection]);
 
-  /*
-  ========================================
-  SCROLL ONE PRODUCT LEFT
-  ========================================
-  */
-
   const scrollLeft = () => {
-    if (!sliderRef.current) {
-      return;
-    }
+    if (!sliderRef.current) return;
 
     const card = sliderRef.current.querySelector(".outdoor-product-card");
 
-    if (!card) {
-      return;
-    }
+    if (!card) return;
 
     const cardWidth = card.offsetWidth;
-
     const styles = window.getComputedStyle(sliderRef.current);
-
     const gap = parseFloat(styles.columnGap) || 0;
 
     sliderRef.current.scrollBy({
@@ -165,27 +109,15 @@ const OutdoorProducts = () => {
     });
   };
 
-  /*
-  ========================================
-  SCROLL ONE PRODUCT RIGHT
-  ========================================
-  */
-
   const scrollRight = () => {
-    if (!sliderRef.current) {
-      return;
-    }
+    if (!sliderRef.current) return;
 
     const card = sliderRef.current.querySelector(".outdoor-product-card");
 
-    if (!card) {
-      return;
-    }
+    if (!card) return;
 
     const cardWidth = card.offsetWidth;
-
     const styles = window.getComputedStyle(sliderRef.current);
-
     const gap = parseFloat(styles.columnGap) || 0;
 
     sliderRef.current.scrollBy({
@@ -194,150 +126,227 @@ const OutdoorProducts = () => {
     });
   };
 
-  /*
-  ========================================
-  LOADING
-  ========================================
-  */
+  const handleOpenModal = (product) => {
+    setSelectedProduct(product);
+    setSelectedSize("");
+    setSelectedColor("");
+    setQuantity(1);
+    setAdding(false);
+  };
 
-  if (loading) {
+  const handleCloseModal = () => {
+    if (adding) return;
+
+    setSelectedProduct(null);
+    setSelectedSize("");
+    setSelectedColor("");
+    setQuantity(1);
+  };
+
+  const handleAddToCart = async () => {
+    if (!selectedProduct) return;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
+    const sizes = Array.isArray(selectedProduct.size)
+      ? selectedProduct.size
+      : [];
+
+    if (sizes.length > 0 && !selectedSize) {
+      toast.warning("Please select a size");
+      return;
+    }
+
+    if (!quantity || Number(quantity) < 1) {
+      toast.warning("Quantity must be at least 1");
+      return;
+    }
+
+    try {
+      setAdding(true);
+
+      const response = await api.post(
+        "/cart",
+        {
+          productId: selectedProduct._id,
+          quantity: Number(quantity),
+          size: selectedSize || "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      toast.success(response?.data?.message || "Product added to cart");
+
+      window.dispatchEvent(new Event("cartUpdated"));
+
+      setSelectedProduct(null);
+      setSelectedSize("");
+      setSelectedColor("");
+      setQuantity(1);
+    } catch (error) {
+      console.error("ADD TO CART ERROR:", error);
+
+      if (error?.response?.status === 401) {
+        toast.error("Please login again");
+        return;
+      }
+
+      toast.error(
+        error?.response?.data?.message || "Failed to add product to cart",
+      );
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  if (loading || !products.length) {
     return null;
   }
-
-  /*
-  ========================================
-  EMPTY
-  ========================================
-  */
-
-  if (!products.length) {
-    return null;
-  }
-
-  /*
-  ========================================
-  UI
-  ========================================
-  */
 
   return (
-    <section className="outdoor-products-section">
-      <div className="outdoor-products-container">
-        {/* =================================
-            LEFT CONTENT
-        ================================= */}
+    <>
+      <section className="outdoor-products-section">
+        <div className="outdoor-products-container">
+          <div className="outdoor-products-intro">
+            <p>Explore best of</p>
 
-        <div className="outdoor-products-intro">
-          <p>Explore best of</p>
+            <h2>
+              Outdoor
+              <br />
+              Shoes &
+              <br />
+              Sneakers.
+            </h2>
 
-          <h2>
-            Outdoor
-            <br />
-            Shoes &
-            <br />
-            Sneakers.
-          </h2>
+            <div className="outdoor-slider-buttons">
+              <button
+                type="button"
+                className="outdoor-arrow"
+                onClick={scrollLeft}
+                aria-label="Previous product"
+              >
+                ‹
+              </button>
 
-          <div className="outdoor-slider-buttons">
-            <button
-              type="button"
-              className="outdoor-arrow"
-              onClick={scrollLeft}
-              aria-label="Previous product"
-            >
-              ‹
-            </button>
-
-            <button
-              type="button"
-              className="outdoor-arrow"
-              onClick={scrollRight}
-              aria-label="Next product"
-            >
-              ›
-            </button>
+              <button
+                type="button"
+                className="outdoor-arrow"
+                onClick={scrollRight}
+                aria-label="Next product"
+              >
+                ›
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* =================================
-            PRODUCTS SLIDER
-        ================================= */}
+          <div className="outdoor-products-slider" ref={sliderRef}>
+            {products.map((product) => (
+              <div className="outdoor-product-card" key={product._id}>
+                <div className="outdoor-product-image-wrapper">
+                  {product.badge && (
+                    <span className="outdoor-product-badge">
+                      {product.badge}
+                    </span>
+                  )}
 
-        <div className="outdoor-products-slider" ref={sliderRef}>
-          {products.map((product) => (
-            <div className="outdoor-product-card" key={product._id}>
-              {/* PRODUCT IMAGE */}
-
-              <div className="outdoor-product-image-wrapper">
-                {product.badge && (
-                  <span className="outdoor-product-badge">{product.badge}</span>
-                )}
-
-                {product.images?.[0] ? (
-                  <img
-                    src={getImageUrl(product.images[0])}
-                    alt={product.name}
-                    className="outdoor-product-image"
-                  />
-                ) : (
-                  <div className="outdoor-product-no-image">No Image</div>
-                )}
-              </div>
-
-              {/* PRODUCT DETAILS */}
-
-              <div className="outdoor-product-details">
-                {/* PRODUCT NAME */}
-
-                <p className="outdoor-product-name">
-                  <strong>{product.brand || ""}</strong> {product.name}
-                </p>
-
-                {/* RATING */}
-
-                <div className="outdoor-rating">
-                  <span className="stars">★★★★★</span>
-
-                  <span className="review-count">{product.reviews || ""}</span>
-                </div>
-
-                {/* PRICE */}
-
-                <div className="outdoor-price">
-                  <span>₹{product.discountPrice || product.price}</span>
-
-                  {product.discount && (
-                    <span className="outdoor-discount">{product.discount}</span>
+                  {product.images?.[0] ? (
+                    <img
+                      src={getImageUrl(product.images[0])}
+                      alt={product.name || "Product"}
+                      className="outdoor-product-image"
+                    />
+                  ) : (
+                    <div className="outdoor-product-no-image">No Image</div>
                   )}
                 </div>
 
-                {/* MRP */}
+                <div className="outdoor-product-details">
+                  <p className="outdoor-product-name">
+                    <strong>{product.brand || ""}</strong> {product.name}
+                  </p>
 
-                <div className="outdoor-mrp">
-                  {product.price ? `MRP ₹${product.price}` : "MRP"}
-                </div>
+                  <div className="outdoor-rating">
+                    <span className="stars">★★★★★</span>
 
-                {/* ACTION BUTTONS */}
+                    <span className="review-count">
+                      {product.reviews || ""}
+                    </span>
+                  </div>
 
-                <div className="outdoor-product-actions">
-                  <button
-                    type="button"
-                    className="outdoor-wishlist"
-                    aria-label="Add to wishlist"
-                  >
-                    ♡
-                  </button>
+                  <div className="outdoor-price">
+                    <span>
+                      ₹
+                      {Number(
+                        product.discountPrice || product.price || 0,
+                      ).toLocaleString("en-IN")}
+                    </span>
 
-                  <button type="button" className="outdoor-cart">
-                    Add to cart
-                  </button>
+                    {product.discount && (
+                      <span className="outdoor-discount">
+                        {product.discount}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="outdoor-mrp">
+                    {product.price
+                      ? `MRP ₹${Number(product.price).toLocaleString("en-IN")}`
+                      : "MRP"}
+                  </div>
+
+                  <div className="outdoor-product-actions">
+                    <button
+                      type="button"
+                      className={`outdoor-wishlist ${
+                        isWishlisted(product._id) ? "active" : ""
+                      }`}
+                      aria-label="Add to wishlist"
+                      onClick={() => handleToggle(product._id)}
+                    >
+                      {isWishlisted(product._id) ? "♥" : "♡"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="outdoor-cart"
+                      onClick={() => handleOpenModal(product)}
+                    >
+                      Add to cart
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {selectedProduct && (
+        <ProductSizeModal
+          product={selectedProduct}
+          selectedSize={selectedSize}
+          setSelectedSize={setSelectedSize}
+          selectedColor={selectedColor}
+          setSelectedColor={setSelectedColor}
+          quantity={quantity}
+          setQuantity={setQuantity}
+          onClose={handleCloseModal}
+          onAddToCart={handleAddToCart}
+          adding={adding}
+          getImageUrl={getImageUrl}
+          formatPrice={formatPrice}
+        />
+      )}
+    </>
   );
 };
 

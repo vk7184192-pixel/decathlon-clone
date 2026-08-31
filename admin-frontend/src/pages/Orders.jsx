@@ -31,11 +31,15 @@ const STATUS_OPTIONS = [
   "failed",
 ];
 
+const PAYMENT_STATUS_OPTIONS = ["pending", "paid", "failed", "refunded"];
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
+
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [orderDate, setOrderDate] = useState("");
@@ -70,12 +74,14 @@ const Orders = () => {
 
       const response = await api.get("/orders/admin/all");
 
-      const fetchedOrders = response.data.orders || [];
+      const fetchedOrders = response.data?.orders || [];
 
       setOrders(sortOrders(fetchedOrders));
 
       setCurrentPage(1);
     } catch (error) {
+      console.error("Fetch Orders Error:", error);
+
       toast.error(error.response?.data?.message || "Failed to load orders");
     } finally {
       setLoading(false);
@@ -109,6 +115,10 @@ const Orders = () => {
 
       const payment = order.paymentStatus?.toLowerCase() || "";
 
+      const paymentMethod = order.paymentMethod?.toLowerCase() || "";
+
+      const deliveryOption = order.deliveryOption?.toLowerCase() || "";
+
       const matchesSearch =
         !value ||
         orderId.includes(value) ||
@@ -116,7 +126,9 @@ const Orders = () => {
         email.includes(value) ||
         itemName.includes(value) ||
         status.includes(value) ||
-        payment.includes(value);
+        payment.includes(value) ||
+        paymentMethod.includes(value) ||
+        deliveryOption.includes(value);
 
       const matchesStatus =
         statusFilter === "all" || order.orderStatus === statusFilter;
@@ -170,9 +182,11 @@ const Orders = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await api.put(`/orders/${orderId}/status`, {
+      const response = await api.put(`/orders/${orderId}/status`, {
         status: newStatus,
       });
+
+      const updatedOrder = response.data?.order;
 
       setOrders((prev) =>
         sortOrders(
@@ -180,7 +194,7 @@ const Orders = () => {
             order._id === orderId
               ? {
                   ...order,
-                  orderStatus: newStatus,
+                  orderStatus: updatedOrder?.orderStatus || newStatus,
                 }
               : order,
           ),
@@ -188,24 +202,68 @@ const Orders = () => {
       );
 
       setSelectedOrder((prev) =>
-        prev
+        prev && prev._id === orderId
           ? {
               ...prev,
-              orderStatus: newStatus,
+              orderStatus: updatedOrder?.orderStatus || newStatus,
             }
           : prev,
       );
 
       toast.success("Order status updated successfully");
     } catch (error) {
+      console.error("Update Order Status Error:", error);
+
       toast.error(
         error.response?.data?.message || "Failed to update order status",
       );
     }
   };
 
+  const updatePaymentStatus = async (orderId, newPaymentStatus) => {
+    try {
+      const response = await api.put(`/orders/${orderId}/payment-status`, {
+        paymentStatus: newPaymentStatus,
+      });
+
+      const updatedOrder = response.data?.order;
+
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId
+            ? {
+                ...order,
+                paymentStatus: updatedOrder?.paymentStatus || newPaymentStatus,
+              }
+            : order,
+        ),
+      );
+
+      setSelectedOrder((prev) =>
+        prev && prev._id === orderId
+          ? {
+              ...prev,
+              paymentStatus: updatedOrder?.paymentStatus || newPaymentStatus,
+            }
+          : prev,
+      );
+
+      toast.success("Payment status updated successfully");
+    } catch (error) {
+      console.error("Update Payment Status Error:", error);
+
+      toast.error(
+        error.response?.data?.message || "Failed to update payment status",
+      );
+    }
+  };
+
   const getStatusClass = (status) => {
     return `order-status status-${status}`;
+  };
+
+  const getPaymentClass = (status) => {
+    return `payment-status-select payment-${status}`;
   };
 
   const formatDate = (date) => {
@@ -218,6 +276,50 @@ const Orders = () => {
       month: "short",
       year: "numeric",
     });
+  };
+
+  const formatPaymentMethod = (method) => {
+    if (!method) {
+      return "-";
+    }
+
+    if (method === "COD") {
+      return "Cash on Delivery";
+    }
+
+    if (method === "CARD") {
+      return "Credit / Debit Card";
+    }
+
+    if (method === "UPI") {
+      return "UPI";
+    }
+
+    return method;
+  };
+
+  const formatDeliveryOption = (option) => {
+    if (!option) {
+      return "-";
+    }
+
+    if (option === "standard") {
+      return "Standard Delivery";
+    }
+
+    if (option === "pickup") {
+      return "Pickup from Store";
+    }
+
+    return option;
+  };
+
+  const formatStatus = (status) => {
+    return (
+      status
+        ?.replace("_", " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase()) || "-"
+    );
   };
 
   return (
@@ -271,9 +373,7 @@ const Orders = () => {
 
             {STATUS_OPTIONS.map((status) => (
               <option key={status} value={status}>
-                {status
-                  .replace("_", " ")
-                  .replace(/\b\w/g, (char) => char.toUpperCase())}
+                {formatStatus(status)}
               </option>
             ))}
           </select>
@@ -358,15 +458,30 @@ const Orders = () => {
                       <td>{formatDate(order.createdAt)}</td>
 
                       <td>
-                        <strong>₹{order.totalAmount}</strong>
+                        <strong>
+                          ₹
+                          {Number(order.totalAmount || 0).toLocaleString(
+                            "en-IN",
+                          )}
+                        </strong>
                       </td>
 
                       <td>
-                        <span
-                          className={`payment-status payment-${order.paymentStatus}`}
+                        <select
+                          value={order.paymentStatus || "pending"}
+                          onChange={(e) =>
+                            updatePaymentStatus(order._id, e.target.value)
+                          }
+                          className={getPaymentClass(
+                            order.paymentStatus || "pending",
+                          )}
                         >
-                          {order.paymentStatus}
-                        </span>
+                          {PAYMENT_STATUS_OPTIONS.map((paymentStatus) => (
+                            <option key={paymentStatus} value={paymentStatus}>
+                              {formatStatus(paymentStatus)}
+                            </option>
+                          ))}
+                        </select>
                       </td>
 
                       <td>
@@ -379,9 +494,7 @@ const Orders = () => {
                         >
                           {STATUS_OPTIONS.map((status) => (
                             <option key={status} value={status}>
-                              {status
-                                .replace("_", " ")
-                                .replace(/\b\w/g, (char) => char.toUpperCase())}
+                              {formatStatus(status)}
                             </option>
                           ))}
                         </select>
@@ -469,7 +582,7 @@ const Orders = () => {
               </div>
 
               <span className={getStatusClass(selectedOrder.orderStatus)}>
-                {selectedOrder.orderStatus}
+                {formatStatus(selectedOrder.orderStatus)}
               </span>
             </div>
 
@@ -483,6 +596,10 @@ const Orders = () => {
               </p>
 
               <p>
+                <strong>Email:</strong> {selectedOrder.user?.email || "-"}
+              </p>
+
+              <p>
                 <strong>Mobile:</strong>{" "}
                 {selectedOrder.shippingAddress?.mobile || "-"}
               </p>
@@ -490,8 +607,11 @@ const Orders = () => {
               <p>
                 <strong>Address:</strong>{" "}
                 {selectedOrder.shippingAddress?.houseBuilding},{" "}
-                {selectedOrder.shippingAddress?.streetLocality},{" "}
-                {selectedOrder.shippingAddress?.cityState},{" "}
+                {selectedOrder.shippingAddress?.streetLocality}
+                {selectedOrder.shippingAddress?.landmark
+                  ? `, ${selectedOrder.shippingAddress.landmark}`
+                  : ""}
+                , {selectedOrder.shippingAddress?.cityState} -{" "}
                 {selectedOrder.shippingAddress?.pincode}
               </p>
             </div>
@@ -506,9 +626,18 @@ const Orders = () => {
                       <strong>{item.name}</strong>
 
                       <span>Qty: {item.quantity}</span>
+
+                      {item.size && <span>Size: {item.size}</span>}
+
+                      {item.color && <span>Color: {item.color}</span>}
                     </div>
 
-                    <strong>₹{item.price * item.quantity}</strong>
+                    <strong>
+                      ₹
+                      {Number(item.price * item.quantity).toLocaleString(
+                        "en-IN",
+                      )}
+                    </strong>
                   </div>
                 ))}
               </div>
@@ -518,40 +647,109 @@ const Orders = () => {
               <h3>Payment Details</h3>
 
               <div className="order-summary-row">
+                <span>Payment Method</span>
+
+                <strong>
+                  {formatPaymentMethod(selectedOrder.paymentMethod)}
+                </strong>
+              </div>
+
+              <div className="order-summary-row">
+                <span>Payment Status</span>
+
+                <select
+                  value={selectedOrder.paymentStatus || "pending"}
+                  onChange={(e) =>
+                    updatePaymentStatus(selectedOrder._id, e.target.value)
+                  }
+                  className={getPaymentClass(
+                    selectedOrder.paymentStatus || "pending",
+                  )}
+                >
+                  {PAYMENT_STATUS_OPTIONS.map((paymentStatus) => (
+                    <option key={paymentStatus} value={paymentStatus}>
+                      {formatStatus(paymentStatus)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="order-summary-row">
+                <span>Delivery Option</span>
+
+                <strong>
+                  {formatDeliveryOption(selectedOrder.deliveryOption)}
+                </strong>
+              </div>
+
+              <div className="order-summary-row">
                 <span>Subtotal</span>
 
-                <strong>₹{selectedOrder.subtotal}</strong>
+                <strong>
+                  ₹{Number(selectedOrder.subtotal || 0).toLocaleString("en-IN")}
+                </strong>
               </div>
 
               <div className="order-summary-row">
                 <span>Discount</span>
 
-                <strong>- ₹{selectedOrder.discount}</strong>
+                <strong>
+                  - ₹
+                  {Number(selectedOrder.discount || 0).toLocaleString("en-IN")}
+                </strong>
               </div>
 
               <div className="order-summary-row">
                 <span>Delivery</span>
 
-                <strong>₹{selectedOrder.deliveryCharge}</strong>
+                <strong>
+                  ₹
+                  {Number(selectedOrder.deliveryCharge || 0).toLocaleString(
+                    "en-IN",
+                  )}
+                </strong>
               </div>
 
               <div className="order-summary-row total-row">
                 <span>Total</span>
 
-                <strong>₹{selectedOrder.totalAmount}</strong>
+                <strong>
+                  ₹
+                  {Number(selectedOrder.totalAmount || 0).toLocaleString(
+                    "en-IN",
+                  )}
+                </strong>
               </div>
             </div>
 
             <div className="order-modal-payment">
-              <span>Payment Method:</span>
+              <div>
+                <span>Order Status</span>
 
-              <strong>{selectedOrder.paymentMethod}</strong>
+                <strong>{formatStatus(selectedOrder.orderStatus)}</strong>
+              </div>
 
-              <span
-                className={`payment-status payment-${selectedOrder.paymentStatus}`}
-              >
-                {selectedOrder.paymentStatus}
-              </span>
+              <div>
+                <span>Payment</span>
+
+                <strong>
+                  {formatPaymentMethod(selectedOrder.paymentMethod)}
+                </strong>
+
+                <span
+                  className={`payment-status payment-${selectedOrder.paymentStatus}`}
+                >
+                  {formatStatus(selectedOrder.paymentStatus)}
+                </span>
+              </div>
+
+              <div>
+                <span>Delivery</span>
+
+                <strong>
+                  {formatDeliveryOption(selectedOrder.deliveryOption)}
+                </strong>
+              </div>
             </div>
           </div>
         </div>

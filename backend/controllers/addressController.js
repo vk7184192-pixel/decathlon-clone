@@ -29,35 +29,37 @@ const addAddress = async (req, res) => {
       });
     }
 
-    // Only one default address per user
     if (isDefault === true) {
       await Address.updateMany(
         { user: req.user.id },
-        { $set: { isDefault: false } }
+        { $set: { isDefault: false } },
       );
     }
 
     const address = await Address.create({
       user: req.user.id,
-      firstName,
-      lastName,
-      mobile,
-      houseBuilding,
-      streetLocality,
-      landmark: landmark || "",
-      pincode,
-      cityState,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      mobile: mobile.trim(),
+      houseBuilding: houseBuilding.trim(),
+      streetLocality: streetLocality.trim(),
+      landmark: landmark?.trim() || "",
+      pincode: pincode.trim(),
+      cityState: cityState.trim(),
       addressType: addressType || "Home",
-      isDefault: isDefault || false,
+      isDefault: Boolean(isDefault),
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Address added successfully",
       address,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
+    console.error("Add Address Error:", error);
+
+    return res.status(500).json({
+      message: "Failed to add address",
+      error: error.message,
     });
   }
 };
@@ -71,13 +73,16 @@ const getAddresses = async (req, res) => {
       createdAt: -1,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       count: addresses.length,
       addresses,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
+    console.error("Get Addresses Error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch addresses",
+      error: error.message,
     });
   }
 };
@@ -117,41 +122,65 @@ const updateAddress = async (req, res) => {
           _id: { $ne: id },
         },
         {
-          $set: { isDefault: false },
-        }
+          $set: {
+            isDefault: false,
+          },
+        },
       );
     }
 
-    if (firstName !== undefined) address.firstName = firstName;
-    if (lastName !== undefined) address.lastName = lastName;
-    if (mobile !== undefined) address.mobile = mobile;
+    if (firstName !== undefined) {
+      address.firstName = firstName.trim();
+    }
+
+    if (lastName !== undefined) {
+      address.lastName = lastName.trim();
+    }
+
+    if (mobile !== undefined) {
+      address.mobile = mobile.trim();
+    }
+
     if (houseBuilding !== undefined) {
-      address.houseBuilding = houseBuilding;
+      address.houseBuilding = houseBuilding.trim();
     }
+
     if (streetLocality !== undefined) {
-      address.streetLocality = streetLocality;
+      address.streetLocality = streetLocality.trim();
     }
+
     if (landmark !== undefined) {
-      address.landmark = landmark;
+      address.landmark = landmark.trim();
     }
-    if (pincode !== undefined) address.pincode = pincode;
-    if (cityState !== undefined) address.cityState = cityState;
+
+    if (pincode !== undefined) {
+      address.pincode = pincode.trim();
+    }
+
+    if (cityState !== undefined) {
+      address.cityState = cityState.trim();
+    }
+
     if (addressType !== undefined) {
       address.addressType = addressType;
     }
+
     if (isDefault !== undefined) {
-      address.isDefault = isDefault;
+      address.isDefault = Boolean(isDefault);
     }
 
     await address.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Address updated successfully",
       address,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
+    console.error("Update Address Error:", error);
+
+    return res.status(500).json({
+      message: "Failed to update address",
+      error: error.message,
     });
   }
 };
@@ -173,13 +202,17 @@ const deleteAddress = async (req, res) => {
 
     await Address.findByIdAndDelete(id);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Address deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
+    console.error("Delete Address Error:", error);
+
+    return res.status(500).json({
+      message: "Failed to delete address",
+      error: error.message,
     });
   }
 };
+
 export { addAddress, getAddresses, updateAddress, deleteAddress };

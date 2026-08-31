@@ -9,16 +9,8 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post(
-  "/create-payment-intent",
-  authMiddleware,
-  createPaymentIntent
-);
+router.post("/create-payment-intent", authMiddleware, createPaymentIntent);
 
-router.post(
-  "/verify-payment",
-  authMiddleware,
-  verifyPayment
-);
+router.post("/verify-payment", authMiddleware, verifyPayment);
 
 export default router;

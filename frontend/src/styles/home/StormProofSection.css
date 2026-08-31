@@ -3,7 +3,7 @@
 ======================================== */
 
 .storm-proof-section {
-  width: 100%;
+  width: 102%;
 
   display: flex;
   align-items: flex-start;
@@ -577,6 +577,14 @@
   color: #222222;
 
   background: #fafafa;
+}
+
+.storm-wishlist.active {
+  border-color: #3945bd;
+
+  color: #3945bd;
+
+  background: #f4f6ff;
 }
 
 

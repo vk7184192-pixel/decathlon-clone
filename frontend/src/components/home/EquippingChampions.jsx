@@ -1,96 +1,119 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
+
 import "../../styles/home/EquippingChampions.css";
 
-import flickPocket from "../../assets/images/home/champions/flick-pocket.png";
-import rideSmart from "../../assets/images/home/champions/ride-smart.png";
-import ownPavement from "../../assets/images/home/champions/own-pavement.png";
-import practicePoints from "../../assets/images/home/champions/practice-points.png";
-
-const championItems = [
-  {
-    title: "Flick. Pocket. Win.",
-    price: "₹279",
-    image: flickPocket,
-  },
-  {
-    title: "Ride Smart. Stay Seen",
-    price: "₹999",
-    image: rideSmart,
-  },
-  {
-    title: "Pick Your Color. Own the Pavement.",
-    price: "₹799",
-    image: ownPavement,
-  },
-  {
-    title: "Practice Makes Points",
-    price: "₹699",
-    image: practicePoints,
-  },
-];
+import api from "../../api/axios";
+import socket from "../../socket/socket";
 
 const EquippingChampions = () => {
+  const [categories, setCategories] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "";
+    }
+
+    if (image.startsWith("http://") || image.startsWith("https://")) {
+      return image;
+    }
+
+    return `http://localhost:5000${image}`;
+  };
+
+  const fetchSection = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const response = await api.get("/homepage-sections/active");
+
+      const sections = response.data.sections || [];
+
+      const section = sections.find(
+        (item) => item.name === "Equipping Champions",
+      );
+
+      if (!section) {
+        setCategories([]);
+        return;
+      }
+
+      setCategories(section.categories || []);
+    } catch (error) {
+      console.error("Equipping Champions Error:", error);
+
+      setCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSection();
+  }, [fetchSection]);
+
+  useEffect(() => {
+    const handleHomepageUpdate = (data) => {
+      const sectionEvents = [
+        "section_created",
+        "section_updated",
+        "section_deleted",
+        "section_reordered",
+      ];
+
+      const categoryEvents = [
+        "category_created",
+        "category_updated",
+        "category_deleted",
+        "category_reordered",
+      ];
+
+      if (sectionEvents.includes(data?.type)) {
+        fetchSection();
+        return;
+      }
+
+      if (categoryEvents.includes(data?.type)) {
+        fetchSection();
+      }
+    };
+
+    socket.on("homepage_updated", handleHomepageUpdate);
+
+    return () => {
+      socket.off("homepage_updated", handleHomepageUpdate);
+    };
+  }, [fetchSection]);
+
+  if (loading) {
+    return null;
+  }
+
+  if (!categories.length) {
+    return null;
+  }
+
   return (
     <section className="equipping-champions-section">
       <div className="equipping-champions-container">
-
-        {/* ========================================
-            HEADING
-        ======================================== */}
-
-        <h2 className="equipping-champions-title">
-          Equipping champions
-        </h2>
-
-
-        {/* ========================================
-            CARDS
-        ======================================== */}
+        <h2 className="equipping-champions-title">Equipping champions</h2>
 
         <div className="equipping-champions-grid">
-
-          {championItems.map((item, index) => (
-
-            <div
-              className="equipping-champion-card"
-              key={index}
-            >
-
-              {/* IMAGE */}
-
-              <img
-                src={item.image}
-                alt={item.title}
-                className="equipping-champion-image"
-              />
-
-
-              {/* DARK OVERLAY */}
-
-              <div className="equipping-champion-overlay"></div>
-
-
-              {/* CONTENT */}
-
-              <div className="equipping-champion-content">
-
-                <h3>
-                  {item.title}
-                </h3>
-
-                <p>
-                  {item.price}
-                  <span> onwards</span>
-                </p>
-
-              </div>
-
+          {categories.map((category) => (
+            <div className="equipping-champion-card" key={category._id}>
+              {category.image ? (
+                <img
+                  src={getImageUrl(category.image)}
+                  alt={category.name || "Equipping champion"}
+                  className="equipping-champion-image"
+                />
+              ) : (
+                <div className="equipping-champion-no-image">No Image</div>
+              )}
             </div>
-
           ))}
-
         </div>
-
       </div>
     </section>
   );

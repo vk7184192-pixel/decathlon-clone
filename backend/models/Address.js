@@ -8,24 +8,6 @@ const addressSchema = new mongoose.Schema(
       required: true,
     },
 
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    lastName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    mobile: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
     houseBuilding: {
       type: String,
       required: true,
@@ -66,10 +48,28 @@ const addressSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    mobile: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 const Address = mongoose.model("Address", addressSchema);

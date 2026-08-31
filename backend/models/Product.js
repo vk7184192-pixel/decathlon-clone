@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
+      trim: true,
     },
 
     price: {
@@ -53,12 +54,14 @@ const productSchema = new mongoose.Schema(
     size: [
       {
         type: String,
+        trim: true,
       },
     ],
 
     color: [
       {
         type: String,
+        trim: true,
       },
     ],
 
@@ -67,9 +70,10 @@ const productSchema = new mongoose.Schema(
       default: true,
     },
   },
+
   {
     timestamps: true,
-  }
+  },
 );
 
 const Product = mongoose.model("Product", productSchema);

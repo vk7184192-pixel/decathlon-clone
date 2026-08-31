@@ -51,7 +51,10 @@ STATIC FILES
 ========================================
 */
 
-app.use("/uploads", express.static("uploads"));
+app.use(
+  "/uploads",
+  express.static("uploads"),
+);
 
 /*
 ========================================
@@ -59,25 +62,55 @@ API ROUTES
 ========================================
 */
 
-app.use("/api/auth", adminRoutes);
+app.use(
+  "/api/auth",
+  adminRoutes,
+);
 
-app.use("/api/categories", categoryRoutes);
+app.use(
+  "/api/categories",
+  categoryRoutes,
+);
 
-app.use("/api/products", productRoutes);
+app.use(
+  "/api/products",
+  productRoutes,
+);
 
-app.use("/api/cart", cartRoutes);
+app.use(
+  "/api/cart",
+  cartRoutes,
+);
 
-app.use("/api/wishlist", wishlistRoutes);
+app.use(
+  "/api/wishlist",
+  wishlistRoutes,
+);
 
-app.use("/api/addresses", addressRoutes);
+app.use(
+  "/api/addresses",
+  addressRoutes,
+);
 
-app.use("/api/orders", orderRoutes);
+app.use(
+  "/api/orders",
+  orderRoutes,
+);
 
-app.use("/api/payment", paymentRoutes);
+app.use(
+  "/api/payment",
+  paymentRoutes,
+);
 
-app.use("/api/banners", bannerRoutes);
+app.use(
+  "/api/banners",
+  bannerRoutes,
+);
 
-app.use("/api/homepage-sections", homepageSectionRoutes);
+app.use(
+  "/api/homepage-sections",
+  homepageSectionRoutes,
+);
 
 /*
 ========================================
@@ -85,7 +118,10 @@ USER REGISTRATION OTP
 ========================================
 */
 
-app.use("/api/registration", registrationRoutes);
+app.use(
+  "/api/registration",
+  registrationRoutes,
+);
 
 /*
 ========================================
@@ -93,7 +129,10 @@ USER LOGIN OTP
 ========================================
 */
 
-app.use("/api/login", loginRoutes);
+app.use(
+  "/api/login",
+  loginRoutes,
+);
 
 /*
 ========================================
@@ -102,7 +141,9 @@ DEFAULT ROUTE
 */
 
 app.get("/", (req, res) => {
-  res.send("Decathlon Backend Running");
+  res.send(
+    "Decathlon Backend Running",
+  );
 });
 
 /*
@@ -111,7 +152,8 @@ HTTP SERVER
 ========================================
 */
 
-const server = http.createServer(app);
+const server =
+  http.createServer(app);
 
 /*
 ========================================
@@ -122,19 +164,36 @@ SOCKET.IO
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+    ],
   },
 });
 
 initSocket(io);
 
-io.on("connection", (socket) => {
-  console.log("✅ Socket connected:", socket.id);
+io.on(
+  "connection",
+  (socket) => {
+    console.log(
+      "✅ Socket connected:",
+      socket.id,
+    );
 
-  socket.on("disconnect", () => {
-    console.log("❌ Socket disconnected:", socket.id);
-  });
-});
+    socket.on(
+      "disconnect",
+      () => {
+        console.log(
+          "❌ Socket disconnected:",
+          socket.id,
+        );
+      },
+    );
+  },
+);
 
 /*
 ========================================
@@ -145,16 +204,29 @@ MONGODB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("MongoDB Connected");
+    console.log(
+      "MongoDB Connected",
+    );
 
-    const PORT = process.env.PORT || 5000;
+    const PORT =
+      process.env.PORT || 5000;
 
-    server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    server.listen(
+      PORT,
+      () => {
+        console.log(
+          `Server running on port ${PORT}`,
+        );
 
-      console.log("Socket.IO server running");
-    });
+        console.log(
+          "Socket.IO server running",
+        );
+      },
+    );
   })
   .catch((error) => {
-    console.log("MongoDB Connection Error:", error.message);
+    console.log(
+      "MongoDB Connection Error:",
+      error.message,
+    );
   });

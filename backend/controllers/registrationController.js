@@ -5,49 +5,28 @@ import generateOtp from "../utils/generateOtp.js";
 
 const sendOtp = async (req, res) => {
   try {
-    const {
-      type,
-      email,
-      phone,
-    } = req.body;
+    const { type, email, phone } = req.body;
 
-    if (
-      type !== "email" &&
-      type !== "phone"
-    ) {
+    if (type !== "email" && type !== "phone") {
       return res.status(400).json({
-        message:
-          "Valid registration type is required",
+        message: "Valid registration type is required",
       });
     }
 
     const normalizedEmail =
-      type === "email"
-        ? email?.trim().toLowerCase()
-        : undefined;
+      type === "email" ? email?.trim().toLowerCase() : undefined;
 
-    const normalizedPhone =
-      type === "phone"
-        ? phone?.trim()
-        : undefined;
+    const normalizedPhone = type === "phone" ? phone?.trim() : undefined;
 
-    if (
-      type === "email" &&
-      !normalizedEmail
-    ) {
+    if (type === "email" && !normalizedEmail) {
       return res.status(400).json({
-        message:
-          "Email is required",
+        message: "Email is required",
       });
     }
 
-    if (
-      type === "phone" &&
-      !normalizedPhone
-    ) {
+    if (type === "phone" && !normalizedPhone) {
       return res.status(400).json({
-        message:
-          "Phone number is required",
+        message: "Phone number is required",
       });
     }
 
@@ -62,16 +41,13 @@ const sendOtp = async (req, res) => {
 
     if (existingUser) {
       return res.status(409).json({
-        message:
-          "User already exists. Please login.",
+        message: "User already exists. Please login.",
       });
     }
 
     const otp = generateOtp();
 
-    const expiresAt = new Date(
-      Date.now() + 5 * 60 * 1000
-    );
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     await Otp.deleteMany(
       type === "email"
@@ -80,93 +56,59 @@ const sendOtp = async (req, res) => {
           }
         : {
             phone: normalizedPhone,
-          }
+          },
     );
 
     await Otp.create({
-      email:
-        type === "email"
-          ? normalizedEmail
-          : undefined,
+      email: type === "email" ? normalizedEmail : undefined,
 
-      phone:
-        type === "phone"
-          ? normalizedPhone
-          : undefined,
+      phone: type === "phone" ? normalizedPhone : undefined,
 
       otp,
       expiresAt,
     });
 
-    console.log(
-      `Registration OTP for ${type}: ${otp}`
-    );
+    console.log(`Registration OTP for ${type}: ${otp}`);
 
     return res.status(200).json({
-      message:
-        "OTP sent successfully",
+      message: "OTP sent successfully",
 
       // Development only
       otp,
     });
   } catch (error) {
-    console.error(
-      "Send OTP Error:",
-      error
-    );
+    console.error("Send OTP Error:", error);
 
     return res.status(500).json({
-      message:
-        "Failed to send OTP",
+      message: "Failed to send OTP",
     });
   }
 };
 
 const resendOtp = async (req, res) => {
   try {
-    const {
-      type,
-      email,
-      phone,
-    } = req.body;
+    const { type, email, phone } = req.body;
 
-    if (
-      type !== "email" &&
-      type !== "phone"
-    ) {
+    if (type !== "email" && type !== "phone") {
       return res.status(400).json({
-        message:
-          "Valid registration type is required",
+        message: "Valid registration type is required",
       });
     }
 
     const normalizedEmail =
-      type === "email"
-        ? email?.trim().toLowerCase()
-        : undefined;
+      type === "email" ? email?.trim().toLowerCase() : undefined;
 
-    const normalizedPhone =
-      type === "phone"
-        ? phone?.trim()
-        : undefined;
+    const normalizedPhone = type === "phone" ? phone?.trim() : undefined;
 
-    if (
-      type === "email" &&
-      !normalizedEmail
-    ) {
+    if (type === "email" && !normalizedEmail) {
       return res.status(400).json({
-        message:
-          "Email is required",
+        message: "Email is required",
       });
     }
 
-    if (
-      type === "phone" &&
-      !normalizedPhone
-    ) {
+    if (type === "phone" && !normalizedPhone) {
       return res.status(400).json({
-        message:
-          "Phone number is required",
+        message: "Phone number is required",
       });
     }
 
@@ -181,8 +123,7 @@ const resendOtp = async (req, res) => {
 
     if (existingUser) {
       return res.status(409).json({
-        message:
-          "User already exists. Please login.",
+        message: "User already exists. Please login.",
       });
     }
 
@@ -200,33 +141,23 @@ const resendOtp = async (req, res) => {
           });
 
     if (previousOtp) {
-      const elapsed =
-        Date.now() -
-        new Date(
-          previousOtp.createdAt
-        ).getTime();
+      const elapsed = Date.now() - new Date(previousOtp.createdAt).getTime();
 
       const cooldown = 60 * 1000;
 
       if (elapsed < cooldown) {
-        const remaining = Math.ceil(
-          (cooldown - elapsed) / 1000
-        );
+        const remaining = Math.ceil((cooldown - elapsed) / 1000);
 
         return res.status(429).json({
-          message:
-            `Please wait ${remaining} seconds before requesting another OTP.`,
-          remainingSeconds:
-            remaining,
+          message: `Please wait ${remaining} seconds before requesting another OTP.`,
+          remainingSeconds: remaining,
         });
       }
     }
 
     const otp = generateOtp();
 
-    const expiresAt = new Date(
-      Date.now() + 5 * 60 * 1000
-    );
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     await Otp.deleteMany(
       type === "email"
@@ -235,104 +166,65 @@ const resendOtp = async (req, res) => {
           }
         : {
             phone: normalizedPhone,
-          }
+          },
     );
 
     await Otp.create({
-      email:
-        type === "email"
-          ? normalizedEmail
-          : undefined,
+      email: type === "email" ? normalizedEmail : undefined,
 
-      phone:
-        type === "phone"
-          ? normalizedPhone
-          : undefined,
+      phone: type === "phone" ? normalizedPhone : undefined,
 
       otp,
       expiresAt,
     });
 
-    console.log(
-      `Resent Registration OTP for ${type}: ${otp}`
-    );
+    console.log(`Resent Registration OTP for ${type}: ${otp}`);
 
     return res.status(200).json({
-      message:
-        "OTP resent successfully",
+      message: "OTP resent successfully",
 
       // Development only
       otp,
     });
   } catch (error) {
-    console.error(
-      "Resend OTP Error:",
-      error
-    );
+    console.error("Resend OTP Error:", error);
 
     return res.status(500).json({
-      message:
-        "Failed to resend OTP",
+      message: "Failed to resend OTP",
     });
   }
 };
 
-const verifyRegistrationOtp = async (
-  req,
-  res,
-) => {
+const verifyRegistrationOtp = async (req, res) => {
   try {
-    const {
-      type,
-      email,
-      phone,
-      otp,
-    } = req.body;
+    const { type, email, phone, otp } = req.body;
 
-    if (
-      type !== "email" &&
-      type !== "phone"
-    ) {
+    if (type !== "email" && type !== "phone") {
       return res.status(400).json({
-        message:
-          "Valid registration type is required",
+        message: "Valid registration type is required",
       });
     }
 
     if (!otp) {
       return res.status(400).json({
-        message:
-          "OTP is required",
+        message: "OTP is required",
       });
     }
 
     const normalizedEmail =
-      type === "email"
-        ? email?.trim().toLowerCase()
-        : undefined;
+      type === "email" ? email?.trim().toLowerCase() : undefined;
 
-    const normalizedPhone =
-      type === "phone"
-        ? phone?.trim()
-        : undefined;
+    const normalizedPhone = type === "phone" ? phone?.trim() : undefined;
 
-    if (
-      type === "email" &&
-      !normalizedEmail
-    ) {
+    if (type === "email" && !normalizedEmail) {
       return res.status(400).json({
-        message:
-          "Email is required",
+        message: "Email is required",
       });
     }
 
-    if (
-      type === "phone" &&
-      !normalizedPhone
-    ) {
+    if (type === "phone" && !normalizedPhone) {
       return res.status(400).json({
-        message:
-          "Phone number is required",
+        message: "Phone number is required",
       });
     }
 
@@ -347,8 +239,7 @@ const verifyRegistrationOtp = async (
 
     if (existingUser) {
       return res.status(409).json({
-        message:
-          "User already exists. Please login.",
+        message: "User already exists. Please login.",
       });
     }
 
@@ -365,27 +256,19 @@ const verifyRegistrationOtp = async (
 
     if (!otpRecord) {
       return res.status(400).json({
-        message:
-          "Invalid OTP",
+        message: "Invalid OTP",
       });
     }
 
-    if (
-      otpRecord.expiresAt < new Date()
-    ) {
-      await Otp.findByIdAndDelete(
-        otpRecord._id,
-      );
+    if (otpRecord.expiresAt < new Date()) {
+      await Otp.findByIdAndDelete(otpRecord._id);
 
       return res.status(400).json({
-        message:
-          "OTP has expired. Please request a new OTP.",
+        message: "OTP has expired. Please request a new OTP.",
       });
     }
 
-    await Otp.findByIdAndDelete(
-      otpRecord._id,
-    );
+    await Otp.findByIdAndDelete(otpRecord._id);
 
     /*
     Temporary name until account
@@ -397,34 +280,29 @@ const verifyRegistrationOtp = async (
         ? normalizedEmail.split("@")[0]
         : `User${normalizedPhone.slice(-4)}`;
 
-    const user =
-      await User.create({
-        name: defaultName,
+    const user = await User.create({
+      name: defaultName,
 
-        email:
-          normalizedEmail,
+      email: normalizedEmail,
 
-        phone:
-          normalizedPhone,
+      phone: normalizedPhone,
 
-        role: "user",
-      });
+      role: "user",
+    });
 
-    const token =
-      jwt.sign(
-        {
-          id: user._id,
-          role: user.role,
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "1d",
-        },
-      );
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      },
+    );
 
     return res.status(201).json({
-      message:
-        "Registration successful",
+      message: "Registration successful",
 
       token,
 
@@ -437,20 +315,12 @@ const verifyRegistrationOtp = async (
       },
     });
   } catch (error) {
-    console.error(
-      "Verify Registration OTP Error:",
-      error,
-    );
+    console.error("Verify Registration OTP Error:", error);
 
     return res.status(500).json({
-      message:
-        "Failed to complete registration",
+      message: "Failed to complete registration",
     });
   }
 };
 
-export {
-  sendOtp,
-  resendOtp,
-  verifyRegistrationOtp,
-};
+export { sendOtp, resendOtp, verifyRegistrationOtp };

@@ -13,7 +13,10 @@ const getSections = async (req, res) => {
   try {
     const sections = await HomepageSection.find()
       .populate("categories", "name image sortOrder")
-      .populate("products", "name price discountPrice images brand")
+      .populate(
+        "products",
+        "name description price discountPrice images brand stock size color",
+      )
       .populate("banners", "title image type link isActive")
       .sort({
         sortOrder: 1,
@@ -45,7 +48,10 @@ const getActiveSections = async (req, res) => {
       isActive: true,
     })
       .populate("categories", "name image sortOrder")
-      .populate("products", "name price discountPrice images brand")
+      .populate(
+        "products",
+        "name description price discountPrice images brand stock size color",
+      )
       .populate("banners", "title image type link isActive")
       .sort({
         sortOrder: 1,
@@ -82,7 +88,9 @@ const createSection = async (req, res) => {
     } = req.body;
 
     /*
+    ========================================
     SECTION NAME
+    ========================================
     */
 
     if (!name?.trim()) {
@@ -92,7 +100,9 @@ const createSection = async (req, res) => {
     }
 
     /*
+    ========================================
     SECTION TYPE
+    ========================================
     */
 
     const allowedTypes = ["category", "product", "banner"];
@@ -104,7 +114,9 @@ const createSection = async (req, res) => {
     }
 
     /*
+    ========================================
     TYPE VALIDATION
+    ========================================
     */
 
     if (type === "category" && categories.length === 0) {
@@ -126,7 +138,9 @@ const createSection = async (req, res) => {
     }
 
     /*
+    ========================================
     FIND LAST SECTION ORDER
+    ========================================
     */
 
     const lastSection = await HomepageSection.findOne().sort({
@@ -136,7 +150,9 @@ const createSection = async (req, res) => {
     const sortOrder = lastSection ? lastSection.sortOrder + 1 : 1;
 
     /*
+    ========================================
     CREATE SECTION
+    ========================================
     */
 
     const section = await HomepageSection.create({
@@ -156,22 +172,36 @@ const createSection = async (req, res) => {
     });
 
     /*
+    ========================================
     POPULATE CREATED SECTION
+    ========================================
     */
 
     const populatedSection = await HomepageSection.findById(section._id)
       .populate("categories", "name image sortOrder")
-      .populate("products", "name price discountPrice images brand")
+      .populate(
+        "products",
+        "name description price discountPrice images brand stock size color",
+      )
       .populate("banners", "title image type link isActive");
 
     /*
+    ========================================
     REALTIME UPDATE
+    ========================================
     */
 
     emitHomepageUpdate("section_created", {
       sectionId: section._id,
+
       sectionType: section.type,
     });
+
+    /*
+    ========================================
+    RESPONSE
+    ========================================
+    */
 
     res.status(201).json({
       message: "Homepage section created successfully",
@@ -208,7 +238,9 @@ const updateSection = async (req, res) => {
     const { name, type, categories, products, banners, isActive } = req.body;
 
     /*
+    ========================================
     UPDATE NAME
+    ========================================
     */
 
     if (name !== undefined) {
@@ -222,7 +254,9 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     UPDATE TYPE
+    ========================================
     */
 
     if (type !== undefined) {
@@ -238,7 +272,9 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     UPDATE CATEGORIES
+    ========================================
     */
 
     if (categories !== undefined) {
@@ -246,7 +282,9 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     UPDATE PRODUCTS
+    ========================================
     */
 
     if (products !== undefined) {
@@ -254,7 +292,9 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     UPDATE BANNERS
+    ========================================
     */
 
     if (banners !== undefined) {
@@ -262,7 +302,9 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     UPDATE STATUS
+    ========================================
     */
 
     if (isActive !== undefined) {
@@ -270,8 +312,10 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     CLEAR OTHER DATA
     WHEN TYPE CHANGES
+    ========================================
     */
 
     if (section.type === "category") {
@@ -290,7 +334,9 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     VALIDATION
+    ========================================
     */
 
     if (section.type === "category" && section.categories.length === 0) {
@@ -312,29 +358,46 @@ const updateSection = async (req, res) => {
     }
 
     /*
+    ========================================
     SAVE
+    ========================================
     */
 
     await section.save();
 
     /*
+    ========================================
     POPULATE UPDATED SECTION
+    ========================================
     */
 
     const populatedSection = await HomepageSection.findById(section._id)
       .populate("categories", "name image sortOrder")
-      .populate("products", "name price discountPrice images brand")
+      .populate(
+        "products",
+        "name description price discountPrice images brand stock size color",
+      )
       .populate("banners", "title image type link isActive");
 
     /*
+    ========================================
     REALTIME UPDATE
+    ========================================
     */
 
     emitHomepageUpdate("section_updated", {
       sectionId: section._id,
+
       sectionType: section.type,
+
       isActive: section.isActive,
     });
+
+    /*
+    ========================================
+    RESPONSE
+    ========================================
+    */
 
     res.status(200).json({
       message: "Homepage section updated successfully",
@@ -371,12 +434,20 @@ const deleteSection = async (req, res) => {
     await HomepageSection.findByIdAndDelete(id);
 
     /*
+    ========================================
     REALTIME UPDATE
+    ========================================
     */
 
     emitHomepageUpdate("section_deleted", {
       sectionId: id,
     });
+
+    /*
+    ========================================
+    RESPONSE
+    ========================================
+    */
 
     res.status(200).json({
       message: "Homepage section deleted successfully",
@@ -406,6 +477,12 @@ const reorderSection = async (req, res) => {
       });
     }
 
+    /*
+    ========================================
+    GET SECTIONS
+    ========================================
+    */
+
     const sections = await HomepageSection.find().sort({
       sortOrder: 1,
       createdAt: 1,
@@ -433,10 +510,6 @@ const reorderSection = async (req, res) => {
       });
     }
 
-    /*
-    SWAP ORDER
-    */
-
     const currentSection = sections[currentIndex];
 
     const targetSection = sections[targetIndex];
@@ -448,24 +521,20 @@ const reorderSection = async (req, res) => {
     targetSection.sortOrder = currentOrder;
 
     await currentSection.save();
-    await targetSection.save();
 
-    /*
-    REALTIME UPDATE
-    */
+    await targetSection.save();
 
     emitHomepageUpdate("section_reordered", {
       sectionId,
       direction,
     });
 
-    /*
-    GET UPDATED SECTIONS
-    */
-
     const updatedSections = await HomepageSection.find()
       .populate("categories", "name image sortOrder")
-      .populate("products", "name price discountPrice images brand")
+      .populate(
+        "products",
+        "name description price discountPrice images brand stock size color",
+      )
       .populate("banners", "title image type link isActive")
       .sort({
         sortOrder: 1,

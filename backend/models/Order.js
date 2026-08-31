@@ -148,6 +148,12 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    stripePaymentIntentId: {
+      type: String,
+      default: "",
+      index: true,
+    },
+
     orderStatus: {
       type: String,
       enum: [

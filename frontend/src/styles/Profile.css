@@ -1,0 +1,936 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #111;
+}
+
+.profile-page,
+.profile-page * {
+  box-sizing: border-box;
+}
+
+.profile-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f2f2f2;
+  color: #111;
+}
+
+/* HEADER */
+
+.profile-header {
+  width: 100%;
+  height: 85px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 72px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  flex-shrink: 0;
+}
+
+/* LOGO */
+
+.decathlon-logo {
+  display: flex;
+  align-items: center;
+  color: #3945bd;
+  user-select: none;
+}
+
+.decathlon-logo-mark {
+  width: 31px;
+  height: 31px;
+  border: 4px solid #3945bd;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  margin-right: 7px;
+  flex-shrink: 0;
+}
+
+.decathlon-logo-mark span {
+  position: absolute;
+  width: 23px;
+  height: 6px;
+  background: #3945bd;
+  border-radius: 10px;
+  left: 2px;
+  top: 10px;
+  transform: rotate(-35deg);
+}
+
+.decathlon-logo-text {
+  font-size: 27px;
+  line-height: 31px;
+  font-weight: 700;
+  letter-spacing: -1.3px;
+}
+
+/* MAIN LAYOUT */
+
+.profile-layout {
+  width: 100%;
+  min-height: calc(100vh - 85px);
+  display: flex;
+  align-items: flex-start;
+}
+
+/* SIDEBAR */
+
+.profile-sidebar {
+  width: 374px;
+  min-width: 374px;
+  height: calc(100vh - 85px);
+  background: #fff;
+  position: sticky;
+  top: 85px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* USER BOX */
+
+.profile-user-box {
+  width: 100%;
+  height: 148px;
+  min-height: 148px;
+  background: #3945bd;
+  color: #fff;
+  padding: 18px 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-user-box h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 22px;
+  font-weight: 700;
+}
+
+.profile-email {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.profile-points {
+  margin-top: 7px;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 18px;
+}
+
+.profile-points strong {
+  margin: 0;
+  font-size: 24px;
+  line-height: 27px;
+}
+
+.profile-points span {
+  font-size: 18px;
+}
+
+.redeem-btn {
+  height: 35px;
+  margin-top: 7px;
+  margin-left: 0;
+  padding: 0 17px;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.redeem-btn:hover {
+  background: #fff;
+  color: #3945bd;
+}
+
+/* SIDEBAR MENU */
+
+.profile-menu {
+  width: 100%;
+  height: calc(100% - 148px);
+  padding: 40px 20px 30px;
+  background: #fff;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #999 #eee;
+}
+
+.profile-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-menu::-webkit-scrollbar-track {
+  background: #eee;
+}
+
+.profile-menu::-webkit-scrollbar-thumb {
+  background: #999;
+  border-radius: 10px;
+}
+
+.profile-menu::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* MENU SECTIONS */
+
+.menu-section {
+  width: 100%;
+  margin-bottom: 42px;
+}
+
+.menu-section h3 {
+  margin: 0 0 11px;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+/* MENU ITEM */
+
+.menu-item {
+  width: 100%;
+  min-height: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #333;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.menu-item:hover {
+  color: #3945bd;
+}
+
+.menu-item span {
+  display: block;
+}
+
+.menu-item svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* EXTERNAL LINK */
+
+.menu-link-external {
+  width: 100%;
+  min-height: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #333;
+  font-size: 14px;
+  line-height: 20px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-link-external:hover {
+  color: #3945bd;
+}
+
+.menu-link-external svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* MENU LINKS */
+
+.menu-link {
+  width: 100%;
+  min-height: 27px;
+  display: flex;
+  align-items: center;
+  color: #444;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.menu-link:hover {
+  color: #3945bd;
+}
+
+.active-menu {
+  color: #3945bd !important;
+  font-weight: 500 !important;
+}
+
+/* PLUS */
+
+.menu-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-with-icon svg {
+  width: 17px;
+  height: 17px;
+  margin-left: auto;
+}
+
+/* PROFILE MENU */
+
+.profile-menu-section {
+  margin-bottom: 42px;
+}
+
+/* LOGOUT */
+
+.logout {
+  width: 100%;
+  margin-top: 5px;
+  color: #333;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  color: #3945bd;
+}
+
+/* CARD NUMBER */
+
+.card-number {
+  margin-top: 52px;
+  padding-bottom: 20px;
+  color: #555;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* CONTENT */
+
+.profile-content {
+  flex: 1;
+  min-width: 0;
+  padding: 43px 58px 40px;
+  background: #f2f2f2;
+}
+
+/* TOP */
+
+.profile-top {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  margin-bottom: 25px;
+}
+
+/* WELCOME */
+
+.welcome-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding-top: 10px;
+}
+
+.welcome-icon {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border: 2px solid #3945bd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-icon svg {
+  width: 34px;
+  height: 34px;
+  stroke-width: 1.6;
+}
+
+.welcome-text {
+  min-width: 0;
+}
+
+.welcome-text h1 {
+  margin: 0 0 3px;
+  font-size: 26px;
+  line-height: 31px;
+  font-weight: 700;
+}
+
+.welcome-text p {
+  max-width: 445px;
+  margin: 0;
+  color: #111;
+  font-size: 15px;
+  line-height: 21px;
+}
+
+/* LOYALTY */
+
+.loyalty-card {
+  width: 353px;
+  min-width: 353px;
+  min-height: 178px;
+  background: #fff;
+  padding: 17px 28px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.12);
+}
+
+.loyalty-new {
+  width: fit-content;
+  display: inline-block;
+  padding: 6px 9px;
+  margin: 0 0 4px;
+  background: #3945bd;
+  color: #fff;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.loyalty-card h2 {
+  margin: 0 0 7px;
+  font-size: 18px;
+  line-height: 22px;
+  font-weight: 700;
+}
+
+.loyalty-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.loyalty-button {
+  width: 100%;
+  height: 33px;
+  margin-top: 16px;
+  padding: 0 12px;
+  border: none;
+  background: #3945bd;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.loyalty-button:hover {
+  background: #303aa5;
+}
+
+.loyalty-button svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* SPORTS BANNER */
+
+.sports-banner {
+  width: 100%;
+  min-height: 240px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 18px 48px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
+}
+
+/* SPORTS IMAGE */
+
+.sports-illustration {
+  width: 185px;
+  height: 215px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.sports-svg {
+  width: 175px;
+  height: 205px;
+  display: block;
+  object-fit: contain;
+}
+
+/* SPORTS CONTENT */
+
+.sports-content {
+  flex: 1;
+  min-width: 0;
+  padding-left: 25px;
+}
+
+.sports-content h2 {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 25px;
+  font-weight: 700;
+}
+
+.sports-content p {
+  max-width: 720px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.synchronize-btn {
+  height: 48px;
+  margin-top: 25px;
+  margin-left: 0;
+  padding: 0 24px;
+  border: 0;
+  background: #3945bd;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.synchronize-btn:hover {
+  background: #303aa5;
+}
+
+/* SHORTCUTS */
+
+.shortcuts-section {
+  width: 100%;
+  margin-top: 25px;
+}
+
+.shortcuts-title {
+  margin: 0 0 12px;
+  font-size: 19px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.shortcut-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* SHORTCUT CARD */
+
+.shortcut-card {
+  min-height: 130px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 20px 28px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.09);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.shortcut-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.13);
+}
+
+.shortcut-card-full {
+  grid-column: 1 / -1;
+}
+
+/* SHORTCUT ICON */
+
+.shortcut-icon {
+  width: 86px;
+  min-width: 86px;
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3945bd;
+  font-size: 45px;
+  flex-shrink: 0;
+}
+
+.shortcut-icon svg {
+  width: 50px;
+  height: 50px;
+  stroke-width: 1.3;
+}
+
+/* SHORTCUT CONTENT */
+
+.shortcut-content {
+  padding-left: 15px;
+  margin-left: 0;
+  min-width: 0;
+}
+
+.shortcut-content h3 {
+  margin: 0 0 9px;
+  font-size: 20px;
+  line-height: 25px;
+  font-weight: 700;
+}
+
+.shortcut-content p {
+  max-width: 420px;
+  margin: 0;
+  color: #444;
+  font-size: 15px;
+  line-height: 21px;
+}
+
+/* FOOTER */
+
+.profile-footer {
+  padding: 46px 10px 10px;
+  text-align: center;
+  color: #444;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.profile-footer p {
+  margin: 0 0 8px;
+}
+
+.profile-footer span {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* 1200 */
+
+@media (max-width: 1200px) {
+  .profile-sidebar {
+    width: 300px;
+    min-width: 300px;
+  }
+
+  .profile-content {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+
+  .profile-top {
+    gap: 25px;
+  }
+
+  .loyalty-card {
+    width: 320px;
+    min-width: 320px;
+  }
+
+  .sports-banner {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+}
+
+/* 950 */
+
+@media (max-width: 950px) {
+  .profile-header {
+    height: 80px;
+    padding: 0 35px;
+  }
+
+  .profile-sidebar {
+    width: 260px;
+    min-width: 260px;
+    height: calc(100vh - 80px);
+    top: 80px;
+  }
+
+  .profile-content {
+    padding: 30px 25px;
+  }
+
+  .profile-top {
+    flex-direction: column;
+  }
+
+  .welcome-area {
+    width: 100%;
+  }
+
+  .loyalty-card {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .sports-banner {
+    padding: 25px;
+  }
+
+  .sports-illustration {
+    width: 160px;
+  }
+
+  .sports-svg {
+    width: 150px;
+    height: 190px;
+  }
+}
+
+/* 750 */
+
+@media (max-width: 750px) {
+  .profile-header {
+    height: 75px;
+    padding: 0 20px;
+  }
+
+  .decathlon-logo-text {
+    font-size: 22px;
+  }
+
+  .decathlon-logo-mark {
+    width: 26px;
+    height: 26px;
+    border-width: 3px;
+  }
+
+  .decathlon-logo-mark span {
+    width: 19px;
+    height: 5px;
+    left: 1px;
+    top: 8px;
+  }
+
+  .profile-layout {
+    display: block;
+  }
+
+  .profile-sidebar {
+    width: 100%;
+    min-width: 100%;
+    height: auto;
+    min-height: auto;
+    position: relative;
+    top: auto;
+    overflow: visible;
+  }
+
+  .profile-user-box {
+    height: 148px;
+    min-height: 148px;
+    position: static;
+  }
+
+  .profile-menu {
+    display: none;
+  }
+
+  .profile-content {
+    width: 100%;
+    padding: 25px 15px;
+  }
+
+  .welcome-area {
+    align-items: flex-start;
+  }
+
+  .welcome-icon {
+    width: 55px;
+    height: 55px;
+  }
+
+  .welcome-text h1 {
+    font-size: 23px;
+  }
+
+  .welcome-text p {
+    font-size: 14px;
+  }
+
+  .sports-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 25px 20px;
+  }
+
+  .sports-illustration {
+    width: 185px;
+    height: 190px;
+    margin-bottom: 10px;
+  }
+
+  .sports-svg {
+    width: 165px;
+    height: 180px;
+  }
+
+  .sports-content {
+    padding-left: 0;
+  }
+
+  .sports-content h2 {
+    font-size: 18px;
+  }
+
+  .sports-content p {
+    font-size: 14px;
+  }
+
+  .shortcut-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .shortcut-card-full {
+    grid-column: auto;
+  }
+
+  .shortcut-card {
+    min-height: 120px;
+  }
+
+  .shortcut-content h3 {
+    font-size: 18px;
+  }
+
+  .shortcut-content p {
+    font-size: 14px;
+  }
+
+  .profile-footer {
+    padding-top: 30px;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+/* 480 */
+
+@media (max-width: 480px) {
+  .profile-user-box {
+    padding: 18px 15px;
+  }
+
+  .profile-content {
+    padding: 20px 12px;
+  }
+
+  .welcome-area {
+    gap: 10px;
+  }
+
+  .welcome-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .welcome-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  .welcome-text h1 {
+    font-size: 21px;
+  }
+
+  .welcome-text p {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .loyalty-card {
+    padding: 15px 18px;
+  }
+
+  .sports-banner {
+    padding: 20px 15px;
+  }
+
+  .sports-illustration {
+    width: 160px;
+    height: 170px;
+  }
+
+  .sports-svg {
+    width: 145px;
+    height: 160px;
+  }
+
+  .shortcut-card {
+    padding: 15px;
+  }
+
+  .shortcut-icon {
+    width: 60px;
+    min-width: 60px;
+    height: 60px;
+  }
+
+  .shortcut-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .shortcut-content {
+    padding-left: 8px;
+  }
+
+  .shortcut-content h3 {
+    font-size: 16px;
+    line-height: 21px;
+  }
+
+  .shortcut-content p {
+    font-size: 13px;
+    line-height: 18px;
+  }
+}

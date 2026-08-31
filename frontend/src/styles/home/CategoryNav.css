@@ -1,15 +1,19 @@
-.category-nav {
+.category-nav-wrapper {
   width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.category-nav {
+  width: 1280px;
+  max-width: calc(100% - 48px);
   height: 40px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  padding: 0 62px 0 20px;
-
-  background: #fff;
-  border-bottom: 1px solid #f1f1f1;
-
+  padding: 0;
+  background: #ffffff;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -37,14 +41,12 @@
 .delivery-location {
   display: flex;
   align-items: center;
-
   font-size: 13px;
   color: #333;
 }
 
 .delivery-location a {
   margin-left: 4px;
-
   color: #3148c5;
   text-decoration: none;
 }
@@ -57,7 +59,9 @@
 
 @media (max-width: 700px) {
   .category-nav {
-    padding: 0 20px;
+    width: calc(100% - 24px);
+    max-width: 100%;
+    padding: 0;
   }
 
   .category-links {

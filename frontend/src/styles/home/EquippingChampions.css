@@ -1,9 +1,7 @@
-/* ========================================
-   EQUIPPING CHAMPIONS
-======================================== */
+/*EQUIPPING CHAMPIONS*/
 
 .equipping-champions-section {
-  width: 102%;
+  width: 100%;
 
   padding: 18px 0 16px;
 
@@ -15,9 +13,7 @@
 }
 
 
-/* ========================================
-   CONTAINER
-======================================== */
+/*CONTAINER*/
 
 .equipping-champions-container {
   width: calc(100% - 46px);
@@ -28,9 +24,7 @@
 }
 
 
-/* ========================================
-   TITLE
-======================================== */
+/*TITLE*/
 
 .equipping-champions-title {
   margin: 0 0 14px;
@@ -50,12 +44,10 @@
 }
 
 
-/* ========================================
-   GRID
-======================================== */
+/*GRID*/
 
 .equipping-champions-grid {
-  width: 100%;
+  width: 102%;
 
   display: grid;
 
@@ -66,9 +58,7 @@
 }
 
 
-/* ========================================
-   CARD
-======================================== */
+/*CARD*/
 
 .equipping-champion-card {
   position: relative;
@@ -85,9 +75,7 @@
 }
 
 
-/* ========================================
-   IMAGE
-======================================== */
+/*IMAGE*/
 
 .equipping-champion-image {
   width: 100%;
@@ -102,99 +90,34 @@
     transform 0.4s ease;
 }
 
-
 .equipping-champion-card:hover
 .equipping-champion-image {
   transform: scale(1.04);
 }
 
 
-/* ========================================
-   OVERLAY
-======================================== */
+/*NO IMAGE*/
 
-.equipping-champion-overlay {
-  position: absolute;
+.equipping-champion-no-image {
+  width: 100%;
 
-  inset: 0;
+  height: 100%;
 
-  background:
-    linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.72) 0%,
-      rgba(0, 0, 0, 0.28) 35%,
-      rgba(0, 0, 0, 0) 68%
-    );
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #eeeeee;
+
+  color: #777777;
+
+  font-size: 14px;
 }
 
 
-/* ========================================
-   CONTENT
-======================================== */
-
-.equipping-champion-content {
-  position: absolute;
-
-  left: 15px;
-
-  right: 15px;
-
-  bottom: 28px;
-
-  text-align: center;
-
-  color: #ffffff;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  text-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.55);
-}
-
-
-/* ========================================
-   CARD TITLE
-======================================== */
-
-.equipping-champion-content h3 {
-  margin: 0 0 4px;
-
-  font-size: 24px;
-
-  font-weight: 700;
-
-  line-height: 1.15;
-}
-
-
-/* ========================================
-   PRICE
-======================================== */
-
-.equipping-champion-content p {
-  margin: 0;
-
-  font-size: 22px;
-
-  font-weight: 700;
-
-  line-height: 1.2;
-}
-
-
-.equipping-champion-content p span {
-  font-size: 18px;
-
-  font-weight: 400;
-}
-
-
-/* ========================================
-   LARGE DESKTOP
-======================================== */
+/* LARGE DESKTOP */
 
 @media (max-width: 1250px) {
 
@@ -205,25 +128,10 @@
   .equipping-champion-card {
     height: 300px;
   }
-
-  .equipping-champion-content h3 {
-    font-size: 22px;
-  }
-
-  .equipping-champion-content p {
-    font-size: 20px;
-  }
-
-  .equipping-champion-content p span {
-    font-size: 17px;
-  }
-
 }
 
 
-/* ========================================
-   TABLET
-======================================== */
+/*  TABLET  */
 
 @media (max-width: 900px) {
 
@@ -241,13 +149,10 @@
   .equipping-champion-card {
     height: 280px;
   }
-
 }
 
 
-/* ========================================
-   MOBILE
-======================================== */
+/*MOBILE */
 
 @media (max-width: 550px) {
 
@@ -275,27 +180,4 @@
   .equipping-champion-card {
     height: 220px;
   }
-
-  .equipping-champion-content {
-    left: 7px;
-
-    right: 7px;
-
-    bottom: 16px;
-  }
-
-  .equipping-champion-content h3 {
-    font-size: 16px;
-
-    line-height: 1.12;
-  }
-
-  .equipping-champion-content p {
-    font-size: 16px;
-  }
-
-  .equipping-champion-content p span {
-    font-size: 13px;
-  }
-
 }

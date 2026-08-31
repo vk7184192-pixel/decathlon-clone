@@ -1,6 +1,4 @@
-
 import "../styles/home/Home.css";
-
 
 import CouponBanner from "../components/home/CouponBanner";
 import PopularCategories from "../components/home/PopularCategories";
@@ -14,35 +12,38 @@ import RainyDayCollection from "../components/home/RainyDayCollection";
 import LovedCategories from "../components/home/LovedCategories";
 import OutdoorProducts from "../components/home/OutdoorProducts";
 import EquippingChampions from "../components/home/EquippingChampions";
+import Footer from "../components/home/Footer";
 
 const Home = () => {
- 
   return (
     <main className="home-page">
-      <CouponBanner />
+      <div className="home-container">
+        <CouponBanner />
 
-      <PopularCategories />
+        <PopularCategories />
 
-      <PromoBanner />
+        <PromoBanner />
 
-      <CategoryShowcase />
+        <CategoryShowcase />
 
-      <ProductSection />
+        <ProductSection />
 
-      <SportsCategories />
+        <SportsCategories />
 
-      <PromoBanner2 />
+        <PromoBanner2 />
 
-      <StormProofSection />
+        <StormProofSection />
 
-      <RainyDayCollection />
+        <RainyDayCollection />
 
-      <LovedCategories />
+        <LovedCategories />
 
-      <OutdoorProducts />
+        <OutdoorProducts />
 
-      <EquippingChampions />
+        <EquippingChampions />
+      </div>
 
+      <Footer />
     </main>
   );
 };

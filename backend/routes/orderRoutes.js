@@ -2,11 +2,14 @@ import express from "express";
 
 import {
   createOrder,
+  confirmCODOrder,
+  confirmOnlineOrder,
   getMyOrders,
   getOrderById,
   cancelOrder,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  updatePaymentStatus,
 } from "../controllers/orderController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -14,35 +17,45 @@ import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
-// User: Create Order
+/* USER - CREATE ORDER */
+
 router.post("/", authMiddleware, createOrder);
 
-// User: Get My Orders
+/* USER - MY ORDERS */
+
 router.get("/my-orders", authMiddleware, getMyOrders);
 
-// User: Get Single Order
+/* ADMIN - ALL ORDERS */
+
+router.get("/admin/all", authMiddleware, adminMiddleware, getAllOrders);
+
+/* USER - CONFIRM COD */
+
+router.put("/:id/cod", authMiddleware, confirmCODOrder);
+
+/* USER - CONFIRM ONLINE PAYMENT */
+
+router.put("/:id/confirm-online", authMiddleware, confirmOnlineOrder);
+
+/* ADMIN - UPDATE PAYMENT STATUS */
+
+router.put(
+  "/:id/payment-status",
+  authMiddleware,
+  adminMiddleware,
+  updatePaymentStatus,
+);
+
+/* USER - CANCEL ORDER */
+
+router.put("/:id/cancel", authMiddleware, cancelOrder);
+
+/* ADMIN - UPDATE ORDER STATUS */
+
+router.put("/:id/status", authMiddleware, adminMiddleware, updateOrderStatus);
+
+/* USER - SINGLE ORDER */
+
 router.get("/:id", authMiddleware, getOrderById);
-
-// User: Cancel Order
-router.put(
-  "/:id/cancel",
-  authMiddleware,
-  cancelOrder
-);
-
-// Admin: Get All Orders
-router.get(
-  "/admin/all",
-  authMiddleware,
-  adminMiddleware,
-  getAllOrders
-);
-
-router.put(
-  "/:id/status",
-  authMiddleware,
-  adminMiddleware,
-  updateOrderStatus
-);
 
 export default router;
