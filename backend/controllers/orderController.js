@@ -1,5 +1,5 @@
 import Order from "../models/Order.js";
-import Cart from "../models/Cart.js";
+import Cart from "../models/cart.js";
 import Product from "../models/Product.js";
 import Address from "../models/Address.js";
 
@@ -209,7 +209,8 @@ const confirmOnlineOrder = async (req, res) => {
     }
 
     order.paymentMethod = paymentMethod.toUpperCase();
-    order.paymentStatus = paymentMethod.toUpperCase() === "COD" ? "pending" : "paid";
+    order.paymentStatus =
+      paymentMethod.toUpperCase() === "COD" ? "pending" : "paid";
     order.orderStatus = "confirmed";
 
     await order.save();
