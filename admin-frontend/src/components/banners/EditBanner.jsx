@@ -51,15 +51,15 @@ const EditBanner = () => {
   */
 
   const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-      return "";
-    }
-
-    if (imagePath.startsWith("http")) {
+    if (!imagePath) return "";
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
       return imagePath;
     }
-
-    return `http://localhost:5000${imagePath}`;
+    const apiBaseUrl = api.defaults.baseURL || "";
+    const backendUrl = apiBaseUrl.replace(/\/api\/?$/, "");
+    if (imagePath.startsWith("/uploads/")) return `${backendUrl}${imagePath}`;
+    if (imagePath.startsWith("uploads/")) return `${backendUrl}/${imagePath}`;
+    return imagePath;
   };
 
   /*

@@ -240,16 +240,39 @@ const Products = () => {
   };
 
   const getProductImageUrl = (image) => {
-    if (!image) {
-      return "";
-    }
+  if (!image) {
+    return "";
+  }
 
-    if (image.startsWith("http")) {
-      return image;
-    }
+  // Cloudinary / external URL
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://")
+  ) {
+    return image;
+  }
 
-    return `http://localhost:5000${image}`;
-  };
+  // Backend URL from Axios configuration
+  const apiBaseUrl =
+    api.defaults.baseURL || "";
+
+  const backendUrl = apiBaseUrl.replace(
+    /\/api\/?$/,
+    "",
+  );
+
+  // Local uploaded image
+  if (image.startsWith("/uploads/")) {
+    return `${backendUrl}${image}`;
+  }
+
+  // Handle uploads/ without leading slash
+  if (image.startsWith("uploads/")) {
+    return `${backendUrl}/${image}`;
+  }
+
+  return image;
+};
 
   return (
     <>

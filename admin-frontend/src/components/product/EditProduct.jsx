@@ -33,6 +33,18 @@ const EditProduct = () => {
     isActive: true,
   });
 
+  const getImageUrl = (image) => {
+    if (!image) return "";
+    if (image.startsWith("http://") || image.startsWith("https://")) {
+      return image;
+    }
+    const apiBaseUrl = api.defaults.baseURL || "";
+    const backendUrl = apiBaseUrl.replace(/\/api\/?$/, "");
+    if (image.startsWith("/uploads/")) return `${backendUrl}${image}`;
+    if (image.startsWith("uploads/")) return `${backendUrl}/${image}`;
+    return image;
+  };
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -593,7 +605,7 @@ const EditProduct = () => {
                   >
 
                     <img
-                      src={`http://localhost:5000${image}`}
+                      src={getImageUrl(image)}
                       alt={`Product ${index + 1}`}
                     />
 

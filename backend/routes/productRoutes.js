@@ -14,36 +14,26 @@ import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-// Admin: Create Product with multiple images
 router.post(
   "/",
   authMiddleware,
   adminMiddleware,
   upload.array("images", 5),
-  createProduct
+  createProduct,
 );
 
-// User/Admin: Get Products
 router.get("/", getProducts);
 
-// User/Admin: Get Single Product
 router.get("/:id", getProductById);
 
-// Admin: Update Product
 router.put(
   "/:id",
   authMiddleware,
   adminMiddleware,
   upload.array("images", 5),
-  updateProduct
+  updateProduct,
 );
 
-// Admin: Delete Product
-router.delete(
-  "/:id",
-  authMiddleware,
-  adminMiddleware,
-  deleteProduct
-);
+router.delete("/:id", authMiddleware, adminMiddleware, deleteProduct);
 
 export default router;

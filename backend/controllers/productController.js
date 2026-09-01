@@ -1,6 +1,6 @@
 import Product from "../models/Product.js";
-
 import { emitHomepageUpdate } from "../socket/socketManager.js";
+import { getMultipleImageUrls } from "../utils/uploadToCloudinary.js";
 
 /*
 ==================================================
@@ -117,9 +117,7 @@ const createProduct = async (req, res) => {
     // IMAGES
     // ========================================
 
-    const images = req.files
-      ? req.files.map((file) => `/uploads/${file.filename}`)
-      : [];
+    const images = await getMultipleImageUrls(req.files, "products");
 
     // ========================================
     // NORMALIZE SIZE
@@ -493,48 +491,7 @@ const updateProduct = async (req, res) => {
       product.brand = brand;
     }
 
-    // ========================================
-    // SIZE UPDATE
-    // ========================================
-
-    /*
-      IMPORTANT:
-
-      If frontend sends:
-
-      ["S","M","L","XL"]
-
-      save:
-
-      ["S","M","L","XL"]
-
-
-      If frontend sends:
-
-      []
-
-      save:
-
-      []
-
-
-      If frontend sends:
-
-      ""
-
-      save:
-
-      []
-
-
-      If frontend sends:
-
-      "S,M,L"
-
-      save:
-
-      ["S","M","L"]
-    */
+  
 
     if (size !== undefined) {
       product.size = normalizeArray(size);
@@ -589,7 +546,7 @@ const updateProduct = async (req, res) => {
     // ========================================
 
     if (req.files && req.files.length > 0) {
-      const newImages = req.files.map((file) => `/uploads/${file.filename}`);
+      const newImages = await getMultipleImageUrls(req.files, "products");
 
       remainingImages = [...remainingImages, ...newImages];
     }

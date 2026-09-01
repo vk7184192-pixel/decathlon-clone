@@ -1,9 +1,7 @@
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
-
-import {
-  emitHomepageUpdate,
-} from "../socket/socketManager.js";
+import { emitHomepageUpdate } from "../socket/socketManager.js";
+import { getSingleImageUrl } from "../utils/uploadToCloudinary.js";
 
 /*
 ========================================
@@ -132,13 +130,13 @@ const createCategory = async (req, res) => {
       ? lastCategory.sortOrder + 1
       : 1;
 
+    const imageUrl = await getSingleImageUrl(req.file, "categories");
+
     const category =
       await Category.create({
         name: name.trim(),
 
-        image: req.file
-          ? `/uploads/${req.file.filename}`
-          : "",
+        image: imageUrl,
 
         sortOrder,
       });
@@ -235,8 +233,7 @@ const updateCategory = async (req, res) => {
     */
 
     if (req.file) {
-      category.image =
-        `/uploads/${req.file.filename}`;
+      category.image = await getSingleImageUrl(req.file, "categories");
     } else if (
       existingImage !== undefined
     ) {

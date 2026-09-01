@@ -1,8 +1,6 @@
 import Banner from "../models/Banner.js";
-
-import {
-  emitHomepageUpdate,
-} from "../socket/socketManager.js";
+import { emitHomepageUpdate } from "../socket/socketManager.js";
+import { getSingleImageUrl } from "../utils/uploadToCloudinary.js";
 
 /*
 ========================================
@@ -18,14 +16,14 @@ const createBanner = async (req, res) => {
       isActive = true,
     } = req.body;
 
-    
-
     if (!req.file) {
       return res.status(400).json({
         message:
           "Banner image is required",
       });
     }
+
+    const imageUrl = await getSingleImageUrl(req.file, "banners");
 
     const banner =
       await Banner.create({
@@ -34,8 +32,7 @@ const createBanner = async (req, res) => {
         isActive:
           isActive === true ||
           isActive === "true",
-        image:
-          `/uploads/${req.file.filename}`,
+        image: imageUrl,
       });
 
     /*
@@ -198,8 +195,7 @@ const updateBanner = async (req, res) => {
     */
 
     if (req.file) {
-      banner.image =
-        `/uploads/${req.file.filename}`;
+      banner.image = await getSingleImageUrl(req.file, "banners");
     } else if (
       existingImage !== undefined
     ) {

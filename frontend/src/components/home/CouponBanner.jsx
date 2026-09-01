@@ -17,15 +17,15 @@ const CouponBanner = () => {
   */
 
   const getImageUrl = (image) => {
-    if (!image) {
-      return "";
-    }
-
-    if (image.startsWith("http")) {
+    if (!image) return "";
+    if (image.startsWith("http://") || image.startsWith("https://")) {
       return image;
     }
-
-    return `http://localhost:5000${image}`;
+    const apiBaseUrl = api.defaults.baseURL || "";
+    const backendUrl = apiBaseUrl.replace(/\/api\/?$/, "");
+    if (image.startsWith("/uploads/")) return `${backendUrl}${image}`;
+    if (image.startsWith("uploads/")) return `${backendUrl}/${image}`;
+    return `${backendUrl}${image.startsWith("/") ? "" : "/"}${image}`;
   };
 
   /*
