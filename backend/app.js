@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import dns from "dns";
+import path from "path";
 
 import adminRoutes from "./routes/adminRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -42,7 +43,15 @@ CORS
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: (origin, callback) => {
+      // Allow requests with no origin or any localhost/vercel domain
+      if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1") || origin.includes("vercel.app")) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
@@ -68,7 +77,7 @@ STATIC FILES
 ========================================
 */
 
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 /*
 ========================================
@@ -104,6 +113,7 @@ DATABASE MIDDLEWARE
 app.use(async (req, res, next) => {
   try {
     await connectDB();
+
     next();
   } catch (error) {
     console.error("MongoDB Connection Error:", error.message);
@@ -140,7 +150,19 @@ app.use("/api/banners", bannerRoutes);
 
 app.use("/api/homepage-sections", homepageSectionRoutes);
 
+/*
+========================================
+USER REGISTRATION
+========================================
+*/
+
 app.use("/api/registration", registrationRoutes);
+
+/*
+========================================
+USER LOGIN
+========================================
+*/
 
 app.use("/api/login", loginRoutes);
 
@@ -153,5 +175,11 @@ DEFAULT ROUTE
 app.get("/", (req, res) => {
   res.send("Decathlon Backend Running");
 });
+
+/*
+========================================
+EXPORT APP
+========================================
+*/
 
 export default app;
