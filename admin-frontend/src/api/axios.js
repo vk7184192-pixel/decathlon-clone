@@ -1,11 +1,16 @@
 import axios from "axios";
 
 const getBaseURL = () => {
+  if (
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname.startsWith("192.168."))
+  ) {
+    return `http://${window.location.hostname}:5000/api`;
+  }
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
-  }
-  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
-    return "http://localhost:5000/api";
   }
   return "https://decathlon-clone-pi.vercel.app/api";
 };
