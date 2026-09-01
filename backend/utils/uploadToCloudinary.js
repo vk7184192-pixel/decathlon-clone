@@ -1,8 +1,17 @@
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const uploadToCloudinary = (buffer, folder = "decathlon") => {
   return new Promise((resolve, reject) => {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "k08sqqki",
+      api_key: process.env.CLOUDINARY_API_KEY || "847339812224877",
+      api_secret: process.env.CLOUDINARY_API_SECRET || "ZpB9ghG7fAhahHTONpAFnlb1vFQ",
+    });
+
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
