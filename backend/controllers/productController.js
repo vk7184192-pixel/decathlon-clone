@@ -1,26 +1,23 @@
 import Product from "../models/Product.js";
 import { emitHomepageUpdate } from "../socket/socketManager.js";
+
 import { getMultipleImageUrls } from "../utils/uploadToCloudinary.js";
 
 /*
-==================================================
-HELPER FUNCTION
+========================================
+HELPER
 NORMALIZE ARRAY DATA
-==================================================
+========================================
 */
 
 const normalizeArray = (value) => {
-  // ------------------------------------------
-  // undefined / null
-  // ------------------------------------------
-
   if (value === undefined || value === null) {
     return [];
   }
 
-  // ------------------------------------------
-  // Already Array
-  // ------------------------------------------
+  /*
+  ALREADY ARRAY
+  */
 
   if (Array.isArray(value)) {
     return [
@@ -28,23 +25,20 @@ const normalizeArray = (value) => {
     ];
   }
 
-  // ------------------------------------------
-  // String
-  // ------------------------------------------
+  /*
+  STRING
+  */
 
   if (typeof value === "string") {
     const trimmedValue = value.trim();
 
-    // Empty string
     if (!trimmedValue) {
       return [];
     }
 
-    // ----------------------------------------
-    // JSON Array
-    // Example:
-    // '["S","M","L","XL"]'
-    // ----------------------------------------
+    /*
+    JSON ARRAY
+    */
 
     try {
       const parsedValue = JSON.parse(trimmedValue);
@@ -60,11 +54,9 @@ const normalizeArray = (value) => {
       // Not JSON
     }
 
-    // ----------------------------------------
-    // Comma separated
-    // Example:
-    // "S,M,L,XL"
-    // ----------------------------------------
+    /*
+    COMMA SEPARATED
+    */
 
     return [
       ...new Set(
@@ -76,17 +68,13 @@ const normalizeArray = (value) => {
     ];
   }
 
-  // ------------------------------------------
-  // Anything else
-  // ------------------------------------------
-
   return [];
 };
 
 /*
-==================================================
+========================================
 CREATE PRODUCT
-==================================================
+========================================
 */
 
 const createProduct = async (req, res) => {
@@ -103,9 +91,9 @@ const createProduct = async (req, res) => {
       color,
     } = req.body;
 
-    // ========================================
-    // VALIDATION
-    // ========================================
+    /*
+    VALIDATION
+    */
 
     if (!name || !description || !price || !category) {
       return res.status(400).json({
@@ -113,27 +101,27 @@ const createProduct = async (req, res) => {
       });
     }
 
-    // ========================================
-    // IMAGES
-    // ========================================
+    /*
+    IMAGES
+    */
 
     const images = await getMultipleImageUrls(req.files, "products");
 
-    // ========================================
-    // NORMALIZE SIZE
-    // ========================================
+    /*
+    SIZE
+    */
 
     const productSize = normalizeArray(size);
 
-    // ========================================
-    // NORMALIZE COLOR
-    // ========================================
+    /*
+    COLOR
+    */
 
     const productColor = normalizeArray(color);
 
-    // ========================================
-    // CREATE PRODUCT
-    // ========================================
+    /*
+    CREATE PRODUCT
+    */
 
     const product = await Product.create({
       name,
@@ -144,16 +132,13 @@ const createProduct = async (req, res) => {
       images,
       stock: stock || 0,
       brand: brand || "Decathlon",
-
-      // IMPORTANT
       size: productSize,
-
       color: productColor,
     });
 
-    // ========================================
-    // REALTIME UPDATE
-    // ========================================
+    /*
+    REALTIME UPDATE
+    */
 
     emitHomepageUpdate("product_created", {
       productId: product._id,
@@ -161,9 +146,9 @@ const createProduct = async (req, res) => {
       categoryId: product.category,
     });
 
-    // ========================================
-    // RESPONSE
-    // ========================================
+    /*
+    RESPONSE
+    */
 
     return res.status(201).json({
       message: "Product created successfully",
@@ -180,9 +165,9 @@ const createProduct = async (req, res) => {
 };
 
 /*
-==================================================
+========================================
 GET PRODUCTS
-==================================================
+========================================
 */
 
 const getProducts = async (req, res) => {
@@ -201,24 +186,23 @@ const getProducts = async (req, res) => {
       admin,
     } = req.query;
 
-    // ========================================
-    // FILTER
-    // ========================================
+    /*
+    FILTER
+    */
 
     const filter = {};
 
-    // ========================================
-    // CUSTOMER ONLY ACTIVE PRODUCTS
-    // ADMIN CAN SEE ALL
-    // ========================================
+    /*
+    ACTIVE PRODUCTS
+    */
 
     if (admin !== "true") {
       filter.isActive = true;
     }
 
-    // ========================================
-    // SEARCH
-    // ========================================
+    /*
+    SEARCH
+    */
 
     if (search) {
       filter.name = {
@@ -227,17 +211,17 @@ const getProducts = async (req, res) => {
       };
     }
 
-    // ========================================
-    // CATEGORY
-    // ========================================
+    /*
+    CATEGORY
+    */
 
     if (category) {
       filter.category = category;
     }
 
-    // ========================================
-    // BRAND
-    // ========================================
+    /*
+    BRAND
+    */
 
     if (brand) {
       filter.brand = {
@@ -246,25 +230,25 @@ const getProducts = async (req, res) => {
       };
     }
 
-    // ========================================
-    // SIZE FILTER
-    // ========================================
+    /*
+    SIZE
+    */
 
     if (size) {
       filter.size = size;
     }
 
-    // ========================================
-    // COLOR FILTER
-    // ========================================
+    /*
+    COLOR
+    */
 
     if (color) {
       filter.color = color;
     }
 
-    // ========================================
-    // PRICE FILTER
-    // ========================================
+    /*
+    PRICE
+    */
 
     if (minPrice !== undefined || maxPrice !== undefined) {
       filter.price = {};
@@ -278,9 +262,9 @@ const getProducts = async (req, res) => {
       }
     }
 
-    // ========================================
-    // PAGINATION
-    // ========================================
+    /*
+    PAGINATION
+    */
 
     const pageNumber = Math.max(Number(page) || 1, 1);
 
@@ -288,9 +272,9 @@ const getProducts = async (req, res) => {
 
     const skip = (pageNumber - 1) * limitNumber;
 
-    // ========================================
-    // SORT
-    // ========================================
+    /*
+    SORT
+    */
 
     let sortOption = {
       createdAt: -1,
@@ -326,15 +310,15 @@ const getProducts = async (req, res) => {
       };
     }
 
-    // ========================================
-    // TOTAL PRODUCTS
-    // ========================================
+    /*
+    TOTAL
+    */
 
     const totalProducts = await Product.countDocuments(filter);
 
-    // ========================================
-    // PRODUCTS
-    // ========================================
+    /*
+    PRODUCTS
+    */
 
     const products = await Product.find(filter)
       .populate("category", "name image")
@@ -342,15 +326,15 @@ const getProducts = async (req, res) => {
       .skip(skip)
       .limit(limitNumber);
 
-    // ========================================
-    // TOTAL PAGES
-    // ========================================
+    /*
+    TOTAL PAGES
+    */
 
     const totalPages = Math.ceil(totalProducts / limitNumber);
 
-    // ========================================
-    // RESPONSE
-    // ========================================
+    /*
+    RESPONSE
+    */
 
     return res.status(200).json({
       totalProducts,
@@ -369,37 +353,25 @@ const getProducts = async (req, res) => {
 };
 
 /*
-==================================================
+========================================
 GET PRODUCT BY ID
-==================================================
+========================================
 */
 
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ========================================
-    // FIND PRODUCT
-    // ========================================
-
     const product = await Product.findById(id).populate(
       "category",
       "name image",
     );
-
-    // ========================================
-    // NOT FOUND
-    // ========================================
 
     if (!product) {
       return res.status(404).json({
         message: "Product not found",
       });
     }
-
-    // ========================================
-    // RESPONSE
-    // ========================================
 
     return res.status(200).json({
       product,
@@ -414,18 +386,18 @@ const getProductById = async (req, res) => {
 };
 
 /*
-==================================================
+========================================
 UPDATE PRODUCT
-==================================================
+========================================
 */
 
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // ========================================
-    // FIND PRODUCT
-    // ========================================
+    /*
+    FIND PRODUCT
+    */
 
     const product = await Product.findById(id);
 
@@ -435,9 +407,9 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    // ========================================
-    // REQUEST DATA
-    // ========================================
+    /*
+    REQUEST DATA
+    */
 
     const {
       name,
@@ -453,15 +425,15 @@ const updateProduct = async (req, res) => {
       existingImages,
     } = req.body;
 
-    // ========================================
-    // OLD CATEGORY
-    // ========================================
+    /*
+    OLD CATEGORY
+    */
 
     const oldCategory = product.category;
 
-    // ========================================
-    // BASIC FIELDS
-    // ========================================
+    /*
+    BASIC FIELDS
+    */
 
     if (name !== undefined) {
       product.name = name;
@@ -491,31 +463,35 @@ const updateProduct = async (req, res) => {
       product.brand = brand;
     }
 
-  
+    /*
+    SIZE
+    */
 
     if (size !== undefined) {
       product.size = normalizeArray(size);
     }
 
-    // ========================================
-    // COLOR UPDATE
-    // ========================================
+    /*
+    COLOR
+    */
 
     if (color !== undefined) {
       product.color = normalizeArray(color);
     }
 
-    // ========================================
-    // ACTIVE STATUS
-    // ========================================
+    /*
+    ACTIVE STATUS
+    */
 
     if (isActive !== undefined) {
       product.isActive = isActive === true || isActive === "true";
     }
 
-    // ========================================
-    // EXISTING IMAGES
-    // ========================================
+    /*
+    ========================================
+    EXISTING IMAGES
+    ========================================
+    */
 
     let remainingImages = product.images || [];
 
@@ -541,31 +517,41 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    // ========================================
-    // NEW IMAGES
-    // ========================================
+    /*
+    ========================================
+    NEW IMAGES
+    ========================================
+    */
 
     if (req.files && req.files.length > 0) {
+      console.log(`Uploading ${req.files.length} new image(s)...`);
+
       const newImages = await getMultipleImageUrls(req.files, "products");
 
       remainingImages = [...remainingImages, ...newImages];
     }
 
-    // ========================================
-    // SAVE IMAGES
-    // ========================================
+    /*
+    ========================================
+    SAVE IMAGES
+    ========================================
+    */
 
     product.images = remainingImages;
 
-    // ========================================
-    // SAVE PRODUCT
-    // ========================================
+    /*
+    ========================================
+    SAVE PRODUCT
+    ========================================
+    */
 
     await product.save();
 
-    // ========================================
-    // REALTIME UPDATE
-    // ========================================
+    /*
+    ========================================
+    REALTIME UPDATE
+    ========================================
+    */
 
     emitHomepageUpdate("product_updated", {
       productId: product._id,
@@ -577,9 +563,11 @@ const updateProduct = async (req, res) => {
       isActive: product.isActive,
     });
 
-    // ========================================
-    // RESPONSE
-    // ========================================
+    /*
+    ========================================
+    RESPONSE
+    ========================================
+    */
 
     return res.status(200).json({
       message: "Product updated successfully",
@@ -596,18 +584,14 @@ const updateProduct = async (req, res) => {
 };
 
 /*
-==================================================
+========================================
 DELETE PRODUCT
-==================================================
+========================================
 */
 
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // ========================================
-    // FIND PRODUCT
-    // ========================================
 
     const product = await Product.findById(id);
 
@@ -617,31 +601,18 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    // ========================================
-    // CATEGORY ID
-    // ========================================
-
     const categoryId = product.category;
-
-    // ========================================
-    // DELETE
-    // ========================================
 
     await Product.findByIdAndDelete(id);
 
-    // ========================================
-    // REALTIME UPDATE
-    // ========================================
+    /*
+    REALTIME UPDATE
+    */
 
     emitHomepageUpdate("product_deleted", {
       productId: id,
-
       categoryId,
     });
-
-    // ========================================
-    // RESPONSE
-    // ========================================
 
     return res.status(200).json({
       message: "Product deleted successfully",
@@ -654,6 +625,12 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
+
+/*
+========================================
+EXPORT
+========================================
+*/
 
 export {
   createProduct,

@@ -1,30 +1,40 @@
 import multer from "multer";
 
+/*
+========================================
+MEMORY STORAGE
+========================================
+*/
+
 const storage = multer.memoryStorage();
 
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-  ];
+/*
+========================================
+FILE FILTER
+========================================
+*/
 
-  if (allowedTypes.includes(file.mimetype)) {
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(
-      new Error(
-        "Only JPG, PNG and WEBP images are allowed",
-      ),
-    );
+    cb(new Error("Only image files are allowed"), false);
   }
 };
 
+/*
+========================================
+MULTER
+========================================
+*/
+
 const upload = multer({
   storage,
+
   fileFilter,
+
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: 10 * 1024 * 1024,
   },
 });
 

@@ -1,7 +1,7 @@
+import "dotenv/config";
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import dns from "dns";
 import path from "path";
 
@@ -18,8 +18,6 @@ import homepageSectionRoutes from "./routes/homepageSectionRoutes.js";
 
 import registrationRoutes from "./routes/registrationRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
-
-dotenv.config();
 
 /*
 ========================================
