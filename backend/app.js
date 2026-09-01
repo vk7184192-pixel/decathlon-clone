@@ -27,30 +27,32 @@ DNS
 */
 
 try {
-  dns.setServers([
-    "8.8.8.8",
-    "1.1.1.1",
-  ]);
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
 } catch (error) {
-  console.warn(
-    "Could not set custom DNS servers:",
-    error.message,
-  );
+  console.warn("Could not set custom DNS servers:", error.message);
 }
 
 const app = express();
 
 /*
 ========================================
-MIDDLEWARE
+CORS
 ========================================
 */
 
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+/*
+========================================
+BODY PARSER
+========================================
+*/
 
 app.use(express.json());
 
@@ -66,10 +68,7 @@ STATIC FILES
 ========================================
 */
 
-app.use(
-  "/uploads",
-  express.static("uploads"),
-);
+app.use("/uploads", express.static("uploads"));
 
 /*
 ========================================
@@ -85,9 +84,10 @@ const connectDB = async () => {
   }
 
   if (!mongoPromise) {
-    mongoPromise = mongoose.connect(
-      process.env.MONGO_URI,
-    );
+    mongoPromise = mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 10000,
+      maxPoolSize: 10,
+    });
   }
 
   await mongoPromise;
@@ -106,10 +106,7 @@ app.use(async (req, res, next) => {
     await connectDB();
     next();
   } catch (error) {
-    console.error(
-      "MongoDB Connection Error:",
-      error.message,
-    );
+    console.error("MongoDB Connection Error:", error.message);
 
     return res.status(500).json({
       message: "Database connection failed",
@@ -123,65 +120,29 @@ API ROUTES
 ========================================
 */
 
-app.use(
-  "/api/auth",
-  adminRoutes,
-);
+app.use("/api/auth", adminRoutes);
 
-app.use(
-  "/api/categories",
-  categoryRoutes,
-);
+app.use("/api/categories", categoryRoutes);
 
-app.use(
-  "/api/products",
-  productRoutes,
-);
+app.use("/api/products", productRoutes);
 
-app.use(
-  "/api/cart",
-  cartRoutes,
-);
+app.use("/api/cart", cartRoutes);
 
-app.use(
-  "/api/wishlist",
-  wishlistRoutes,
-);
+app.use("/api/wishlist", wishlistRoutes);
 
-app.use(
-  "/api/addresses",
-  addressRoutes,
-);
+app.use("/api/addresses", addressRoutes);
 
-app.use(
-  "/api/orders",
-  orderRoutes,
-);
+app.use("/api/orders", orderRoutes);
 
-app.use(
-  "/api/payment",
-  paymentRoutes,
-);
+app.use("/api/payment", paymentRoutes);
 
-app.use(
-  "/api/banners",
-  bannerRoutes,
-);
+app.use("/api/banners", bannerRoutes);
 
-app.use(
-  "/api/homepage-sections",
-  homepageSectionRoutes,
-);
+app.use("/api/homepage-sections", homepageSectionRoutes);
 
-app.use(
-  "/api/registration",
-  registrationRoutes,
-);
+app.use("/api/registration", registrationRoutes);
 
-app.use(
-  "/api/login",
-  loginRoutes,
-);
+app.use("/api/login", loginRoutes);
 
 /*
 ========================================
@@ -190,9 +151,7 @@ DEFAULT ROUTE
 */
 
 app.get("/", (req, res) => {
-  res.send(
-    "Decathlon Backend Running",
-  );
+  res.send("Decathlon Backend Running");
 });
 
 export default app;
