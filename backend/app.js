@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import dns from "dns";
 
 import adminRoutes from "./routes/adminRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -18,6 +19,24 @@ import registrationRoutes from "./routes/registrationRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
 
 dotenv.config();
+
+/*
+========================================
+DNS
+========================================
+*/
+
+try {
+  dns.setServers([
+    "8.8.8.8",
+    "1.1.1.1",
+  ]);
+} catch (error) {
+  console.warn(
+    "Could not set custom DNS servers:",
+    error.message,
+  );
+}
 
 const app = express();
 
@@ -47,59 +66,10 @@ STATIC FILES
 ========================================
 */
 
-app.use("/uploads", express.static("uploads"));
-
-/*
-========================================
-API ROUTES
-========================================
-*/
-
-app.use("/api/auth", adminRoutes);
-
-app.use("/api/categories", categoryRoutes);
-
-app.use("/api/products", productRoutes);
-
-app.use("/api/cart", cartRoutes);
-
-app.use("/api/wishlist", wishlistRoutes);
-
-app.use("/api/addresses", addressRoutes);
-
-app.use("/api/orders", orderRoutes);
-
-app.use("/api/payment", paymentRoutes);
-
-app.use("/api/banners", bannerRoutes);
-
-app.use("/api/homepage-sections", homepageSectionRoutes);
-
-/*
-========================================
-USER REGISTRATION OTP
-========================================
-*/
-
-app.use("/api/registration", registrationRoutes);
-
-/*
-========================================
-USER LOGIN OTP
-========================================
-*/
-
-app.use("/api/login", loginRoutes);
-
-/*
-========================================
-DEFAULT ROUTE
-========================================
-*/
-
-app.get("/", (req, res) => {
-  res.send("Decathlon Backend Running");
-});
+app.use(
+  "/uploads",
+  express.static("uploads"),
+);
 
 /*
 ========================================
@@ -107,7 +77,7 @@ DATABASE
 ========================================
 */
 
-let mongoPromise;
+let mongoPromise = null;
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) {
@@ -115,7 +85,9 @@ const connectDB = async () => {
   }
 
   if (!mongoPromise) {
-    mongoPromise = mongoose.connect(process.env.MONGO_URI);
+    mongoPromise = mongoose.connect(
+      process.env.MONGO_URI,
+    );
   }
 
   await mongoPromise;
@@ -134,12 +106,93 @@ app.use(async (req, res, next) => {
     await connectDB();
     next();
   } catch (error) {
-    console.error("MongoDB Connection Error:", error.message);
+    console.error(
+      "MongoDB Connection Error:",
+      error.message,
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Database connection failed",
     });
   }
+});
+
+/*
+========================================
+API ROUTES
+========================================
+*/
+
+app.use(
+  "/api/auth",
+  adminRoutes,
+);
+
+app.use(
+  "/api/categories",
+  categoryRoutes,
+);
+
+app.use(
+  "/api/products",
+  productRoutes,
+);
+
+app.use(
+  "/api/cart",
+  cartRoutes,
+);
+
+app.use(
+  "/api/wishlist",
+  wishlistRoutes,
+);
+
+app.use(
+  "/api/addresses",
+  addressRoutes,
+);
+
+app.use(
+  "/api/orders",
+  orderRoutes,
+);
+
+app.use(
+  "/api/payment",
+  paymentRoutes,
+);
+
+app.use(
+  "/api/banners",
+  bannerRoutes,
+);
+
+app.use(
+  "/api/homepage-sections",
+  homepageSectionRoutes,
+);
+
+app.use(
+  "/api/registration",
+  registrationRoutes,
+);
+
+app.use(
+  "/api/login",
+  loginRoutes,
+);
+
+/*
+========================================
+DEFAULT ROUTE
+========================================
+*/
+
+app.get("/", (req, res) => {
+  res.send(
+    "Decathlon Backend Running",
+  );
 });
 
 export default app;
