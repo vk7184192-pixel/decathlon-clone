@@ -23,7 +23,7 @@ import toast from "react-hot-toast";
 import api from "../api/axios";
 import "../styles/Products.css";
 
-const PRODUCTS_PER_PAGE = 10;
+const PRODUCTS_PER_PAGE = 20;
 
 const Products = () => {
   const navigate = useNavigate();

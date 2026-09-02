@@ -20,19 +20,18 @@ import socket from "../socket/socket";
 
 import "../styles/HomepageSections.css";
 
+const SECTIONS_PER_PAGE = 20;
+
 const HomepageSections = () => {
   const [sections, setSections] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const [reorderingId, setReorderingId] = useState(null);
-
   const [deleteModal, setDeleteModal] = useState({
     open: false,
     id: null,
     name: "",
   });
-
   const [viewSection, setViewSection] = useState(null);
 
   /*

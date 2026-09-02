@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import api from "../api/axios";
 import "../styles/Orders.css";
 
-const ORDERS_PER_PAGE = 10;
+const ORDERS_PER_PAGE = 20;
 
 const WORKING_STATUSES = ["pending", "confirmed", "processing", "shipped"];
 

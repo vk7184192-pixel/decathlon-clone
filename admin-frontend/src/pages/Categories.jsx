@@ -20,7 +20,7 @@ import toast from "react-hot-toast";
 import api from "../api/axios";
 import "../styles/Categories.css";
 
-const CATEGORIES_PER_PAGE = 10;
+const CATEGORIES_PER_PAGE = 20;
 
 const Categories = () => {
   const navigate = useNavigate();

@@ -19,7 +19,7 @@ import toast from "react-hot-toast";
 import api from "../api/axios";
 import "../styles/Users.css";
 
-const USERS_PER_PAGE = 10;
+const USERS_PER_PAGE = 20;
 
 const Users = () => {
   const [users, setUsers] = useState([]);
