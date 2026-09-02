@@ -146,39 +146,36 @@ const CategoryPage = () => {
     }
   };
 
-  // SUB-CATEGORY TILES (SCREENSHOT 1)
-  const subCategoryTiles = [
+  // MEN'S COLLECTION CIRCULAR TILES (ACTIVEWEAR STORE PDF PAGE 1)
+  const mensCollection = [
     { title: "Jackets", img: "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=400&q=80" },
-    { title: "Ponchos", img: "https://images.unsplash.com/photo-1544441893-675973e31985?w=400&q=80" },
-    { title: "Rain Pants", img: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&q=80" },
-    { title: "Umbrella", img: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&q=80" },
-    { title: "Waterproof Bags", img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80" },
-    { title: "Rain Covers", img: "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=400&q=80" },
-    { title: "Flipflops & Sandals", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80" },
-    { title: "Waterproof Shoes", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80" },
+    { title: "Trackpants", img: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=400&q=80" },
+    { title: "Trousers", img: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&q=80" },
+    { title: "T-shirt", img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400&q=80" },
+    { title: "Caps", img: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&q=80" },
+    { title: "Polo Shirt", img: "https://images.unsplash.com/photo-1625910513413-7fc21e344675?w=400&q=80" },
+    { title: "Shoes", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80" },
+    { title: "Sunglasses", img: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80" },
   ];
 
-  // FEATURED SHOWCASE BANNERS (SCREENSHOT 2 & 3)
-  const showcaseSet1 = [
-    { title: "Quick Dry Towels", subtitle: "From Drenched to Dry in Seconds", img: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=600&q=80" },
-    { title: "Waterproof Bags", subtitle: "Monsoon-Proof School Days", img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80" },
-    { title: "Camping Tents", subtitle: "Weatherproof Tents. Monsoon Treks.", img: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80" },
-    { title: "Easy Wear Ponchos", subtitle: "Grab, Throw On, Step Out", img: "https://images.unsplash.com/photo-1544441893-675973e31985?w=600&q=80" },
+  // WOMEN'S COLLECTION CIRCULAR TILES (ACTIVEWEAR STORE PDF PAGE 1)
+  const womensCollection = [
+    { title: "T-shirt", img: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400&q=80" },
+    { title: "Leggings", img: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&q=80" },
+    { title: "Trackpants", img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80" },
+    { title: "Jackets", img: "https://images.unsplash.com/photo-1544441893-675973e31985?w=400&q=80" },
+    { title: "Shoes", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80" },
+    { title: "Sunglasses", img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80" },
+    { title: "Bags", img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80" },
+    { title: "Shorts", img: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400&q=80" },
   ];
 
-  const showcaseSet2 = [
-    { title: "Men's Rain Essentials", subtitle: "Build for downpours. Made to keep you moving.", img: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=600&q=80" },
-    { title: "Women's Rain Essentials", subtitle: "Functional layers for monsoon adventures.", img: "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=600&q=80" },
-    { title: "Kids Rain Essentials", subtitle: "Splash through every monsoon moment.", img: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&q=80" },
-    { title: "Explore All", subtitle: "Explore other wide range of essentials and needs.", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80" },
-  ];
-
-  // SPORTS GRID (SCREENSHOT 4)
-  const sportsGrid = [
-    { title: "Table Tennis", img: "https://images.unsplash.com/photo-1534158914592-062992fbe900?w=600&q=80" },
-    { title: "Carrom", img: "https://images.unsplash.com/photo-1611195974226-a6a9be9dd763?w=600&q=80" },
-    { title: "Dart/Archery", img: "https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=600&q=80" },
-    { title: "Gym Equipments", img: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80" },
+  // STYLE THAT WORKS HARD GRID (ACTIVEWEAR STORE PDF PAGE 2)
+  const styleGrid = [
+    { title: "Shirts", img: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&q=80" },
+    { title: "Chinos", img: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&q=80" },
+    { title: "Shoes", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80" },
+    { title: "Hoodies", img: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=80" },
   ];
 
   const maxProdSlide = Math.max(products.length - 4, 0);
@@ -191,81 +188,132 @@ const CategoryPage = () => {
       {/* BREADCRUMB HEADER */}
       <div className="category-page-header">
         <div className="category-breadcrumbs">
-          <Link to="/">Home</Link> / <span>{category?.name || "Category"}</span>
+          <Link to="/">Home</Link> / <span>{category?.name || "Activewear Store"}</span>
         </div>
-        <h1 className="category-page-title">{category?.name || "Collection"}</h1>
+        <h1 className="category-page-title">{category?.name || "Apparels & Activewear Store"}</h1>
       </div>
 
       <div className="category-shop-container">
-        {/* 1. SUB-CATEGORIES QUICK ICON ROW (SCREENSHOT 1) */}
-        <section className="subcat-quick-row">
-          {subCategoryTiles.map((tile, idx) => (
-            <div className="subcat-quick-card" key={idx}>
-              <div className="subcat-icon-wrapper">
-                <img src={tile.img} alt={tile.title} />
+        {/* 1. MEN'S COLLECTION ROUND TILES (PDF PAGE 1) */}
+        <section className="cat-round-collection-section">
+          <h2 className="cat-section-heading">Men's Collection</h2>
+          <div className="cat-round-icon-row">
+            {mensCollection.map((tile, idx) => (
+              <div className="cat-round-card" key={idx}>
+                <div className="cat-round-circle">
+                  <img src={tile.img} alt={tile.title} />
+                </div>
+                <span>{tile.title}</span>
               </div>
-              <span>{tile.title}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
 
-        {/* 2. HERO FEATURED BANNER CAROUSEL (SCREENSHOT 1) */}
-        <section className="category-hero-banner">
+        {/* 2. HERO FEATURED APPAREL BANNER (PDF PAGE 1) */}
+        <section className="category-hero-banner apparel-banner">
           <div className="cat-banner-bg">
             <img
-              src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&q=80"
-              alt="Category Banner"
+              src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1400&q=80"
+              alt="Comfort That Lasts Banner"
             />
           </div>
-          <div className="cat-banner-overlay">
-            <h2>Your Office Lives in Your Bag. Protect It.</h2>
-            <p>Protect your essentials from unexpected showers.</p>
+          <div className="cat-banner-overlay apparel-overlay">
+            <h2>Comfort That Lasts</h2>
+            <p>Lightweight fabrics. Effortless movement. All-day ease.</p>
             <button type="button" className="cat-shop-now-btn">
               Shop Now
             </button>
           </div>
         </section>
 
-        {/* 3. SHOWCASE GRID 1 (SCREENSHOT 2) */}
-        <section className="cat-showcase-section">
-          <h2 className="cat-section-heading">From Rain Jackets To Weatherproof Tents</h2>
-          <div className="cat-showcase-grid">
-            {showcaseSet1.map((item, idx) => (
-              <div className="cat-showcase-card" key={idx}>
-                <img src={item.img} alt={item.title} />
-                <div className="cat-card-overlay">
-                  <h3>{item.subtitle}</h3>
-                  <span className="cat-card-pill">{item.title}</span>
+        {/* 3. WOMEN'S COLLECTION ROUND TILES (PDF PAGE 1) */}
+        <section className="cat-round-collection-section">
+          <h2 className="cat-section-heading">Women's Collection</h2>
+          <div className="cat-round-icon-row">
+            {womensCollection.map((tile, idx) => (
+              <div className="cat-round-card" key={idx}>
+                <div className="cat-round-circle">
+                  <img src={tile.img} alt={tile.title} />
                 </div>
+                <span>{tile.title}</span>
               </div>
             ))}
           </div>
         </section>
 
-        {/* 4. SHOWCASE GRID 2 (SCREENSHOT 3) */}
-        <section className="cat-showcase-section">
-          <h2 className="cat-section-heading">Rain Protection For The Whole Family</h2>
-          <div className="cat-showcase-grid">
-            {showcaseSet2.map((item, idx) => (
-              <div className="cat-showcase-card" key={idx}>
-                <img src={item.img} alt={item.title} />
-                <div className="cat-card-overlay">
-                  <h3>{item.title}</h3>
-                  <p>{item.subtitle}</p>
-                </div>
+        {/* 4. PROMO OFFER DEALS CAROUSEL (PDF PAGE 2) */}
+        <section className="cat-offer-carousel-section">
+          <div className="cat-offer-promo-box">
+            <span className="promo-tag">Buy any 2 products</span>
+            <h3>Get ₹200/- off</h3>
+          </div>
+
+          <div className="cat-offer-products-wrapper">
+            <div className="cat-products-viewport">
+              <div className="cat-products-track">
+                {products.slice(0, 5).map((prod) => (
+                  <div className="cat-product-card" key={prod._id}>
+                    <div className="cat-prod-img-wrapper">
+                      <span className="cat-prod-badge">New arrival</span>
+                      {prod.images?.[0] ? (
+                        <img src={getImageUrl(prod.images[0])} alt={prod.name} />
+                      ) : (
+                        <div className="cat-prod-no-img">No Image</div>
+                      )}
+                    </div>
+
+                    <div className="cat-prod-info">
+                      <div className="cat-prod-title">
+                        <strong>{prod.brand || "KIPRUN"}</strong> {prod.name}
+                      </div>
+
+                      <div className="cat-prod-rating">
+                        <span className="stars">★★★★★</span>
+                        <span className="count">{prod.reviews || "7.6k"}</span>
+                      </div>
+
+                      <div className="cat-prod-price-row">
+                        <strong className="current-price">
+                          {formatPrice(prod.discountPrice || prod.price)}
+                        </strong>
+                      </div>
+
+                      <div className="offer-subtext-pill">
+                        Buy 1 @ {prod.price || 799} Buy 2 @ {(prod.price || 799) * 2 - 200}
+                      </div>
+
+                      <div className="cat-prod-actions">
+                        <button
+                          type="button"
+                          className={`cat-wishlist-btn ${isWishlisted(prod._id) ? "active" : ""}`}
+                          onClick={() => toggleWishlistIcon(prod._id)}
+                        >
+                          {isWishlisted(prod._id) ? "♥" : "♡"}
+                        </button>
+                        <button
+                          type="button"
+                          className="cat-add-btn"
+                          onClick={() => handleOpenModal(prod)}
+                        >
+                          Add to cart
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
-        {/* 5. SPORTS & ACTIVITY GRID (SCREENSHOT 4) */}
+        {/* 5. STYLE THAT WORKS HARD GRID (PDF PAGE 2) */}
         <section className="cat-showcase-section">
-          <h2 className="cat-section-heading">Don't Let Rain Stop The Game</h2>
-          <div className="cat-sports-grid">
-            {sportsGrid.map((item, idx) => (
-              <div className="cat-sport-card" key={idx}>
+          <h2 className="cat-section-heading">Style That Works Hard</h2>
+          <div className="cat-style-grid">
+            {styleGrid.map((item, idx) => (
+              <div className="cat-style-card" key={idx}>
                 <img src={item.img} alt={item.title} />
-                <div className="cat-sport-title-pill">
+                <div className="cat-style-title-overlay">
                   <span>{item.title}</span>
                 </div>
               </div>
@@ -273,10 +321,10 @@ const CategoryPage = () => {
           </div>
         </section>
 
-        {/* 6. PRODUCTS CAROUSEL / COLLECTION (SCREENSHOT 5) */}
+        {/* 6. PRODUCTS CAROUSEL / COLLECTION (PDF PAGE 2 & 5) */}
         <section className="cat-products-section">
           <div className="cat-products-header">
-            <h2>{category?.name || "Collection"} Products</h2>
+            <h2>{category?.name || "Activewear"} Collection</h2>
             {products.length > 4 && (
               <div className="cat-slider-arrows">
                 <button

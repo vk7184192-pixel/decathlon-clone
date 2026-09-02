@@ -57,19 +57,25 @@
 }
 
 /* ========================================
-   1. SUB-CATEGORIES QUICK ICON ROW
+   ROUND COLLECTION CARDS (PDF PAGE 1)
 ======================================== */
 
-.subcat-quick-row {
+.cat-round-collection-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cat-round-icon-row {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   overflow-x: auto;
   padding-bottom: 8px;
   scrollbar-width: thin;
 }
 
-.subcat-quick-card {
+.cat-round-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -78,32 +84,141 @@
   flex-shrink: 0;
 }
 
-.subcat-icon-wrapper {
-  width: 72px;
-  height: 72px;
-  border-radius: 14px;
+.cat-round-circle {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
   overflow: hidden;
   background: #f4f4f5;
   border: 1px solid #e4e4e7;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.subcat-quick-card:hover .subcat-icon-wrapper {
-  transform: translateY(-2px);
-  border-color: #3548c4;
+.cat-round-card:hover .cat-round-circle {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
-.subcat-icon-wrapper img {
+.cat-round-circle img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.subcat-quick-card span {
-  font-size: 12px;
+.cat-round-card span {
+  font-size: 13px;
   font-weight: 600;
   color: #27272a;
   text-align: center;
+}
+
+/* ========================================
+   OFFER PROMO CAROUSEL (PDF PAGE 2)
+======================================== */
+
+.cat-offer-carousel-section {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  width: 100%;
+}
+
+.cat-offer-promo-box {
+  width: 240px;
+  min-width: 240px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.cat-offer-promo-box .promo-tag {
+  font-size: 14px;
+  font-weight: 600;
+  color: #52525b;
+}
+
+.cat-offer-promo-box h3 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #111111;
+  line-height: 1.2;
+}
+
+.cat-offer-products-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.offer-subtext-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0d9488;
+  background: #f0fdf4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  width: fit-content;
+  margin-top: 4px;
+}
+
+/* ========================================
+   STYLE THAT WORKS HARD GRID (PDF PAGE 2)
+======================================== */
+
+.cat-style-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.cat-style-card {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #111;
+  cursor: pointer;
+}
+
+.cat-style-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.cat-style-card:hover img {
+  transform: scale(1.05);
+}
+
+.cat-style-title-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  transition: background 0.3s ease;
+}
+
+.cat-style-card:hover .cat-style-title-overlay {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.cat-style-title-overlay span {
+  font-size: 38px;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: capitalize;
+  letter-spacing: -1px;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* ========================================
