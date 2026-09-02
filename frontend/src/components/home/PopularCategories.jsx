@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "../../styles/home/PopularCategories.css";
 
@@ -6,8 +7,8 @@ import api from "../../api/axios";
 import socket from "../../socket/socket";
 
 const PopularCategories = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   /*
@@ -143,7 +144,11 @@ const PopularCategories = () => {
   return (
     <section className="popular-categories">
       {categories.map((category) => (
-        <div className="category-card" key={category._id}>
+        <div
+          className="category-card"
+          key={category._id}
+          onClick={() => navigate(`/category/${category._id}`)}
+        >
           {category.image ? (
             <img src={getImageUrl(category.image)} alt={category.name} />
           ) : (

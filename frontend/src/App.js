@@ -17,6 +17,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Profile from "./pages/Profile";
 import MyAccount from "./pages/MyAccount";
 import Wishlist from "./pages/Wishlist";
+import CategoryPage from "./pages/CategoryPage";
 
 function App() {
   return (
@@ -33,6 +34,9 @@ function App() {
               </>
             }
           />
+
+          <Route path="/category/:categoryId" element={<CategoryPage />} />
+          <Route path="/shop/:slug" element={<CategoryPage />} />
 
           <Route path="/login" element={<UserLogin />} />
 

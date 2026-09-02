@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "../../styles/home/SportsCategories.css";
 
@@ -6,6 +7,7 @@ import api from "../../api/axios";
 import socket from "../../socket/socket";
 
 const SportsCategories = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -154,7 +156,11 @@ const SportsCategories = () => {
     <section className="sports-categories">
       <div className="sports-categories-list">
         {categories.map((category) => (
-          <div className="sports-category-card" key={category._id}>
+          <div
+            className="sports-category-card"
+            key={category._id}
+            onClick={() => navigate(`/category/${category._id}`)}
+          >
             {category.image ? (
               <img src={getImageUrl(category.image)} alt={category.name} />
             ) : (
