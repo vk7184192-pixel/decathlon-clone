@@ -10,6 +10,7 @@ import {
 import toast from "react-hot-toast";
 
 import api from "../../api/axios";
+import MultiSelectCategoryDropdown from "./MultiSelectCategoryDropdown";
 import "../../styles/AddProduct.css";
 
 const AddProduct = () => {
@@ -437,7 +438,7 @@ const AddProduct = () => {
 
             </div>
 
-            {/* CATEGORIES (MULTI-SELECT) */}
+            {/* CATEGORIES (MULTI-SELECT DROPDOWN) */}
 
             <div className="form-group full-width">
 
@@ -445,34 +446,13 @@ const AddProduct = () => {
                 Categories * (Select one or more)
               </label>
 
-              {categoryLoading ? (
-                <p className="category-loading-text">Loading categories...</p>
-              ) : categories.length === 0 ? (
-                <p className="no-categories-text">No categories found. Please create a category first.</p>
-              ) : (
-                <div className="category-checkboxes">
-                  {categories.map((cat) => {
-                    const isSelected = selectedCategories.includes(cat._id);
-                    return (
-                      <label
-                        key={cat._id}
-                        className={`category-pill ${isSelected ? "selected" : ""}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleCategoryToggle(cat._id);
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {}}
-                        />
-                        <span>{cat.name}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              )}
+              <MultiSelectCategoryDropdown
+                categories={categories}
+                selectedCategories={selectedCategories}
+                onChange={setSelectedCategories}
+                placeholder="Select Categories"
+                disabled={categoryLoading}
+              />
 
             </div>
 
