@@ -213,10 +213,26 @@ const getProducts = async (req, res) => {
     */
 
     if (search) {
-      filter.name = {
+      const searchRegex = {
         $regex: search,
         $options: "i",
       };
+
+      const searchConditions = [
+        { name: searchRegex },
+        { description: searchRegex },
+        { brand: searchRegex },
+      ];
+
+      if (filter.$or) {
+        filter.$and = [
+          { $or: filter.$or },
+          { $or: searchConditions },
+        ];
+        delete filter.$or;
+      } else {
+        filter.$or = searchConditions;
+      }
     }
 
     /*
