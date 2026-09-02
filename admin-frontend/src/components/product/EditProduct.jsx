@@ -17,6 +17,7 @@ const EditProduct = () => {
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
 
@@ -25,7 +26,6 @@ const EditProduct = () => {
     description: "",
     price: "",
     discountPrice: "",
-    category: "",
     stock: "",
     brand: "",
     size: "",
@@ -67,15 +67,20 @@ const EditProduct = () => {
           categoryResponse.data.categories || []
         );
 
+        // Multi-category extract
+        let catIds = [];
+        if (Array.isArray(product.categories) && product.categories.length > 0) {
+          catIds = product.categories.map((c) => (c._id || c));
+        } else if (product.category) {
+          catIds = [product.category._id || product.category];
+        }
+        setSelectedCategories(catIds);
+
         setFormData({
           name: product.name || "",
           description: product.description || "",
           price: product.price ?? "",
           discountPrice: product.discountPrice ?? "",
-          category:
-            product.category?._id ||
-            product.category ||
-            "",
           stock: product.stock ?? "",
           brand: product.brand || "",
           size: Array.isArray(product.size)
@@ -100,6 +105,14 @@ const EditProduct = () => {
 
     loadData();
   }, [id]);
+
+  const handleCategoryToggle = (catId) => {
+    setSelectedCategories((prev) =>
+      prev.includes(catId)
+        ? prev.filter((item) => item !== catId)
+        : [...prev, catId]
+    );
+  };
 
   // INPUT CHANGE
 
@@ -178,10 +191,10 @@ const EditProduct = () => {
       !formData.name.trim() ||
       !formData.description.trim() ||
       !formData.price ||
-      !formData.category
+      selectedCategories.length === 0
     ) {
       toast.error(
-        "Please fill all required fields"
+        "Please fill all required fields and select at least 1 category"
       );
       return;
     }
@@ -231,9 +244,24 @@ const EditProduct = () => {
         formData.discountPrice || 0
       );
 
+      selectedCategories.forEach((catId) => {
+        data.append("categories", catId);
+      });
+      data.append("category", selectedCategories[0]);
+
       data.append(
-        "category",
-        formData.category
+        "stock",
+        formData.stock || 0
+      );
+
+      data.append(
+        "brand",
+        formData.brand.trim()
+      );
+
+      data.append(
+        "isActive",
+        String(formData.isActive)
       );
 
       data.append(
@@ -442,33 +470,40 @@ const EditProduct = () => {
 
             </div>
 
-            {/* CATEGORY */}
-            <div className="form-group">
+            {/* CATEGORIES (MULTI-SELECT) */}
+
+            <div className="form-group full-width">
 
               <label>
-                Category *
+                Categories * (Select one or more)
               </label>
 
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-              >
-                <option value="">
-                  Select category
-                </option>
-
-                {categories.map(
-                  (category) => (
-                    <option
-                      key={category._id}
-                      value={category._id}
-                    >
-                      {category.name}
-                    </option>
-                  )
-                )}
-              </select>
+              {categories.length === 0 ? (
+                <p className="no-categories-text">No categories found.</p>
+              ) : (
+                <div className="category-checkboxes">
+                  {categories.map((cat) => {
+                    const isSelected = selectedCategories.includes(cat._id);
+                    return (
+                      <label
+                        key={cat._id}
+                        className={`category-pill ${isSelected ? "selected" : ""}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleCategoryToggle(cat._id);
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}}
+                        />
+                        <span>{cat.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
 
             </div>
 

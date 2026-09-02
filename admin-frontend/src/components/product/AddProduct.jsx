@@ -16,6 +16,7 @@ const AddProduct = () => {
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [images, setImages] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -23,7 +24,6 @@ const AddProduct = () => {
     description: "",
     price: "",
     discountPrice: "",
-    category: "",
     stock: "",
     brand: "",
     size: "",
@@ -55,6 +55,15 @@ const AddProduct = () => {
 
     fetchCategories();
   }, []);
+
+  // CATEGORY TOGGLE
+  const handleCategoryToggle = (catId) => {
+    setSelectedCategories((prev) =>
+      prev.includes(catId)
+        ? prev.filter((id) => id !== catId)
+        : [...prev, catId]
+    );
+  };
 
   // ========================================
   // INPUT CHANGE
@@ -123,11 +132,11 @@ const AddProduct = () => {
       !formData.name.trim() ||
       !formData.description.trim() ||
       !formData.price ||
-      !formData.category ||
+      selectedCategories.length === 0 ||
       !formData.stock
     ) {
       toast.error(
-        "Please fill all required fields"
+        "Please fill all required fields and select at least 1 category"
       );
       return;
     }
@@ -204,10 +213,10 @@ const AddProduct = () => {
         formData.discountPrice || 0
       );
 
-      data.append(
-        "category",
-        formData.category
-      );
+      selectedCategories.forEach((catId) => {
+        data.append("categories", catId);
+      });
+      data.append("category", selectedCategories[0]);
 
       data.append(
         "stock",
@@ -428,37 +437,42 @@ const AddProduct = () => {
 
             </div>
 
-            {/* CATEGORY */}
+            {/* CATEGORIES (MULTI-SELECT) */}
 
-            <div className="form-group">
+            <div className="form-group full-width">
 
               <label>
-                Category *
+                Categories * (Select one or more)
               </label>
 
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                disabled={categoryLoading}
-              >
-                <option value="">
-                  {categoryLoading
-                    ? "Loading categories..."
-                    : "Select category"}
-                </option>
-
-                {categories.map(
-                  (category) => (
-                    <option
-                      key={category._id}
-                      value={category._id}
-                    >
-                      {category.name}
-                    </option>
-                  )
-                )}
-              </select>
+              {categoryLoading ? (
+                <p className="category-loading-text">Loading categories...</p>
+              ) : categories.length === 0 ? (
+                <p className="no-categories-text">No categories found. Please create a category first.</p>
+              ) : (
+                <div className="category-checkboxes">
+                  {categories.map((cat) => {
+                    const isSelected = selectedCategories.includes(cat._id);
+                    return (
+                      <label
+                        key={cat._id}
+                        className={`category-pill ${isSelected ? "selected" : ""}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleCategoryToggle(cat._id);
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}}
+                        />
+                        <span>{cat.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
 
             </div>
 

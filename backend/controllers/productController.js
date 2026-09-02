@@ -85,6 +85,7 @@ const createProduct = async (req, res) => {
       price,
       discountPrice,
       category,
+      categories,
       stock,
       brand,
       size,
@@ -92,12 +93,17 @@ const createProduct = async (req, res) => {
     } = req.body;
 
     /*
+    CATEGORIES
+    */
+    const categoryList = normalizeArray(categories || category);
+
+    /*
     VALIDATION
     */
 
-    if (!name || !description || !price || !category) {
+    if (!name || !description || !price || categoryList.length === 0) {
       return res.status(400).json({
-        message: "Name, description, price and category are required",
+        message: "Name, description, price and at least one category are required",
       });
     }
 
@@ -128,7 +134,8 @@ const createProduct = async (req, res) => {
       description,
       price,
       discountPrice: discountPrice || 0,
-      category,
+      category: categoryList[0],
+      categories: categoryList,
       images,
       stock: stock || 0,
       brand: brand || "Decathlon",
@@ -144,6 +151,7 @@ const createProduct = async (req, res) => {
       productId: product._id,
 
       categoryId: product.category,
+      categories: product.categories,
     });
 
     /*
@@ -215,8 +223,15 @@ const getProducts = async (req, res) => {
     CATEGORY
     */
 
+    /*
+    CATEGORY
+    */
+
     if (category) {
-      filter.category = category;
+      filter.$or = [
+        { category: category },
+        { categories: category },
+      ];
     }
 
     /*
@@ -322,6 +337,7 @@ const getProducts = async (req, res) => {
 
     const products = await Product.find(filter)
       .populate("category", "name image")
+      .populate("categories", "name image")
       .sort(sortOption)
       .skip(skip)
       .limit(limitNumber);
@@ -362,10 +378,9 @@ const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findById(id).populate(
-      "category",
-      "name image",
-    );
+    const product = await Product.findById(id)
+      .populate("category", "name image")
+      .populate("categories", "name image");
 
     if (!product) {
       return res.status(404).json({
@@ -417,6 +432,7 @@ const updateProduct = async (req, res) => {
       price,
       discountPrice,
       category,
+      categories,
       stock,
       brand,
       size,
@@ -451,8 +467,12 @@ const updateProduct = async (req, res) => {
       product.discountPrice = discountPrice;
     }
 
-    if (category !== undefined) {
-      product.category = category;
+    if (categories !== undefined || category !== undefined) {
+      const catList = normalizeArray(categories || category);
+      if (catList.length > 0) {
+        product.categories = catList;
+        product.category = catList[0];
+      }
     }
 
     if (stock !== undefined) {

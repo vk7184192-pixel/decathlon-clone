@@ -81,6 +81,13 @@ const Products = () => {
     const map = new Map();
 
     products.forEach((product) => {
+      if (Array.isArray(product.categories)) {
+        product.categories.forEach((cat) => {
+          if (cat?._id) {
+            map.set(cat._id, cat.name);
+          }
+        });
+      }
       if (product.category?._id) {
         map.set(
           product.category._id,
@@ -123,6 +130,10 @@ const Products = () => {
 
       const matchesCategory =
         categoryFilter === "all" ||
+        (Array.isArray(product.categories) &&
+          product.categories.some(
+            (c) => (c._id || c) === categoryFilter
+          )) ||
         product.category?._id ===
           categoryFilter;
 
@@ -500,10 +511,12 @@ const Products = () => {
                         </td>
 
                         <td>
-                          {
-                            product.category
-                              ?.name || "-"
-                          }
+                          {Array.isArray(product.categories) &&
+                          product.categories.length > 0
+                            ? product.categories
+                                .map((c) => c.name || c)
+                                .join(", ")
+                            : product.category?.name || "-"}
                         </td>
 
                         <td>
@@ -907,15 +920,16 @@ const Products = () => {
 
                   <div>
                     <span>
-                      Category
+                      Categories
                     </span>
 
                     <strong>
-                      {
-                        viewProduct
-                          .category?.name ||
-                        "-"
-                      }
+                      {Array.isArray(viewProduct.categories) &&
+                      viewProduct.categories.length > 0
+                        ? viewProduct.categories
+                            .map((c) => c.name || c)
+                            .join(", ")
+                        : viewProduct.category?.name || "-"}
                     </strong>
                   </div>
 
