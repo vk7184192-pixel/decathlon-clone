@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import {
@@ -17,19 +17,36 @@ import {
 import "../styles/AdminLayout.css";
 
 const AdminLayout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => typeof window !== "undefined" && window.innerWidth > 700
+  );
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const adminUser = JSON.parse(localStorage.getItem("adminUser"));
 
+  const handleNav = (path) => {
+    navigate(path);
+    if (typeof window !== "undefined" && window.innerWidth <= 700) {
+      setSidebarOpen(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
-
+    if (typeof window !== "undefined" && window.innerWidth <= 700) {
+      setSidebarOpen(false);
+    }
     navigate("/");
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth <= 700) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
 
   const isActive = (path) => {
     return location.pathname === path;
@@ -54,6 +71,14 @@ const AdminLayout = ({ children }) => {
         sidebarOpen ? "sidebar-open" : "sidebar-closed"
       }`}
     >
+      {/* MOBILE SCREEN BACKDROP OVERLAY */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           {sidebarOpen && <div className="sidebar-logo">DECATHLON</div>}
@@ -74,7 +99,7 @@ const AdminLayout = ({ children }) => {
           <button
             type="button"
             className={isActive("/dashboard") ? "active" : ""}
-            onClick={() => navigate("/dashboard")}
+            onClick={() => handleNav("/dashboard")}
           >
             <MdDashboard />
 
@@ -86,7 +111,7 @@ const AdminLayout = ({ children }) => {
           <button
             type="button"
             className={isProductsActive ? "active" : ""}
-            onClick={() => navigate("/products")}
+            onClick={() => handleNav("/products")}
           >
             <MdInventory2 />
 
@@ -98,7 +123,7 @@ const AdminLayout = ({ children }) => {
           <button
             type="button"
             className={isCategoriesActive ? "active" : ""}
-            onClick={() => navigate("/categories")}
+            onClick={() => handleNav("/categories")}
           >
             <MdCategory />
 
@@ -110,7 +135,7 @@ const AdminLayout = ({ children }) => {
           <button
             type="button"
             className={isOrdersActive ? "active" : ""}
-            onClick={() => navigate("/orders")}
+            onClick={() => handleNav("/orders")}
           >
             <MdShoppingBag />
 
@@ -122,7 +147,7 @@ const AdminLayout = ({ children }) => {
           <button
             type="button"
             className={isUsersActive ? "active" : ""}
-            onClick={() => navigate("/users")}
+            onClick={() => handleNav("/users")}
           >
             <MdPeople />
 
@@ -134,7 +159,7 @@ const AdminLayout = ({ children }) => {
           <button
             type="button"
             className={isBannersActive ? "active" : ""}
-            onClick={() => navigate("/banners")}
+            onClick={() => handleNav("/banners")}
           >
             <MdImage />
 
@@ -146,7 +171,7 @@ const AdminLayout = ({ children }) => {
           <button
             type="button"
             className={isHomepageSectionsActive ? "active" : ""}
-            onClick={() => navigate("/homepage-sections")}
+            onClick={() => handleNav("/homepage-sections")}
           >
             <MdViewModule />
 

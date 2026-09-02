@@ -409,19 +409,32 @@ body {
   }
 }
 
+/* BACKDROP OVERLAY */
+.sidebar-backdrop {
+  display: none;
+}
+
 @media (max-width: 700px) {
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 998;
+    cursor: pointer;
+  }
+
   .admin-sidebar {
-    width: 220px;
+    width: 240px;
+    z-index: 999;
 
     padding: 20px 14px;
 
-    box-shadow:
-      4px 0 15px rgba(
-        0,
-        0,
-        0,
-        0.08
-      );
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
 
     transition:
       width 0.25s ease,
