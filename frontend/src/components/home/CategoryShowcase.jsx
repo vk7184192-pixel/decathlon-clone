@@ -5,7 +5,7 @@ import "../../styles/home/CategoryShowcase.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const CategoryShowcase = () => {
+const CategoryShowcase = ({ customCategories }) => {
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -30,59 +30,54 @@ const CategoryShowcase = () => {
 
   /*
   ========================================
-  FETCH HOMEPAGE SECTION
+  FETCH CATEGORIES
   ========================================
   */
 
   const fetchSection = useCallback(async () => {
     try {
       setLoading(true);
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const response = await api.get("/homepage-sections/active");
+      const section = pageSections.find(
+        (item) => item.name === "CategoryShowcase" || (item.type === "category" && item.name.includes("Showcase"))
+      );
 
-      const sections = response.data.sections || [];
+      const validCategories = (section?.categories || []).filter(
+        (c) => c && typeof c === "object" && c.name
+      );
 
-      /*
-        IMPORTANT:
-        Admin Section Name:
-        CategoryShowcase
-        */
-
-      const section = sections.find((item) => item.name === "CategoryShowcase");
-
-      /*
-        Section not found
-        */
-
-      if (!section) {
-        setCategories([]);
-
-        return;
+      if (validCategories.length > 0) {
+        setCategories(validCategories);
+      } else {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
       }
-
-      /*
-        Selected categories
-        */
-
-      setCategories(section.categories || []);
     } catch (error) {
       console.error("Category Showcase Error:", error);
-
-      setCategories([]);
+      try {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
+      } catch {
+        setCategories([]);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /*
-  ========================================
-  INITIAL LOAD
-  ========================================
-  */
-
   useEffect(() => {
+    const valid = (customCategories || []).filter(
+      (c) => c && typeof c === "object" && c.name
+    );
+    if (valid.length > 0) {
+      setCategories(valid);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customCategories, fetchSection]);
 
   /*
   ========================================

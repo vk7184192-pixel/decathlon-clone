@@ -7,13 +7,15 @@ import socket from "../../socket/socket";
 import ProductSizeModal from "../ProductSizeModal";
 import { useWishlist } from "../../utils/useWishlist";
 
-const StormProofSection = () => {
+const StormProofSection = ({ customProducts }) => {
   const { isWishlisted, handleToggle } = useWishlist();
+
   const [products, setProducts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleProducts, setVisibleProducts] = useState(5);
   const [loading, setLoading] = useState(true);
 
+  // PRODUCT MODAL STATES
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -40,26 +42,32 @@ const StormProofSection = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const sections = response.data.sections || [];
-
-      const section = sections.find(
-        (item) => item.name === "Storm Proof Section",
+      const section = pageSections.find(
+        (item) => item.name === "Storm Proof Section" || item.name.includes("Storm") || item.type === "product"
       );
 
-      if (!section) {
-        setProducts([]);
-        setCurrentIndex(0);
-        return;
-      }
+      const validProds = (section?.products || []).filter(
+        (p) => p && typeof p === "object" && p.name
+      );
 
-      setProducts(section.products || []);
+      if (validProds.length > 0) {
+        setProducts(validProds);
+      } else {
+        const prodRes = await api.get("/products?limit=10");
+        setProducts(prodRes.data.products || []);
+      }
       setCurrentIndex(0);
     } catch (error) {
       console.error("Storm Proof Section Error:", error);
-
-      setProducts([]);
+      try {
+        const prodRes = await api.get("/products?limit=10");
+        setProducts(prodRes.data.products || []);
+      } catch {
+        setProducts([]);
+      }
       setCurrentIndex(0);
     } finally {
       setLoading(false);
@@ -67,8 +75,17 @@ const StormProofSection = () => {
   }, []);
 
   useEffect(() => {
+    const valid = (customProducts || []).filter(
+      (p) => p && typeof p === "object" && p.name
+    );
+    if (valid.length > 0) {
+      setProducts(valid);
+      setCurrentIndex(0);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customProducts, fetchSection]);
 
   useEffect(() => {
     const handleHomepageUpdate = (data) => {

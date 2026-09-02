@@ -62,9 +62,6 @@ const AdminLayout = ({ children }) => {
 
   const isBannersActive = location.pathname.startsWith("/banners");
 
-  const isHomepageSectionsActive =
-    location.pathname.startsWith("/homepage-sections");
-
   return (
     <div
       className={`admin-layout ${
@@ -166,16 +163,16 @@ const AdminLayout = ({ children }) => {
             {sidebarOpen && <span>Banners</span>}
           </button>
 
-          {/* HOMEPAGE SECTIONS */}
+          {/* PAGES */}
 
           <button
             type="button"
-            className={isHomepageSectionsActive ? "active" : ""}
-            onClick={() => handleNav("/homepage-sections")}
+            className={location.pathname.startsWith("/pages") ? "active" : ""}
+            onClick={() => handleNav("/pages")}
           >
             <MdViewModule />
 
-            {sidebarOpen && <span>Homepage Sections</span>}
+            {sidebarOpen && <span>Pages</span>}
           </button>
         </nav>
 

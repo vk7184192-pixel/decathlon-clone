@@ -5,12 +5,17 @@ import "../../styles/home/RainyDayCollection.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const RainyDayCollection = () => {
+const RainyDayCollection = ({ customCategories }) => {
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
 
-  /* Image URL */
+  /*
+  ========================================
+  IMAGE URL
+  ========================================
+  */
+
   const getImageUrl = (image) => {
     if (!image) return "";
     if (image.startsWith("http://") || image.startsWith("https://")) {
@@ -23,51 +28,57 @@ const RainyDayCollection = () => {
     return `${backendUrl}${image.startsWith("/") ? "" : "/"}${image}`;
   };
 
-  /*FETCH HOMEPAGE SECTION*/
+  /*
+  ========================================
+  FETCH CATEGORIES
+  ========================================
+  */
 
   const fetchSection = useCallback(async () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const sections = response.data.sections || [];
-
-      /*
-        IMPORTANT:
-        Admin Section Name:
-        Rainy Day Collection
-        */
-
-      const section = sections.find(
-        (item) => item.name === "Rainy Day Collection",
+      const section = pageSections.find(
+        (item) => item.name === "Rainy Day Collection" || item.name.includes("Rainy") || item.type === "category"
       );
 
-      /* SECTION NOT FOUND*/
+      const validCategories = (section?.categories || []).filter(
+        (c) => c && typeof c === "object" && c.name
+      );
 
-      if (!section) {
-        setCategories([]);
-
-        return;
+      if (validCategories.length > 0) {
+        setCategories(validCategories);
+      } else {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
       }
-
-      /* SELECTED CATEGORIES */
-
-      setCategories(section.categories || []);
     } catch (error) {
       console.error("Rainy Day Collection Error:", error);
-
-      setCategories([]);
+      try {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
+      } catch {
+        setCategories([]);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /* INITIAL LOAD */
-
   useEffect(() => {
+    const valid = (customCategories || []).filter(
+      (c) => c && typeof c === "object" && c.name
+    );
+    if (valid.length > 0) {
+      setCategories(valid);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customCategories, fetchSection]);
 
   /* REALTIME UPDATE */
 

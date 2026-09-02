@@ -394,29 +394,6 @@ const Navbar = () => {
             {/* DECATHLON SEARCH MODAL POPOVER */}
             {isSearchFocused && (
               <div className="decathlon-search-modal">
-                {/* MODAL HEADER INPUT */}
-                <div className="search-modal-header-input">
-                  <FiSearch className="search-modal-input-icon" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search for 60+ sports and 6,000+ products"
-                    autoFocus
-                  />
-                  {searchQuery ? (
-                    <FiX
-                      className="search-modal-input-clear"
-                      onClick={handleClearSearch}
-                    />
-                  ) : (
-                    <FiX
-                      className="search-modal-input-clear"
-                      onClick={() => setIsSearchFocused(false)}
-                    />
-                  )}
-                </div>
-
                 {/* 1. WHEN SEARCH QUERY IS EMPTY */}
                 {!searchQuery.trim() && (
                   <div className="search-modal-content">

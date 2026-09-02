@@ -9,14 +9,16 @@ import "../../styles/home/LovedCategories.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const LovedCategories = () => {
-  const [categories, setCategories] =
-    useState([]);
+const LovedCategories = ({ customCategories }) => {
+  const [categories, setCategories] = useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  /*IMAGE URL*/
+  /*
+  ========================================
+  IMAGE URL
+  ========================================
+  */
 
   const getImageUrl = (image) => {
     if (!image) return "";
@@ -30,60 +32,57 @@ const LovedCategories = () => {
     return `${backendUrl}${image.startsWith("/") ? "" : "/"}${image}`;
   };
 
-  /*FETCH HOMEPAGE SECTION*/
+  /*
+  ========================================
+  FETCH CATEGORIES
+  ========================================
+  */
 
-  const fetchSection =
-    useCallback(async () => {
-      try {
-        setLoading(true);
+  const fetchSection = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        const response =
-          await api.get(
-            "/homepage-sections/active"
-          );
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-        const sections =
-          response.data.sections || [];
+      const section = pageSections.find(
+        (item) => item.name === "Loved Categories" || item.name.includes("Loved") || item.type === "category"
+      );
 
-        /*
-        Admin Section Name:
-        Loved Categories
-        */
+      const validCategories = (section?.categories || []).filter(
+        (c) => c && typeof c === "object" && c.name
+      );
 
-        const section =
-          sections.find(
-            (item) =>
-              item.name ===
-              "Loved Categories"
-          );
-
-        if (!section) {
-          setCategories([]);
-          return;
-        }
-
-        /*Selected category images*/
-
-        setCategories(
-          section.categories || []
-        );
-      } catch (error) {
-        console.error(
-          "Loved Categories Error:",
-          error
-        );
-
-        setCategories([]);
-      } finally {
-        setLoading(false);
+      if (validCategories.length > 0) {
+        setCategories(validCategories);
+      } else {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
       }
-    }, []);
-
-  /* INITIAL LOAD */
+    } catch (error) {
+      console.error("Loved Categories Error:", error);
+      try {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
+      } catch {
+        setCategories([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
+    const valid = (customCategories || []).filter(
+      (c) => c && typeof c === "object" && c.name
+    );
+    if (valid.length > 0) {
+      setCategories(valid);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customCategories, fetchSection]);
 
   /* REALTIME UPDATE */
 

@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import "../../styles/home/SportsCategories.css";
 
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const SportsCategories = () => {
-  const navigate = useNavigate();
+const SportsCategories = ({ customCategories }) => {
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -32,7 +30,7 @@ const SportsCategories = () => {
 
   /*
   ========================================
-  FETCH HOMEPAGE SECTION
+  FETCH CATEGORIES
   ========================================
   */
 
@@ -40,51 +38,47 @@ const SportsCategories = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const sections = response.data.sections || [];
+      const section = pageSections.find(
+        (item) => item.name === "SportsCategories" || (item.type === "category" && item.name.includes("Sports"))
+      );
 
-      /*
-        IMPORTANT:
-        Admin Section Name:
-        Sports Categories
-        */
+      const validCategories = (section?.categories || []).filter(
+        (c) => c && typeof c === "object" && c.name
+      );
 
-      const section = sections.find((item) => item.name === "SportsCategories");
-
-      /*
-        Section not found
-        */
-
-      if (!section) {
-        setCategories([]);
-
-        return;
+      if (validCategories.length > 0) {
+        setCategories(validCategories);
+      } else {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
       }
-
-      /*
-        Selected categories
-        */
-
-      setCategories(section.categories || []);
     } catch (error) {
       console.error("Sports Categories Error:", error);
-
-      setCategories([]);
+      try {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
+      } catch {
+        setCategories([]);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /*
-  ========================================
-  INITIAL LOAD
-  ========================================
-  */
-
   useEffect(() => {
+    const valid = (customCategories || []).filter(
+      (c) => c && typeof c === "object" && c.name
+    );
+    if (valid.length > 0) {
+      setCategories(valid);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customCategories, fetchSection]);
 
   /*
   ========================================
@@ -156,11 +150,7 @@ const SportsCategories = () => {
     <section className="sports-categories">
       <div className="sports-categories-list">
         {categories.map((category) => (
-          <div
-            className="sports-category-card"
-            key={category._id}
-            onClick={() => navigate(`/category/${category._id}`)}
-          >
+          <div className="sports-category-card" key={category._id}>
             {category.image ? (
               <img src={getImageUrl(category.image)} alt={category.name} />
             ) : (

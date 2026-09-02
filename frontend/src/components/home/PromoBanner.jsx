@@ -5,7 +5,7 @@ import "../../styles/home/PromoBanner.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const PromoBanner = () => {
+const PromoBanner = ({ customBanners }) => {
   const [banners, setBanners] = useState([]);
 
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -44,17 +44,13 @@ const PromoBanner = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
 
-      const sections = response.data.sections || [];
+      const pageSections = response.data?.page?.sections || [];
 
-      /*
-        IMPORTANT:
-        Admin Section Name:
-        Promo Banner
-        */
-
-      const section = sections.find((item) => item.name === "Promo Banner");
+      const section = pageSections.find(
+        (item) => item.name === "PromoBanner" || item.name === "Promo Banner" || item.type === "banner"
+      );
 
       if (!section) {
         setBanners([]);
@@ -62,22 +58,12 @@ const PromoBanner = () => {
         return;
       }
 
-      /*
-        SELECTED BANNERS
-        */
-
       setBanners(section.banners || []);
-
-      /*
-        RESET SLIDER
-        */
-
       setCurrentBanner(0);
       setAutoplay(true);
       setIsTransitioning(true);
     } catch (error) {
       console.error("Promo Banner Error:", error);
-
       setBanners([]);
       setCurrentBanner(0);
     } finally {
@@ -92,8 +78,14 @@ const PromoBanner = () => {
   */
 
   useEffect(() => {
+    if (customBanners && Array.isArray(customBanners) && customBanners.length > 0) {
+      setBanners(customBanners);
+      setCurrentBanner(0);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customBanners, fetchSection]);
 
   /*
   ========================================

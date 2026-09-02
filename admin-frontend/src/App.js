@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import AdminLogin from "./pages/AdminLogin";
@@ -18,9 +18,8 @@ import Banners from "./pages/Banners";
 import AddBanner from "./components/banners/AddBanner";
 import EditBanner from "./components/banners/EditBanner";
 
-import HomepageSections from "./pages/HomepageSections";
-import AddHomepageSection from "./components/homepageSections/AddHomepageSection";
-import EditHomepageSection from "./components/homepageSections/EditHomepageSection";
+import Pages from "./pages/Pages";
+import PageBuilder from "./pages/PageBuilder";
 
 import AdminLayout from "./components/AdminLayout";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -172,37 +171,28 @@ function App() {
         />
 
         <Route
-          path="/homepage-sections"
+          path="/pages"
           element={
             <AdminProtectedRoute>
               <AdminLayout>
-                <HomepageSections />
+                <Pages />
               </AdminLayout>
             </AdminProtectedRoute>
           }
         />
 
         <Route
-          path="/homepage-sections/add"
+          path="/pages/builder/:id"
           element={
             <AdminProtectedRoute>
               <AdminLayout>
-                <AddHomepageSection />
+                <PageBuilder />
               </AdminLayout>
             </AdminProtectedRoute>
           }
         />
 
-        <Route
-          path="/homepage-sections/edit/:id"
-          element={
-            <AdminProtectedRoute>
-              <AdminLayout>
-                <EditHomepageSection />
-              </AdminLayout>
-            </AdminProtectedRoute>
-          }
-        />
+        <Route path="/homepage-sections" element={<Navigate to="/pages" replace />} />
       </Routes>
     </BrowserRouter>
   );

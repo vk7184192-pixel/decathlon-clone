@@ -14,7 +14,8 @@ import addressRoutes from "./routes/addressRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import bannerRoutes from "./routes/bannerRoutes.js";
-import homepageSectionRoutes from "./routes/homepageSectionRoutes.js";
+import pageRoutes from "./routes/pageRoutes.js";
+import Page from "./models/Page.js";
 
 import registrationRoutes from "./routes/registrationRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
@@ -85,6 +86,36 @@ DATABASE
 
 let mongoPromise = null;
 
+const defaultPages = [
+  { name: "Home", slug: "home", description: "Main store homepage" },
+  { name: "Monsoon Essentials", slug: "monsoon-essentials", description: "Monsoon gear and rainwear collection" },
+  { name: "Activewear", slug: "activewear", description: "Fitness and training activewear" },
+  { name: "Workout Essentials", slug: "workout-essentials", description: "Gym equipment and workout gear" },
+  { name: "Cycling", slug: "cycling", description: "Bikes, helmets, and cycling gear" },
+  { name: "Hiking & Trekking", slug: "hiking-trekking", description: "Trekking poles, tents, and hiking boots" },
+  { name: "Shoes", slug: "shoes", description: "Running, sports, and casual footwear" },
+  { name: "Bags & Backpacks", slug: "bags-backpacks", description: "Backpacks, duffle bags, and travel gear" },
+  { name: "Sports Accessories", slug: "sports-accessories", description: "Water bottles, caps, socks, and accessories" },
+];
+
+const seedPagesIfEmpty = async () => {
+  try {
+    for (const p of defaultPages) {
+      const exists = await Page.findOne({ slug: p.slug });
+      if (!exists) {
+        await Page.create({
+          name: p.name,
+          slug: p.slug,
+          description: p.description,
+          sections: [],
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Seed Pages Error:", err);
+  }
+};
+
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) {
     return;
@@ -100,6 +131,7 @@ const connectDB = async () => {
   await mongoPromise;
 
   console.log("MongoDB Connected");
+  await seedPagesIfEmpty();
 };
 
 /*
@@ -146,7 +178,7 @@ app.use("/api/payment", paymentRoutes);
 
 app.use("/api/banners", bannerRoutes);
 
-app.use("/api/homepage-sections", homepageSectionRoutes);
+app.use("/api/pages", pageRoutes);
 
 /*
 ========================================

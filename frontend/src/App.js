@@ -17,7 +17,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Profile from "./pages/Profile";
 import MyAccount from "./pages/MyAccount";
 import Wishlist from "./pages/Wishlist";
-import CategoryPage from "./pages/CategoryPage";
+import CategoryRoutes from "./routes/categoryRoutes";
 
 function App() {
   return (
@@ -35,8 +35,7 @@ function App() {
             }
           />
 
-          <Route path="/category/:categoryId" element={<CategoryPage />} />
-          <Route path="/shop/:slug" element={<CategoryPage />} />
+          {CategoryRoutes}
 
           <Route path="/login" element={<UserLogin />} />
 

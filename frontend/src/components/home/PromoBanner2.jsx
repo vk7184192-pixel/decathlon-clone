@@ -5,7 +5,7 @@ import "../../styles/home/PromoBanner.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const PromoBanner2 = () => {
+const PromoBanner2 = ({ customBanners }) => {
   const [banners, setBanners] = useState([]);
 
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -36,7 +36,7 @@ const PromoBanner2 = () => {
 
   /*
   ========================================
-  FETCH HOMEPAGE SECTION
+  FETCH BANNERS
   ========================================
   */
 
@@ -44,52 +44,52 @@ const PromoBanner2 = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const sections = response.data.sections || [];
+      const section = pageSections.find(
+        (item) => item.name === "Promo Banner 2" || item.name === "PromoBanner2" || (item.type === "banner" && item.name.includes("2"))
+      );
 
-      /*
-        IMPORTANT:
-        Admin Section Name:
-        Promo Banner 2
-        */
+      const validBanners = (section?.banners || []).filter(
+        (b) => b && typeof b === "object" && (b.image || b.title)
+      );
 
-      const section = sections.find((item) => item.name === "Promo Banner 2");
-
-      if (!section) {
-        setBanners([]);
-        setCurrentBanner(0);
-        return;
+      if (validBanners.length > 0) {
+        setBanners(validBanners);
+      } else {
+        const banRes = await api.get("/banners");
+        setBanners(banRes.data.banners || []);
       }
-
-      /*
-        Selected banners
-        */
-
-      setBanners(section.banners || []);
-
       setCurrentBanner(0);
       setAutoplay(true);
       setIsTransitioning(true);
     } catch (error) {
       console.error("Promo Banner 2 Error:", error);
-
-      setBanners([]);
+      try {
+        const banRes = await api.get("/banners");
+        setBanners(banRes.data.banners || []);
+      } catch {
+        setBanners([]);
+      }
       setCurrentBanner(0);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /*
-  ========================================
-  INITIAL LOAD
-  ========================================
-  */
-
   useEffect(() => {
+    const valid = (customBanners || []).filter(
+      (b) => b && typeof b === "object" && (b.image || b.title)
+    );
+    if (valid.length > 0) {
+      setBanners(valid);
+      setCurrentBanner(0);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customBanners, fetchSection]);
 
   /*
   ========================================

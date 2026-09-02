@@ -7,13 +7,14 @@ import socket from "../../socket/socket";
 import ProductSizeModal from "../ProductSizeModal";
 import { useWishlist } from "../../utils/useWishlist";
 
-const ProductSection = () => {
+const ProductSection = ({ customProducts, title }) => {
   const { isWishlisted, handleToggle } = useWishlist();
   const [products, setProducts] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleProducts, setVisibleProducts] = useState(5);
   const [loading, setLoading] = useState(true);
 
+  // PRODUCT MODAL STATES
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -40,10 +41,12 @@ const ProductSection = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
-      const sections = response.data.sections || [];
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const section = sections.find((item) => item.name === "Product Section");
+      const section = pageSections.find(
+        (item) => item.name === "Product Section" || item.name === "ProductSection" || item.type === "product"
+      );
 
       if (!section) {
         setProducts([]);
@@ -63,8 +66,14 @@ const ProductSection = () => {
   }, []);
 
   useEffect(() => {
+    if (customProducts && Array.isArray(customProducts) && customProducts.length > 0) {
+      setProducts(customProducts);
+      setCurrentIndex(0);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customProducts, fetchSection]);
 
   useEffect(() => {
     const handleHomepageUpdate = (data) => {

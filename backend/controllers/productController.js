@@ -103,7 +103,8 @@ const createProduct = async (req, res) => {
 
     if (!name || !description || !price || categoryList.length === 0) {
       return res.status(400).json({
-        message: "Name, description, price and at least one category are required",
+        message:
+          "Name, description, price and at least one category are required",
       });
     }
 
@@ -225,10 +226,7 @@ const getProducts = async (req, res) => {
       ];
 
       if (filter.$or) {
-        filter.$and = [
-          { $or: filter.$or },
-          { $or: searchConditions },
-        ];
+        filter.$and = [{ $or: filter.$or }, { $or: searchConditions }];
         delete filter.$or;
       } else {
         filter.$or = searchConditions;
@@ -244,10 +242,7 @@ const getProducts = async (req, res) => {
     */
 
     if (category) {
-      filter.$or = [
-        { category: category },
-        { categories: category },
-      ];
+      filter.$or = [{ category: category }, { categories: category }];
     }
 
     /*

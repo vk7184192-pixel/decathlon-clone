@@ -5,7 +5,7 @@ import "../../styles/home/CouponBanner.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const CouponBanner = () => {
+const CouponBanner = ({ customBanners }) => {
   const [banner, setBanner] = useState(null);
 
   const [loading, setLoading] = useState(true);
@@ -38,44 +38,22 @@ const CouponBanner = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
 
-      const sections = response.data.sections || [];
+      const pageSections = response.data?.page?.sections || [];
 
-      /*
-        IMPORTANT:
-        Admin Section Name:
-        CouponBanner
-        */
+      const section = pageSections.find(
+        (item) => item.name === "CouponBanner" || (item.type === "banner" && item.name.includes("Coupon"))
+      );
 
-      const section = sections.find((item) => item.name === "CouponBanner");
-
-      /*
-        Section not found
-        */
-
-      if (!section) {
+      if (!section || !section.banners || section.banners.length === 0) {
         setBanner(null);
         return;
       }
-
-      /*
-        Section has no banner
-        */
-
-      if (!section.banners || section.banners.length === 0) {
-        setBanner(null);
-        return;
-      }
-
-      /*
-        Take first selected banner
-        */
 
       setBanner(section.banners[0]);
     } catch (error) {
       console.error("Coupon Section Error:", error);
-
       setBanner(null);
     } finally {
       setLoading(false);
@@ -89,8 +67,13 @@ const CouponBanner = () => {
   */
 
   useEffect(() => {
+    if (customBanners && Array.isArray(customBanners) && customBanners.length > 0) {
+      setBanner(customBanners[0]);
+      setLoading(false);
+      return;
+    }
     fetchCouponSection();
-  }, [fetchCouponSection]);
+  }, [customBanners, fetchCouponSection]);
 
   /*
   ========================================

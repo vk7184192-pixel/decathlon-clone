@@ -5,10 +5,16 @@ import "../../styles/home/EquippingChampions.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const EquippingChampions = () => {
+const EquippingChampions = ({ customCategories }) => {
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
+  /*
+  ========================================
+  IMAGE URL
+  ========================================
+  */
 
   const getImageUrl = (image) => {
     if (!image) return "";
@@ -22,36 +28,57 @@ const EquippingChampions = () => {
     return `${backendUrl}${image.startsWith("/") ? "" : "/"}${image}`;
   };
 
+  /*
+  ========================================
+  FETCH CATEGORIES
+  ========================================
+  */
+
   const fetchSection = useCallback(async () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const sections = response.data.sections || [];
-
-      const section = sections.find(
-        (item) => item.name === "Equipping Champions",
+      const section = pageSections.find(
+        (item) => item.name === "Equipping Champions" || item.name.includes("Champions") || item.type === "category"
       );
 
-      if (!section) {
-        setCategories([]);
-        return;
-      }
+      const validCategories = (section?.categories || []).filter(
+        (c) => c && typeof c === "object" && c.name
+      );
 
-      setCategories(section.categories || []);
+      if (validCategories.length > 0) {
+        setCategories(validCategories);
+      } else {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
+      }
     } catch (error) {
       console.error("Equipping Champions Error:", error);
-
-      setCategories([]);
+      try {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
+      } catch {
+        setCategories([]);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    const valid = (customCategories || []).filter(
+      (c) => c && typeof c === "object" && c.name
+    );
+    if (valid.length > 0) {
+      setCategories(valid);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customCategories, fetchSection]);
 
   useEffect(() => {
     const handleHomepageUpdate = (data) => {

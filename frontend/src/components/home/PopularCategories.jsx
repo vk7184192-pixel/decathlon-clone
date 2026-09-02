@@ -6,9 +6,10 @@ import "../../styles/home/PopularCategories.css";
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const PopularCategories = () => {
+const PopularCategories = ({ customCategories, title }) => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   /*
@@ -39,35 +40,31 @@ const PopularCategories = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const sections = response.data.sections || [];
-
-      /*
-        IMPORTANT:
-        Admin section name must be
-        "PopularCategories"
-        */
-
-      const section = sections.find(
-        (item) => item.name === "PopularCategories",
+      const section = pageSections.find(
+        (item) => item.name === "PopularCategories" || item.type === "category"
       );
 
-      if (!section) {
-        setCategories([]);
-        return;
+      const validCategories = (section?.categories || []).filter(
+        (c) => c && typeof c === "object" && c.name
+      );
+
+      if (validCategories.length > 0) {
+        setCategories(validCategories);
+      } else {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
       }
-
-      /*
-        Selected categories from
-        Homepage Section
-        */
-
-      setCategories(section.categories || []);
     } catch (error) {
       console.error("Popular Categories Error:", error);
-
-      setCategories([]);
+      try {
+        const catRes = await api.get("/categories");
+        setCategories(catRes.data.categories || []);
+      } catch {
+        setCategories([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -80,8 +77,16 @@ const PopularCategories = () => {
   */
 
   useEffect(() => {
+    const valid = (customCategories || []).filter(
+      (c) => c && typeof c === "object" && c.name
+    );
+    if (valid.length > 0) {
+      setCategories(valid);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customCategories, fetchSection]);
 
   /*
   ========================================
@@ -147,7 +152,8 @@ const PopularCategories = () => {
         <div
           className="category-card"
           key={category._id}
-          onClick={() => navigate(`/category/${category._id}`)}
+          onClick={() => navigate("/monsoon-essentials")}
+          style={{ cursor: "pointer" }}
         >
           {category.image ? (
             <img src={getImageUrl(category.image)} alt={category.name} />

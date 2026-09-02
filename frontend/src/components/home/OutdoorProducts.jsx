@@ -7,13 +7,14 @@ import socket from "../../socket/socket";
 import ProductSizeModal from "../ProductSizeModal";
 import { useWishlist } from "../../utils/useWishlist";
 
-const OutdoorProducts = () => {
+const OutdoorProducts = ({ customProducts }) => {
   const { isWishlisted, handleToggle } = useWishlist();
-  const sliderRef = useRef(null);
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const sliderRef = useRef(null);
 
+  // PRODUCT MODAL STATES
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -22,7 +23,7 @@ const OutdoorProducts = () => {
 
   const getImageUrl = (image) => {
     if (!image) return "";
-    if (image.startsWith("http://") || image.startsWith("https://")) {
+    if (typeof image === "string" && (image.startsWith("http://") || image.startsWith("https://"))) {
       return image;
     }
     const apiBaseUrl = api.defaults.baseURL || "";
@@ -40,35 +41,47 @@ const OutdoorProducts = () => {
     try {
       setLoading(true);
 
-      const response = await api.get("/homepage-sections/active");
-      const sections = response.data.sections || [];
+      const response = await api.get("/pages/slug/home");
+      const pageSections = response.data?.page?.sections || [];
 
-      const section = sections.find((item) => item.name === "Outdoor Products");
+      const section = pageSections.find(
+        (item) => item.name === "Outdoor Products" || item.name === "OutdoorProducts" || item.type === "product"
+      );
 
-      if (!section) {
-        setProducts([]);
-        return;
-      }
+      const validProds = (section?.products || []).filter(
+        (p) => p && typeof p === "object" && p.name
+      );
 
-      setProducts(section.products || []);
-
-      if (sliderRef.current) {
-        sliderRef.current.scrollTo({
-          left: 0,
-          behavior: "instant",
-        });
+      if (validProds.length > 0) {
+        setProducts(validProds);
+      } else {
+        const prodRes = await api.get("/products?limit=12");
+        setProducts(prodRes.data.products || []);
       }
     } catch (error) {
       console.error("Outdoor Products Error:", error);
-      setProducts([]);
+      try {
+        const prodRes = await api.get("/products?limit=12");
+        setProducts(prodRes.data.products || []);
+      } catch {
+        setProducts([]);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    const valid = (customProducts || []).filter(
+      (p) => p && typeof p === "object" && p.name
+    );
+    if (valid.length > 0) {
+      setProducts(valid);
+      setLoading(false);
+      return;
+    }
     fetchSection();
-  }, [fetchSection]);
+  }, [customProducts, fetchSection]);
 
   useEffect(() => {
     const handleHomepageUpdate = (data) => {
