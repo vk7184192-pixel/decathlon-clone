@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
   MdArrowBack,
   MdCloudUpload,
   MdDelete,
+  MdKeyboardArrowDown,
+  MdCheck,
 } from "react-icons/md";
 
 import toast from "react-hot-toast";
 
 import api from "../../api/axios";
-import MultiSelectCategoryDropdown from "./MultiSelectCategoryDropdown";
 import "../../styles/AddProduct.css";
 
 const AddProduct = () => {
@@ -18,7 +19,24 @@ const AddProduct = () => {
 
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef(null);
   const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target)
+      ) {
+        setCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -440,19 +458,66 @@ const AddProduct = () => {
 
             {/* CATEGORIES (MULTI-SELECT DROPDOWN) */}
 
-            <div className="form-group full-width">
+            <div className="form-group full-width" ref={categoryDropdownRef}>
 
               <label>
                 Categories * (Select one or more)
               </label>
 
-              <MultiSelectCategoryDropdown
-                categories={categories}
-                selectedCategories={selectedCategories}
-                onChange={setSelectedCategories}
-                placeholder="Select Categories"
-                disabled={categoryLoading}
-              />
+              <div className={`multiselect-container ${categoryDropdownOpen ? "open" : ""}`}>
+                <div
+                  className="multiselect-box"
+                  onClick={() => !categoryLoading && setCategoryDropdownOpen(!categoryDropdownOpen)}
+                  tabIndex={0}
+                >
+                  <div className="multiselect-text">
+                    {categoryLoading ? (
+                      <span className="multiselect-placeholder">Loading categories...</span>
+                    ) : selectedCategories.length === 0 ? (
+                      <span className="multiselect-placeholder">Select Categories</span>
+                    ) : selectedCategories.length === 1 ? (
+                      <span className="multiselect-value">
+                        {categories.find((c) => c._id === selectedCategories[0])?.name || "Selected Category"}
+                      </span>
+                    ) : (
+                      <span className="multiselect-value">
+                        {categories.find((c) => c._id === selectedCategories[0])?.name}{" "}
+                        <span className="multiselect-badge">+{selectedCategories.length - 1} more</span>
+                      </span>
+                    )}
+                  </div>
+                  <MdKeyboardArrowDown className={`multiselect-arrow ${categoryDropdownOpen ? "rotate" : ""}`} />
+                </div>
+
+                {categoryDropdownOpen && (
+                  <div className="multiselect-dropdown">
+                    {categories.length === 0 ? (
+                      <div className="multiselect-empty">No categories available</div>
+                    ) : (
+                      <div className="multiselect-options">
+                        {categories.map((cat) => {
+                          const isSelected = selectedCategories.includes(cat._id);
+                          return (
+                            <div
+                              key={cat._id}
+                              className={`multiselect-option ${isSelected ? "selected" : ""}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCategoryToggle(cat._id);
+                              }}
+                            >
+                              <div className={`multiselect-checkbox ${isSelected ? "checked" : ""}`}>
+                                {isSelected && <MdCheck />}
+                              </div>
+                              <span className="multiselect-option-label">{cat.name}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
             </div>
 
