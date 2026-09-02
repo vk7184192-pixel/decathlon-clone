@@ -28,6 +28,8 @@
 
   overflow: hidden;
 
+  border-radius: 6px;
+
   cursor: pointer;
 
   background: #eee;
@@ -58,25 +60,25 @@
 
 
 /* ========================================
-   OVERLAY
+   OVERLAY & BADGE
 ======================================== */
 
 .category-overlay {
   position: absolute;
 
-  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 8px;
 
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
 
-  padding: 12px 5px;
+  padding: 0 4px;
 
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.65),
-    rgba(0, 0, 0, 0) 60%
-  );
+  background: transparent;
+
+  pointer-events: none;
 }
 
 
@@ -87,16 +89,28 @@
 .category-overlay h3 {
   margin: 0;
 
-  color: #fff;
+  padding: 3px 8px;
 
-  font-size: 13px;
-  font-weight: 600;
+  background: rgba(17, 17, 17, 0.9);
+
+  color: #ffffff;
+
+  border-radius: 4px;
+
+  font-size: 11px;
+  font-weight: 700;
 
   line-height: 1.2;
 
   text-align: center;
 
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+
+  max-width: 92%;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
 }
 
 
@@ -113,14 +127,42 @@
 
 @media (max-width: 600px) {
   .popular-categories {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
 
-    gap: 8px;
+    gap: 6px;
 
-    padding: 0 8px;
+    padding: 0 6px;
+
+    margin: 12px 0;
   }
 
   .category-card {
-    height: 150px;
+    height: 102px;
+
+    border-radius: 6px;
+  }
+
+  .category-overlay {
+    bottom: 5px;
+  }
+
+  .category-overlay h3 {
+    font-size: 9.5px;
+
+    padding: 2px 5px;
+
+    border-radius: 3px;
+  }
+}
+
+@media (max-width: 400px) {
+  .category-card {
+    height: 92px;
+  }
+
+  .category-overlay h3 {
+    font-size: 8.5px;
+
+    padding: 2px 4px;
   }
 }

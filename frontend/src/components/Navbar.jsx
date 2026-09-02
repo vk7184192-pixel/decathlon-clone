@@ -14,6 +14,7 @@ import {
   FiMenu,
   FiMonitor,
   FiMessageSquare,
+  FiChevronDown,
 } from "react-icons/fi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../api/axios";
@@ -226,7 +227,16 @@ const Navbar = () => {
             <span>Cart</span>
           </Link>
         </nav>
-      </div>
+      {/* MOBILE DELIVERY LOCATION BAR */}
+      {!isOrdersPage && (
+        <div className="mobile-delivery-location">
+          <FiMapPin className="mobile-loc-pin" />
+          <span>
+            Delivery to <strong>Bangalore Central, Bangalore, 560001...</strong>
+          </span>
+          <FiChevronDown className="mobile-loc-arrow" />
+        </div>
+      )}
     </header>
   );
 };

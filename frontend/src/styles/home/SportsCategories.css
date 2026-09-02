@@ -239,33 +239,51 @@
 @media (max-width: 700px) {
 
   .sports-categories {
-    padding: 8px;
+    padding: 6px;
   }
 
   .sports-categories-list {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 
-    gap: 8px;
+    gap: 6px;
   }
 
   .sports-category-card {
-    height: 150px;
+    height: 102px;
+
+    border-radius: 6px;
   }
 
   .sports-category-overlay {
-    min-height: 55px;
+    min-height: auto;
 
-    padding:
-      25px
-      4px
-      7px;
+    background: transparent;
+
+    padding: 0 4px 5px;
   }
 
   .sports-category-overlay h3 {
-    font-size: 13px;
+    font-size: 9.5px;
 
-    line-height: 1.1;
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    background: rgba(17, 17, 17, 0.9);
+
+    color: #ffffff;
+
+    padding: 2px 5px;
+
+    border-radius: 3px;
+
+    white-space: nowrap;
+
+    max-width: 92%;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
   }
 
 }
@@ -275,57 +293,16 @@
    SMALL MOBILE
 ======================================== */
 
-@media (max-width: 450px) {
-
-  .sports-categories {
-    padding: 7px;
-  }
-
-  .sports-categories-list {
-    gap: 7px;
-  }
+@media (max-width: 400px) {
 
   .sports-category-card {
-    height: 135px;
-  }
-
-  .sports-category-overlay {
-    min-height: 50px;
-
-    padding:
-      22px
-      4px
-      6px;
+    height: 92px;
   }
 
   .sports-category-overlay h3 {
-    font-size: 12px;
+    font-size: 8.5px;
 
-    line-height: 1.05;
-  }
-
-}
-
-
-/* ========================================
-   VERY SMALL MOBILE
-======================================== */
-
-@media (max-width: 360px) {
-
-  .sports-category-card {
-    height: 125px;
-  }
-
-  .sports-category-overlay {
-    padding:
-      20px
-      3px
-      5px;
-  }
-
-  .sports-category-overlay h3 {
-    font-size: 11px;
+    padding: 2px 4px;
   }
 
 }

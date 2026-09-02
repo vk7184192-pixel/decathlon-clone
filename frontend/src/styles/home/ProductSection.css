@@ -418,7 +418,7 @@
   }
 
   .product-section-left h2 {
-    font-size: 25px;
+    font-size: 24px;
   }
 
   .product-arrow {
@@ -428,43 +428,44 @@
   }
 
   .product-image-wrapper {
-    height: 170px;
+    height: 185px;
   }
 
   .product-name {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 16px;
-    height: 32px;
-    min-height: 32px;
+    height: 34px;
+    min-height: 34px;
   }
 
   .rating-stars {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .review-count {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .current-price {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .mrp {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .wishlist-button {
-    width: 25px;
-    height: 25px;
-    flex-basis: 25px;
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
     font-size: 16px;
   }
 
   .cart-button {
-    height: 25px;
-    padding: 0 7px;
-    font-size: 9px;
+    height: 32px;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 600;
   }
 
 }
