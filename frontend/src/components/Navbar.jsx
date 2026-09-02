@@ -227,6 +227,8 @@ const Navbar = () => {
             <span>Cart</span>
           </Link>
         </nav>
+      </div>
+
       {/* MOBILE DELIVERY LOCATION BAR */}
       {!isOrdersPage && (
         <div className="mobile-delivery-location">
