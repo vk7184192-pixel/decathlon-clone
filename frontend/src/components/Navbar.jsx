@@ -15,27 +15,59 @@ import {
   FiMonitor,
   FiMessageSquare,
   FiChevronDown,
+  FiChevronLeft,
+  FiChevronRight,
   FiX,
+  FiGrid,
+  FiEdit2,
 } from "react-icons/fi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 import ProductSizeModal from "./ProductSizeModal";
+import { useWishlist } from "../utils/useWishlist";
 import "../styles/Navbar.css";
 import "../styles/ProductSizeModal.css";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isWishlisted, handleToggle: toggleWishlistIcon } = useWishlist();
 
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
 
-  // SEARCH STATES
+  // DECATHLON SEARCH MODAL STATES
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState({ products: [], categories: [] });
+  const [popularProducts, setPopularProducts] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const [popularSlideIndex, setPopularSlideIndex] = useState(0);
+  const [topProductsSlideIndex, setTopProductsSlideIndex] = useState(0);
+
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      const saved = localStorage.getItem("decathlon_recent_searches");
+      return saved ? JSON.parse(saved) : ["Bags"];
+    } catch {
+      return ["Bags"];
+    }
+  });
+
+  const trendingSearches = [
+    "Rain coats",
+    "Shoes for men",
+    "Cycles",
+    "Bags",
+    "Jackets",
+    "Yoga mat",
+    "Track pants",
+    "Tent",
+    "Football",
+  ];
+
   const searchContainerRef = useRef(null);
 
   // PRODUCT MODAL STATES FOR ADD TO CART FROM SEARCH
@@ -49,7 +81,10 @@ const Navbar = () => {
 
   const getImageUrl = (image) => {
     if (!image) return "";
-    if (typeof image === "string" && (image.startsWith("http://") || image.startsWith("https://"))) {
+    if (
+      typeof image === "string" &&
+      (image.startsWith("http://") || image.startsWith("https://"))
+    ) {
       return image;
     }
     const apiBaseUrl = api.defaults.baseURL || "";
@@ -100,6 +135,19 @@ const Navbar = () => {
     }
   };
 
+  // FETCH POPULAR PRODUCTS FOR SEARCH MODAL
+  useEffect(() => {
+    const fetchPopular = async () => {
+      try {
+        const response = await api.get("/products?limit=10");
+        setPopularProducts(response.data.products || []);
+      } catch (error) {
+        console.error("Fetch Popular Search Products Error:", error);
+      }
+    };
+    fetchPopular();
+  }, []);
+
   useEffect(() => {
     loadUser();
     fetchCartCount();
@@ -125,33 +173,38 @@ const Navbar = () => {
   // DEBOUNCED SEARCH API CALL
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setSearchResults([]);
-      setShowSearchDropdown(false);
+      setSearchResults({ products: [], categories: [] });
+      setTopProductsSlideIndex(0);
       return;
     }
 
     const timer = setTimeout(async () => {
       try {
         setIsSearching(true);
-        const response = await api.get(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-        setSearchResults(response.data.products || []);
-        setShowSearchDropdown(true);
+        const response = await api.get(
+          `/products?search=${encodeURIComponent(searchQuery.trim())}`
+        );
+        setSearchResults({
+          products: response.data.products || [],
+          categories: response.data.categories || [],
+        });
+        setTopProductsSlideIndex(0);
       } catch (error) {
         console.error("Search API Error:", error);
-        setSearchResults([]);
+        setSearchResults({ products: [], categories: [] });
       } finally {
         setIsSearching(false);
       }
-    }, 280);
+    }, 250);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // OUTSIDE CLICK LISTENER TO CLOSE SEARCH DROPDOWN
+  // OUTSIDE CLICK LISTENER TO CLOSE SEARCH MODAL
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
-        setShowSearchDropdown(false);
+        setIsSearchFocused(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -171,8 +224,21 @@ const Navbar = () => {
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    setSearchResults([]);
-    setShowSearchDropdown(false);
+    setSearchResults({ products: [], categories: [] });
+  };
+
+  const handleSelectKeyword = (term) => {
+    setSearchQuery(term);
+    setIsSearchFocused(true);
+
+    // SAVE TO RECENT SEARCHES
+    setRecentSearches((prev) => {
+      const updated = [term, ...prev.filter((t) => t !== term)].slice(0, 5);
+      try {
+        localStorage.setItem("decathlon_recent_searches", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
   const handleSelectProduct = (product) => {
@@ -180,7 +246,7 @@ const Navbar = () => {
     setSelectedSize("");
     setSelectedColor("");
     setQuantity(1);
-    setShowSearchDropdown(false);
+    setIsSearchFocused(false);
   };
 
   const handleCloseModal = () => {
@@ -227,7 +293,7 @@ const Navbar = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       toast.success(response?.data?.message || "Product added to cart");
@@ -249,8 +315,37 @@ const Navbar = () => {
     }
   };
 
+  // SUGGESTIONS LIST DERIVED FROM SEARCH OR QUERY
+  const suggestedQueries = searchQuery.trim()
+    ? [
+        searchQuery.trim(),
+        `Trekking ${searchQuery.trim()}`,
+        `Gym ${searchQuery.trim()}`,
+        `Hiking ${searchQuery.trim()}`,
+        `Duffle ${searchQuery.trim()}`,
+        `Waterproof ${searchQuery.trim()} Cover`,
+      ]
+    : [];
+
+  const popularVisibleCount = 3;
+  const maxPopularSlide = Math.max(popularProducts.length - popularVisibleCount, 0);
+
+  const topProductsVisibleCount = 3;
+  const maxTopProductsSlide = Math.max(
+    (searchResults.products?.length || 0) - topProductsVisibleCount,
+    0
+  );
+
   return (
     <>
+      {/* SCREEN BACKDROP OVERLAY WHEN SEARCH IS ACTIVE */}
+      {isSearchFocused && (
+        <div
+          className="search-modal-backdrop"
+          onClick={() => setIsSearchFocused(false)}
+        />
+      )}
+
       <header className="navbar-wrapper">
         <div className={`navbar ${isOrdersPage ? "orders-navbar" : ""}`}>
           {/* ORDERS PAGE LEFT MENU */}
@@ -273,18 +368,21 @@ const Navbar = () => {
             <span className="logo-text">DECATHLON</span>
           </Link>
 
-          {/* SEARCH */}
-          <div className="navbar-search" ref={searchContainerRef}>
+          {/* SEARCH BAR CONTAINER */}
+          <div
+            className={`navbar-search ${isSearchFocused ? "search-active" : ""}`}
+            ref={searchContainerRef}
+          >
             <FiSearch className="search-icon" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
+              onFocus={() => setIsSearchFocused(true)}
               placeholder={
                 isOrdersPage
                   ? 'Search for "Cricket Bat"...'
-                  : 'Search for "Running Shoes", "Jackets", "Bags"...'
+                  : "Search for 60+ sports and 6,000+ products"
               }
             />
             {searchQuery ? (
@@ -293,72 +391,357 @@ const Navbar = () => {
               <span className="search-cursor"></span>
             )}
 
-            {/* LIVE SEARCH DROPDOWN RESULTS */}
-            {showSearchDropdown && (
-              <div className="search-results-dropdown">
-                {isSearching ? (
-                  <div className="search-loading-state">
-                    <div className="search-spinner"></div>
-                    <span>Searching products...</span>
-                  </div>
-                ) : searchResults.length === 0 ? (
-                  <div className="search-empty-state">
-                    No products found matching "<strong>{searchQuery}</strong>"
-                  </div>
-                ) : (
-                  <div className="search-results-list">
-                    <div className="search-results-count">
-                      Found {searchResults.length} product(s)
-                    </div>
-                    {searchResults.map((product) => (
-                      <div
-                        key={product._id}
-                        className="search-result-item"
-                        onClick={() => handleSelectProduct(product)}
-                      >
-                        <div className="search-result-image">
-                          {product.images?.[0] ? (
-                            <img
-                              src={getImageUrl(product.images[0])}
-                              alt={product.name}
-                            />
-                          ) : (
-                            <div className="search-no-img">No Img</div>
-                          )}
+            {/* DECATHLON SEARCH MODAL POPOVER */}
+            {isSearchFocused && (
+              <div className="decathlon-search-modal">
+                {/* 1. WHEN SEARCH QUERY IS EMPTY */}
+                {!searchQuery.trim() && (
+                  <div className="search-modal-content">
+                    {/* RECENT SEARCHES */}
+                    {recentSearches.length > 0 && (
+                      <div className="search-modal-section">
+                        <div className="search-modal-section-title">
+                          <span>Recent searches</span>
+                          <FiEdit2 className="search-edit-icon" />
                         </div>
+                        <div className="search-recent-grid">
+                          {recentSearches.map((term, idx) => (
+                            <div
+                              key={idx}
+                              className="search-recent-card"
+                              onClick={() => handleSelectKeyword(term)}
+                            >
+                              <div className="search-recent-img">
+                                {popularProducts[idx]?.images?.[0] ? (
+                                  <img
+                                    src={getImageUrl(popularProducts[idx].images[0])}
+                                    alt={term}
+                                  />
+                                ) : (
+                                  <FiGrid />
+                                )}
+                              </div>
+                              <span>{term}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                        <div className="search-result-info">
-                          <span className="search-result-brand">
-                            {product.brand || "DECATHLON"}
-                          </span>
-                          <span className="search-result-name">
-                            {product.name}
-                          </span>
-                          <div className="search-result-price-row">
-                            <strong className="search-current-price">
-                              {formatPrice(product.discountPrice || product.price)}
-                            </strong>
-                            {product.price > (product.discountPrice || 0) &&
-                              product.discountPrice > 0 && (
-                                <span className="search-mrp-price">
-                                  MRP {formatPrice(product.price)}
-                                </span>
-                              )}
+                    {/* TRENDING SEARCHES */}
+                    <div className="search-modal-section">
+                      <div className="search-modal-section-title">
+                        <span>Trending searches</span>
+                      </div>
+                      <div className="search-trending-pills">
+                        {trendingSearches.map((term, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            className="trending-pill-btn"
+                            onClick={() => handleSelectKeyword(term)}
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* MOST POPULAR CAROUSEL */}
+                    {popularProducts.length > 0 && (
+                      <div className="search-modal-section">
+                        <div className="search-modal-section-header">
+                          <h3>Most Popular</h3>
+                          <div className="search-slider-arrows">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setPopularSlideIndex((prev) => Math.max(prev - 1, 0))
+                              }
+                              disabled={popularSlideIndex === 0}
+                            >
+                              <FiChevronLeft />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setPopularSlideIndex((prev) =>
+                                  Math.min(prev + 1, maxPopularSlide)
+                                )
+                              }
+                              disabled={popularSlideIndex === maxPopularSlide}
+                            >
+                              <FiChevronRight />
+                            </button>
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          className="search-add-cart-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectProduct(product);
-                          }}
-                        >
-                          Add
-                        </button>
+                        <div className="search-slider-viewport">
+                          <div
+                            className="search-slider-track"
+                            style={{
+                              transform: `translateX(-${popularSlideIndex * 33.33}%)`,
+                            }}
+                          >
+                            {popularProducts.map((prod) => (
+                              <div
+                                key={prod._id}
+                                className="search-product-card"
+                                onClick={() => handleSelectProduct(prod)}
+                              >
+                                <div className="search-product-img-wrapper">
+                                  {prod.discountPrice > 0 && (
+                                    <span className="search-badge sale">Sale</span>
+                                  )}
+                                  {prod.images?.[0] ? (
+                                    <img
+                                      src={getImageUrl(prod.images[0])}
+                                      alt={prod.name}
+                                    />
+                                  ) : (
+                                    <div className="search-card-no-img">No Img</div>
+                                  )}
+                                </div>
+
+                                <div className="search-product-details">
+                                  <div className="search-product-title">
+                                    <strong>{prod.brand || "DECATHLON"}</strong>{" "}
+                                    {prod.name}
+                                  </div>
+                                  <div className="search-product-rating">
+                                    <span className="stars">★★★★★</span>
+                                    <span className="count">{prod.reviews || "4.3k"}</span>
+                                  </div>
+                                  <div className="search-product-price-row">
+                                    <strong className="current-price">
+                                      {formatPrice(prod.discountPrice || prod.price)}
+                                    </strong>
+                                    {prod.price > (prod.discountPrice || 0) &&
+                                      prod.discountPrice > 0 && (
+                                        <span className="mrp-price">
+                                          MRP {formatPrice(prod.price)}
+                                        </span>
+                                      )}
+                                  </div>
+                                  <div className="search-product-actions">
+                                    <button
+                                      type="button"
+                                      className={`search-wishlist-btn ${
+                                        isWishlisted(prod._id) ? "active" : ""
+                                      }`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleWishlistIcon(prod._id);
+                                      }}
+                                    >
+                                      {isWishlisted(prod._id) ? "♥" : "♡"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="search-add-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSelectProduct(prod);
+                                      }}
+                                    >
+                                      Add to cart
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                    ))}
+                    )}
+                  </div>
+                )}
+
+                {/* 2. WHEN SEARCH QUERY HAS TYPED TEXT */}
+                {searchQuery.trim() && (
+                  <div className="search-modal-content">
+                    {/* SUGGESTED CATEGORIES & KEYWORDS */}
+                    <div className="search-modal-section">
+                      <div className="search-modal-section-title">
+                        <span>Suggested</span>
+                      </div>
+                      <div className="search-suggestions-list">
+                        {suggestedQueries.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="suggestion-row"
+                            onClick={() => handleSelectKeyword(item)}
+                          >
+                            <FiGrid className="suggestion-icon" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                        <div
+                          className="suggestion-row all-results-row"
+                          onClick={() => handleSelectKeyword(searchQuery)}
+                        >
+                          <FiSearch className="suggestion-icon" />
+                          <span>All results for "{searchQuery}"</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* TOP PRODUCTS CAROUSEL */}
+                    <div className="search-modal-section">
+                      <div className="search-modal-section-header">
+                        <h3>Top products</h3>
+                        {searchResults.products?.length > topProductsVisibleCount && (
+                          <div className="search-slider-arrows">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setTopProductsSlideIndex((prev) =>
+                                  Math.max(prev - 1, 0)
+                                )
+                              }
+                              disabled={topProductsSlideIndex === 0}
+                            >
+                              <FiChevronLeft />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setTopProductsSlideIndex((prev) =>
+                                  Math.min(prev + 1, maxTopProductsSlide)
+                                )
+                              }
+                              disabled={
+                                topProductsSlideIndex === maxTopProductsSlide
+                              }
+                            >
+                              <FiChevronRight />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {isSearching ? (
+                        <div className="search-loading-state">
+                          <div className="search-spinner"></div>
+                          <span>Fetching products...</span>
+                        </div>
+                      ) : searchResults.products?.length === 0 ? (
+                        <div className="search-empty-state">
+                          No matching products found for "<strong>{searchQuery}</strong>"
+                        </div>
+                      ) : (
+                        <div className="search-slider-viewport">
+                          <div
+                            className="search-slider-track"
+                            style={{
+                              transform: `translateX(-${
+                                topProductsSlideIndex * 33.33
+                              }%)`,
+                            }}
+                          >
+                            {searchResults.products.map((prod) => (
+                              <div
+                                key={prod._id}
+                                className="search-product-card"
+                                onClick={() => handleSelectProduct(prod)}
+                              >
+                                <div className="search-product-img-wrapper">
+                                  {prod.discountPrice > 0 ? (
+                                    <span className="search-badge sale">
+                                      Sale
+                                    </span>
+                                  ) : (
+                                    <span className="search-badge price-drop">
+                                      Price drop
+                                    </span>
+                                  )}
+                                  {prod.images?.[0] ? (
+                                    <img
+                                      src={getImageUrl(prod.images[0])}
+                                      alt={prod.name}
+                                    />
+                                  ) : (
+                                    <div className="search-card-no-img">
+                                      No Img
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="search-product-details">
+                                  <div className="search-product-title">
+                                    <strong>{prod.brand || "QUECHUA"}</strong>{" "}
+                                    {prod.name}
+                                  </div>
+
+                                  <div className="search-product-rating">
+                                    <span className="stars">★★★★★</span>
+                                    <span className="count">
+                                      {prod.reviews || "570"}
+                                    </span>
+                                  </div>
+
+                                  <div className="search-product-price-row">
+                                    <strong className="current-price">
+                                      {formatPrice(
+                                        prod.discountPrice || prod.price
+                                      )}
+                                    </strong>
+                                    {prod.discountPrice > 0 && prod.price > prod.discountPrice && (
+                                      <span className="discount-off">
+                                        {Math.round(
+                                          ((prod.price - prod.discountPrice) /
+                                            prod.price) *
+                                            100
+                                        )}
+                                        % off
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {prod.price > (prod.discountPrice || 0) &&
+                                    prod.discountPrice > 0 && (
+                                      <div className="mrp-subtext">
+                                        MRP {formatPrice(prod.price)}
+                                      </div>
+                                    )}
+
+                                  <div className="search-product-actions">
+                                    <button
+                                      type="button"
+                                      className={`search-wishlist-btn ${
+                                        isWishlisted(prod._id) ? "active" : ""
+                                      }`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleWishlistIcon(prod._id);
+                                      }}
+                                    >
+                                      {isWishlisted(prod._id) ? "♥" : "♡"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="search-add-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSelectProduct(prod);
+                                      }}
+                                    >
+                                      Add to cart
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="explore-all-link">
+                        <span onClick={() => handleSelectKeyword(searchQuery)}>
+                          Explore all products matching "{searchQuery}"
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -451,7 +834,9 @@ const Navbar = () => {
             <Link to="/cart" className="navbar-action">
               <div className="cart-icon-wrapper">
                 {isOrdersPage ? <FiShoppingCart /> : <FiShoppingBag />}
-                {cartCount > 0 && <span className="cart-count-badge">{cartCount}</span>}
+                {cartCount > 0 && (
+                  <span className="cart-count-badge">{cartCount}</span>
+                )}
               </div>
               <span>Cart</span>
             </Link>
@@ -463,7 +848,8 @@ const Navbar = () => {
           <div className="mobile-delivery-location">
             <FiMapPin className="mobile-loc-pin" />
             <span>
-              Delivery to <strong>Bangalore Central, Bangalore, 560001...</strong>
+              Delivery to{" "}
+              <strong>Bangalore Central, Bangalore, 560001...</strong>
             </span>
             <FiChevronDown className="mobile-loc-arrow" />
           </div>
