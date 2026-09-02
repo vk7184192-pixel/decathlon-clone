@@ -80,9 +80,7 @@ const MonsoonEssentials = () => {
 
   const fetchPage = useCallback(async () => {
     try {
-      const response = await api.get(
-        "/pages/slug/monsoon-essentials"
-      );
+      const response = await api.get("/pages/slug/monsoon-essentials");
 
       const page = response.data?.page;
 
@@ -126,10 +124,7 @@ const MonsoonEssentials = () => {
     fetchPage();
 
     const handleUpdate = (data) => {
-      if (
-        data?.slug === "monsoon-essentials" ||
-        !data?.slug
-      ) {
+      if (data?.slug === "monsoon-essentials" || !data?.slug) {
         fetchPage();
       }
     };
@@ -197,17 +192,14 @@ const MonsoonEssentials = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       toast.success("Added to cart!");
 
       setSelectedProduct(null);
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to add to cart"
-      );
+      toast.error(error?.response?.data?.message || "Failed to add to cart");
     } finally {
       setAdding(false);
     }
@@ -217,26 +209,16 @@ const MonsoonEssentials = () => {
      CHANGE BANNER
   ========================= */
 
-  const changeBanner = (
-    sectionIndex,
-    direction,
-    total
-  ) => {
+  const changeBanner = (sectionIndex, direction, total) => {
     setBannerSlides((previous) => {
       const current = previous[sectionIndex] || 0;
 
       let next;
 
       if (direction === "next") {
-        next =
-          current >= total - 1
-            ? 0
-            : current + 1;
+        next = current >= total - 1 ? 0 : current + 1;
       } else {
-        next =
-          current <= 0
-            ? total - 1
-            : current - 1;
+        next = current <= 0 ? total - 1 : current - 1;
       }
 
       return {
@@ -253,17 +235,12 @@ const MonsoonEssentials = () => {
   const ProductCard = ({ product }) => {
     return (
       <div className="monsoon-product-card">
-
         {/* IMAGE */}
 
         <div className="monsoon-product-image">
-
-          {product.stock <= 5 &&
-            product.stock > 0 && (
-              <span className="limited-stock-badge">
-                Limited stock
-              </span>
-            )}
+          {product.stock <= 5 && product.stock > 0 && (
+            <span className="limited-stock-badge">Limited stock</span>
+          )}
 
           <img
             src={getImageUrl(product.images?.[0])}
@@ -273,26 +250,17 @@ const MonsoonEssentials = () => {
           <button
             type="button"
             className={`product-wishlist ${
-              isWishlisted(product._id)
-                ? "active"
-                : ""
+              isWishlisted(product._id) ? "active" : ""
             }`}
-            onClick={() =>
-              handleToggle(product._id)
-            }
+            onClick={() => handleToggle(product._id)}
           >
-            {isWishlisted(product._id) ? (
-              <MdFavorite />
-            ) : (
-              <MdFavoriteBorder />
-            )}
+            {isWishlisted(product._id) ? <MdFavorite /> : <MdFavoriteBorder />}
           </button>
         </div>
 
         {/* DETAILS */}
 
         <div className="monsoon-product-info">
-
           <h3>{product.name}</h3>
 
           <div className="product-rating">
@@ -301,30 +269,18 @@ const MonsoonEssentials = () => {
           </div>
 
           <div className="product-price">
-
-            <strong>
-              {formatPrice(product.price)}
-            </strong>
+            <strong>{formatPrice(product.price)}</strong>
 
             {product.mrp && (
-              <span>
-                MRP ₹
-                {Number(product.mrp).toLocaleString(
-                  "en-IN"
-                )}
-              </span>
+              <span>MRP ₹{Number(product.mrp).toLocaleString("en-IN")}</span>
             )}
-
           </div>
 
           <div className="product-actions">
-
             <button
               type="button"
               className="product-heart"
-              onClick={() =>
-                handleToggle(product._id)
-              }
+              onClick={() => handleToggle(product._id)}
             >
               {isWishlisted(product._id) ? (
                 <MdFavorite />
@@ -336,15 +292,12 @@ const MonsoonEssentials = () => {
             <button
               type="button"
               className="add-cart-button"
-              onClick={() =>
-                openCartModal(product)
-              }
+              onClick={() => openCartModal(product)}
             >
               <MdAddShoppingCart />
 
               <span>Add to cart</span>
             </button>
-
           </div>
         </div>
       </div>
@@ -355,18 +308,10 @@ const MonsoonEssentials = () => {
      CATEGORY SECTION
   ========================= */
 
-  const CategorySection = ({
-    section,
-    sectionIndex,
-    isFirstCategory,
-  }) => {
-    const categories = Array.isArray(
-      section.categories
-    )
+  const CategorySection = ({ section, sectionIndex, isFirstCategory }) => {
+    const categories = Array.isArray(section.categories)
       ? section.categories.filter(
-          (category) =>
-            category &&
-            typeof category === "object"
+          (category) => category && typeof category === "object",
         )
       : [];
 
@@ -380,49 +325,28 @@ const MonsoonEssentials = () => {
     if (isFirstCategory) {
       return (
         <section className="monsoon-category-section monsoon-top-categories">
-
           <div className="top-category-grid">
-
             {categories.map((category, index) => (
               <Link
                 key={category._id || index}
-                to={`/category/${
-                  category.slug ||
-                  category._id ||
-                  ""
-                }`}
+                to={`/category/${category.slug || category._id || ""}`}
                 className="top-category-card"
               >
-
                 <div className="top-category-image">
-
                   {category.image ? (
                     <img
-                      src={getImageUrl(
-                        category.image
-                      )}
-                      alt={
-                        category.name ||
-                        "Category"
-                      }
+                      src={getImageUrl(category.image)}
+                      alt={category.name || "Category"}
                     />
                   ) : (
-                    <div className="no-image">
-                      No Image
-                    </div>
+                    <div className="no-image">No Image</div>
                   )}
-
                 </div>
 
-                <span>
-                  {category.name}
-                </span>
-
+                <span>{category.name}</span>
               </Link>
             ))}
-
           </div>
-
         </section>
       );
     }
@@ -432,47 +356,28 @@ const MonsoonEssentials = () => {
 
     return (
       <section className="monsoon-category-section">
-
         {section.name && (
-          <h2 className="monsoon-section-title">
-            {section.name}
-          </h2>
+          <h2 className="monsoon-section-title">{section.name}</h2>
         )}
 
         <div className="category-card-grid">
-
           {categories.map((category, index) => (
             <Link
               key={category._id || index}
-              to={`/category/${
-                category.slug ||
-                category._id ||
-                ""
-              }`}
+              to={`/category/${category.slug || category._id || ""}`}
               className="large-category-card"
             >
-
               {category.image ? (
                 <img
-                  src={getImageUrl(
-                    category.image
-                  )}
-                  alt={
-                    category.name ||
-                    "Category"
-                  }
+                  src={getImageUrl(category.image)}
+                  alt={category.name || "Category"}
                 />
               ) : (
-                <div className="no-image">
-                  No Image
-                </div>
+                <div className="no-image">No Image</div>
               )}
-
             </Link>
           ))}
-
         </div>
-
       </section>
     );
   };
@@ -481,18 +386,10 @@ const MonsoonEssentials = () => {
      BANNER SECTION
   ========================= */
 
-  const BannerSection = ({
-    section,
-    sectionIndex,
-  }) => {
-    const banners = Array.isArray(
-      section.banners
-    )
+  const BannerSection = ({ section, sectionIndex }) => {
+    const banners = Array.isArray(section.banners)
       ? section.banners.filter(
-          (banner) =>
-            banner &&
-            typeof banner === "object" &&
-            banner.image
+          (banner) => banner && typeof banner === "object" && banner.image,
         )
       : [];
 
@@ -500,25 +397,16 @@ const MonsoonEssentials = () => {
       return null;
     }
 
-    const currentSlide =
-      bannerSlides[sectionIndex] || 0;
+    const currentSlide = bannerSlides[sectionIndex] || 0;
 
-    const activeBanner =
-      banners[currentSlide] || banners[0];
+    const activeBanner = banners[currentSlide] || banners[0];
 
     return (
       <section className="monsoon-banner-section">
-
         <div className="monsoon-banner-wrapper">
-
           <img
-            src={getImageUrl(
-              activeBanner.image
-            )}
-            alt={
-              activeBanner.title ||
-              "Monsoon Banner"
-            }
+            src={getImageUrl(activeBanner.image)}
+            alt={activeBanner.title || "Monsoon Banner"}
             className="monsoon-banner-image"
           />
 
@@ -528,11 +416,7 @@ const MonsoonEssentials = () => {
                 type="button"
                 className="banner-arrow banner-arrow-left"
                 onClick={() =>
-                  changeBanner(
-                    sectionIndex,
-                    "prev",
-                    banners.length
-                  )
+                  changeBanner(sectionIndex, "prev", banners.length)
                 }
               >
                 <MdChevronLeft />
@@ -542,44 +426,32 @@ const MonsoonEssentials = () => {
                 type="button"
                 className="banner-arrow banner-arrow-right"
                 onClick={() =>
-                  changeBanner(
-                    sectionIndex,
-                    "next",
-                    banners.length
-                  )
+                  changeBanner(sectionIndex, "next", banners.length)
                 }
               >
                 <MdChevronRight />
               </button>
 
               <div className="banner-dots">
-
                 {banners.map((_, index) => (
                   <button
                     key={index}
                     type="button"
                     className={`banner-dot ${
-                      index === currentSlide
-                        ? "active"
-                        : ""
+                      index === currentSlide ? "active" : ""
                     }`}
                     onClick={() =>
-                      setBannerSlides(
-                        (previous) => ({
-                          ...previous,
-                          [sectionIndex]: index,
-                        })
-                      )
+                      setBannerSlides((previous) => ({
+                        ...previous,
+                        [sectionIndex]: index,
+                      }))
                     }
                   />
                 ))}
-
               </div>
             </>
           )}
-
         </div>
-
       </section>
     );
   };
@@ -589,18 +461,12 @@ const MonsoonEssentials = () => {
   ========================= */
 
   const ProductSection = ({ section }) => {
-
     // Only use products selected by admin.
     // No unused "products" variable.
 
-    const adminProducts = Array.isArray(
-      section.products
-    )
+    const adminProducts = Array.isArray(section.products)
       ? section.products.filter(
-          (product) =>
-            product &&
-            typeof product === "object" &&
-            product.name
+          (product) => product && typeof product === "object" && product.name,
         )
       : [];
 
@@ -610,48 +476,27 @@ const MonsoonEssentials = () => {
 
     return (
       <section className="monsoon-product-section">
-
         <div className="product-section-header">
-
           <h2 className="monsoon-section-title">
             {section.name || "Products"}
           </h2>
 
           <div className="product-section-arrows">
-
-            <button
-              type="button"
-              className="section-arrow"
-            >
+            <button type="button" className="section-arrow">
               <MdChevronLeft />
             </button>
 
-            <button
-              type="button"
-              className="section-arrow"
-            >
+            <button type="button" className="section-arrow">
               <MdChevronRight />
             </button>
-
           </div>
-
         </div>
 
         <div className="monsoon-products-grid">
-
-          {adminProducts.map(
-            (product, index) => (
-              <ProductCard
-                key={
-                  product._id || index
-                }
-                product={product}
-              />
-            )
-          )}
-
+          {adminProducts.map((product, index) => (
+            <ProductCard key={product._id || index} product={product} />
+          ))}
         </div>
-
       </section>
     );
   };
@@ -660,32 +505,22 @@ const MonsoonEssentials = () => {
      RENDER ADMIN SECTIONS
   ========================= */
 
-  const renderSection = (
-    section,
-    index
-  ) => {
+  const renderSection = (section, index) => {
     if (!section) {
       return null;
     }
 
     if (section.type === "category") {
-
-      const firstCategoryIndex =
-        pageSections.findIndex(
-          (item) =>
-            item.type === "category"
-        );
+      const firstCategoryIndex = pageSections.findIndex(
+        (item) => item.type === "category",
+      );
 
       return (
         <CategorySection
-          key={
-            section._id || index
-          }
+          key={section._id || index}
           section={section}
           sectionIndex={index}
-          isFirstCategory={
-            index === firstCategoryIndex
-          }
+          isFirstCategory={index === firstCategoryIndex}
         />
       );
     }
@@ -693,9 +528,7 @@ const MonsoonEssentials = () => {
     if (section.type === "banner") {
       return (
         <BannerSection
-          key={
-            section._id || index
-          }
+          key={section._id || index}
           section={section}
           sectionIndex={index}
         />
@@ -703,14 +536,7 @@ const MonsoonEssentials = () => {
     }
 
     if (section.type === "product") {
-      return (
-        <ProductSection
-          key={
-            section._id || index
-          }
-          section={section}
-        />
-      );
+      return <ProductSection key={section._id || index} section={section} />;
     }
 
     return null;
@@ -722,27 +548,16 @@ const MonsoonEssentials = () => {
 
   return (
     <div className="monsoon-essentials-page">
-
       <Navbar />
 
       <CategoryNav />
 
       <main className="monsoon-content-container">
-
         {pageSections.length > 0 ? (
-          pageSections.map(
-            (section, index) =>
-              renderSection(
-                section,
-                index
-              )
-          )
+          pageSections.map((section, index) => renderSection(section, index))
         ) : (
-          <div className="empty-page">
-            No sections available.
-          </div>
+          <div className="empty-page">No sections available.</div>
         )}
-
       </main>
 
       {/* PRODUCT SIZE MODAL */}
@@ -751,27 +566,18 @@ const MonsoonEssentials = () => {
         <ProductSizeModal
           product={selectedProduct}
           selectedSize={selectedSize}
-          setSelectedSize={
-            setSelectedSize
-          }
+          setSelectedSize={setSelectedSize}
           selectedColor={selectedColor}
-          setSelectedColor={
-            setSelectedColor
-          }
+          setSelectedColor={setSelectedColor}
           quantity={quantity}
           setQuantity={setQuantity}
-          onAddToCart={
-            handleAddToCart
-          }
-          onClose={() =>
-            setSelectedProduct(null)
-          }
+          onAddToCart={handleAddToCart}
+          onClose={() => setSelectedProduct(null)}
           loading={adding}
         />
       )}
 
       <Footer />
-
     </div>
   );
 };
