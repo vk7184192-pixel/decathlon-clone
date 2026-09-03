@@ -46,7 +46,6 @@ const ProductDetail = () => {
 
   // Category products
   const [categoryProducts, setCategoryProducts] = useState([]);
-  const freqSliderRef = useRef(null);
   const similarSliderRef = useRef(null);
 
   const scrollSlider = (ref, direction) => {
@@ -667,84 +666,6 @@ const ProductDetail = () => {
             </div>
           </div>
         </section>
-
-        {/* =====================================================
-            FREQUENTLY BOUGHT TOGETHER (PDF Page 8)
-        ===================================================== */}
-        {categoryProducts.length > 0 && (
-          <section className="pdp-carousel-section">
-            <div className="pdp-carousel-header">
-              <h3>Frequently Bought Together</h3>
-              <div className="pdp-carousel-arrows">
-                <button
-                  type="button"
-                  className="pdp-arrow-circle"
-                  onClick={() => scrollSlider(freqSliderRef, "prev")}
-                  aria-label="Previous products"
-                >
-                  <FiChevronLeft />
-                </button>
-                <button
-                  type="button"
-                  className="pdp-arrow-circle"
-                  onClick={() => scrollSlider(freqSliderRef, "next")}
-                  aria-label="Next products"
-                >
-                  <FiChevronRight />
-                </button>
-              </div>
-            </div>
-
-            <div className="pdp-cards-slider" ref={freqSliderRef}>
-              {categoryProducts.slice(0, 8).map((prod) => (
-                <div key={prod._id} className="pdp-product-card-decathlon">
-                  <div className="pdp-card-img-wrap">
-                    <Link to={`/product/${prod._id}`}>
-                      <img src={getImageUrl(prod.images?.[0])} alt={prod.name} />
-                    </Link>
-                  </div>
-
-                  <div className="pdp-card-body">
-                    <Link to={`/product/${prod._id}`} className="pdp-card-brand-title">
-                      <strong>{prod.brand || "DOMYOS"}</strong> {prod.name}
-                    </Link>
-
-                    <div className="pdp-card-rating">
-                      <span className="stars">★★★★★</span>
-                      <span>4.7k</span>
-                    </div>
-
-                    <div className="pdp-card-price-row">
-                      <span className="pdp-card-price">{formatPrice(prod.discountPrice || prod.price)}</span>
-                      {prod.discountPrice && prod.discountPrice < prod.price && (
-                        <span className="pdp-card-mrp">MRP {formatPrice(prod.price)}</span>
-                      )}
-                    </div>
-
-                    <div className="pdp-card-cta-row">
-                      <button
-                        type="button"
-                        className={`pdp-card-wish-btn ${isWishlisted(prod._id) ? "active" : ""}`}
-                        onClick={() => handleToggle(prod._id)}
-                        aria-label="Wishlist"
-                      >
-                        {isWishlisted(prod._id) ? <MdFavorite /> : <MdFavoriteBorder />}
-                      </button>
-
-                      <button
-                        type="button"
-                        className="pdp-card-add-btn"
-                        onClick={() => handleAddToCart(prod)}
-                      >
-                        Add to cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* =====================================================
             SIMILAR PRODUCTS (PDF Page 8)
