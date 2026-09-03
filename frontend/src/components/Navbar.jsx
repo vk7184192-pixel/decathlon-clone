@@ -23,9 +23,12 @@ import {
 } from "react-icons/fi";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import api from "../api/axios";
+import api, {
+  isTokenExpired,
+  handleAutoLogout,
+  useWishlist,
+} from "../api/axios";
 import ProductSizeModal from "./ProductSizeModal";
-import { useWishlist } from "../utils/useWishlist";
 import "../styles/Navbar.css";
 import "../styles/ProductSizeModal.css";
 
@@ -103,6 +106,11 @@ const Navbar = () => {
     const storedUser = localStorage.getItem("user");
 
     if (token && storedUser) {
+      if (isTokenExpired(token)) {
+        handleAutoLogout();
+        setUser(null);
+        return;
+      }
       try {
         setUser(JSON.parse(storedUser));
       } catch (error) {

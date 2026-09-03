@@ -2,10 +2,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import "../../styles/home/StormProofSection.css";
 import "../../styles/ProductSizeModal.css";
 import toast from "react-hot-toast";
-import api from "../../api/axios";
+import api, { useWishlist } from "../../api/axios";
 import socket from "../../socket/socket";
 import ProductSizeModal from "../ProductSizeModal";
-import { useWishlist } from "../../utils/useWishlist";
 
 const StormProofSection = ({ customProducts }) => {
   const { isWishlisted, handleToggle } = useWishlist();

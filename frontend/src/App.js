@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -18,8 +19,69 @@ import Profile from "./pages/Profile";
 import MyAccount from "./pages/MyAccount";
 import Wishlist from "./pages/Wishlist";
 import CategoryRoutes from "./routes/categoryRoutes";
+import {
+  isTokenExpired,
+  getTokenRemainingTime,
+  handleAutoLogout,
+} from "./api/axios";
 
 function App() {
+  useEffect(() => {
+    let logoutTimer = null;
+
+    const checkAndScheduleLogout = () => {
+      if (logoutTimer) {
+        clearTimeout(logoutTimer);
+        logoutTimer = null;
+      }
+
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      if (isTokenExpired(token)) {
+        handleAutoLogout("Session expired. Please login again.");
+        return;
+      }
+
+      const remainingMs = getTokenRemainingTime(token);
+      if (remainingMs <= 0) {
+        handleAutoLogout("Session expired. Please login again.");
+        return;
+      }
+
+      logoutTimer = setTimeout(() => {
+        handleAutoLogout("Session expired. Please login again.");
+      }, remainingMs);
+    };
+
+    checkAndScheduleLogout();
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === "visible") {
+        checkAndScheduleLogout();
+      }
+    };
+
+    const handleAuthEvent = () => {
+      checkAndScheduleLogout();
+    };
+
+    window.addEventListener("focus", handleVisibilityOrFocus);
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+    window.addEventListener("authChanged", handleAuthEvent);
+    window.addEventListener("storage", handleAuthEvent);
+
+    return () => {
+      if (logoutTimer) {
+        clearTimeout(logoutTimer);
+      }
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+      window.removeEventListener("authChanged", handleAuthEvent);
+      window.removeEventListener("storage", handleAuthEvent);
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="App">

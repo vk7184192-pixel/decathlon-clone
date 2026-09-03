@@ -2,10 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import "../../styles/home/OutdoorProducts.css";
 import "../../styles/ProductSizeModal.css";
 import toast from "react-hot-toast";
-import api from "../../api/axios";
+import api, { useWishlist } from "../../api/axios";
 import socket from "../../socket/socket";
 import ProductSizeModal from "../ProductSizeModal";
-import { useWishlist } from "../../utils/useWishlist";
 
 const OutdoorProducts = ({ customProducts }) => {
   const { isWishlisted, handleToggle } = useWishlist();

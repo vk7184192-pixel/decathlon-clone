@@ -16,8 +16,7 @@ import CategoryNav from "../../components/home/CategoryNav";
 import Footer from "../../components/home/Footer";
 import ProductSizeModal from "../../components/ProductSizeModal";
 
-import { useWishlist } from "../../utils/useWishlist";
-import api from "../../api/axios";
+import api, { useWishlist } from "../../api/axios";
 import socket from "../../socket/socket";
 
 import "../../styles/category/MonsoonEssentials.css";

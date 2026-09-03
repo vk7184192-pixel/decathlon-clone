@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import "../../styles/cart/CartProductSection.css";
 import ProductSizeModal from "../ProductSizeModal";
-import { useWishlist } from "../../utils/useWishlist";
+import { useWishlist } from "../../api/axios";
 
 const CartProductSection = ({
   section,
