@@ -283,21 +283,6 @@ const EditProduct = () => {
         String(formData.isActive)
       );
 
-      data.append(
-        "stock",
-        formData.stock || 0
-      );
-
-      data.append(
-        "brand",
-        formData.brand.trim()
-      );
-
-      data.append(
-        "isActive",
-        String(formData.isActive)
-      );
-
       // SIZE
 
       if (formData.size.trim()) {

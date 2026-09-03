@@ -71,6 +71,16 @@ const normalizeArray = (value) => {
   return [];
 };
 
+const toScalar = (value, defaultValue = undefined) => {
+  if (value === undefined || value === null) {
+    return defaultValue;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0 ? value[0] : defaultValue;
+  }
+  return value;
+};
+
 /*
 ========================================
 CREATE PRODUCT
@@ -97,11 +107,18 @@ const createProduct = async (req, res) => {
     */
     const categoryList = normalizeArray(categories || category);
 
+    const pName = toScalar(name);
+    const pDescription = toScalar(description);
+    const pPrice = toScalar(price);
+    const pDiscountPrice = toScalar(discountPrice, 0);
+    const pStock = toScalar(stock, 0);
+    const pBrand = toScalar(brand, "Decathlon");
+
     /*
     VALIDATION
     */
 
-    if (!name || !description || !price || categoryList.length === 0) {
+    if (!pName || !pDescription || pPrice === undefined || categoryList.length === 0) {
       return res.status(400).json({
         message:
           "Name, description, price and at least one category are required",
@@ -131,15 +148,15 @@ const createProduct = async (req, res) => {
     */
 
     const product = await Product.create({
-      name,
-      description,
-      price,
-      discountPrice: discountPrice || 0,
+      name: String(pName).trim(),
+      description: String(pDescription).trim(),
+      price: Number(pPrice),
+      discountPrice: Number(pDiscountPrice || 0),
       category: categoryList[0],
       categories: categoryList,
       images,
-      stock: stock || 0,
-      brand: brand || "Decathlon",
+      stock: Number(pStock || 0),
+      brand: String(pBrand || "Decathlon").trim(),
       size: productSize,
       color: productColor,
     });
@@ -463,19 +480,19 @@ const updateProduct = async (req, res) => {
     */
 
     if (name !== undefined) {
-      product.name = name;
+      product.name = String(toScalar(name, product.name)).trim();
     }
 
     if (description !== undefined) {
-      product.description = description;
+      product.description = String(toScalar(description, product.description)).trim();
     }
 
     if (price !== undefined) {
-      product.price = price;
+      product.price = Number(toScalar(price, product.price));
     }
 
     if (discountPrice !== undefined) {
-      product.discountPrice = discountPrice;
+      product.discountPrice = Number(toScalar(discountPrice, 0));
     }
 
     if (categories !== undefined || category !== undefined) {
@@ -487,11 +504,11 @@ const updateProduct = async (req, res) => {
     }
 
     if (stock !== undefined) {
-      product.stock = stock;
+      product.stock = Number(toScalar(stock, 0));
     }
 
     if (brand !== undefined) {
-      product.brand = brand;
+      product.brand = String(toScalar(brand, "Decathlon")).trim();
     }
 
     /*
@@ -515,7 +532,8 @@ const updateProduct = async (req, res) => {
     */
 
     if (isActive !== undefined) {
-      product.isActive = isActive === true || isActive === "true";
+      const activeVal = toScalar(isActive);
+      product.isActive = activeVal === true || activeVal === "true";
     }
 
     /*
