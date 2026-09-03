@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "../../styles/home/SportsCategories.css";
 
@@ -6,6 +7,7 @@ import api from "../../api/axios";
 import socket from "../../socket/socket";
 
 const SportsCategories = ({ customCategories }) => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -149,19 +151,35 @@ const SportsCategories = ({ customCategories }) => {
   return (
     <section className="sports-categories">
       <div className="sports-categories-list">
-        {categories.map((category) => (
-          <div className="sports-category-card" key={category._id}>
-            {category.image ? (
-              <img src={getImageUrl(category.image)} alt={category.name} />
-            ) : (
-              <div className="sports-category-no-image">No Image</div>
-            )}
+        {categories.map((category) => {
+          const slug =
+            category.slug ||
+            category.name?.toLowerCase().replace(/\s+/g, "-") ||
+            category._id;
 
-            <div className="sports-category-overlay">
-              <h3>{category.name}</h3>
+          return (
+            <div
+              className="sports-category-card"
+              key={category._id}
+              onClick={() =>
+                navigate(`/category/${encodeURIComponent(slug)}`, {
+                  state: { categoryId: category._id, categoryName: category.name },
+                })
+              }
+              style={{ cursor: "pointer" }}
+            >
+              {category.image ? (
+                <img src={getImageUrl(category.image)} alt={category.name} />
+              ) : (
+                <div className="sports-category-no-image">No Image</div>
+              )}
+
+              <div className="sports-category-overlay">
+                <h3>{category.name}</h3>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

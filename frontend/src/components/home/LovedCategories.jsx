@@ -3,6 +3,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "../../styles/home/LovedCategories.css";
 
@@ -10,6 +11,7 @@ import api from "../../api/axios";
 import socket from "../../socket/socket";
 
 const LovedCategories = ({ customCategories }) => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -158,41 +160,35 @@ const LovedCategories = ({ customCategories }) => {
         </h2>
 
         <div className="loved-categories-grid">
+          {categories.map((category) => {
+            const slug =
+              category.slug ||
+              category.name?.toLowerCase().replace(/\s+/g, "-") ||
+              category._id;
 
-          {categories.map(
-            (category) => (
-
+            return (
               <div
                 className="loved-category-card"
                 key={category._id}
+                onClick={() =>
+                  navigate(`/category/${encodeURIComponent(slug)}`, {
+                    state: { categoryId: category._id, categoryName: category.name },
+                  })
+                }
+                style={{ cursor: "pointer" }}
               >
-
                 {category.image ? (
-
                   <img
-                    src={getImageUrl(
-                      category.image
-                    )}
-                    alt={
-                      category.name ||
-                      "Category"
-                    }
+                    src={getImageUrl(category.image)}
+                    alt={category.name || "Category"}
                     className="loved-category-image"
                   />
-
                 ) : (
-
-                  <div className="loved-category-no-image">
-                    No Image
-                  </div>
-
+                  <div className="loved-category-no-image">No Image</div>
                 )}
-
               </div>
-
-            )
-          )}
-
+            );
+          })}
         </div>
 
       </div>

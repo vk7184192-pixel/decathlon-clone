@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "../../styles/home/RainyDayCollection.css";
 
@@ -6,6 +7,7 @@ import api from "../../api/axios";
 import socket from "../../socket/socket";
 
 const RainyDayCollection = ({ customCategories }) => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -138,19 +140,35 @@ const RainyDayCollection = ({ customCategories }) => {
         </h2>
 
         <div className="rainy-day-grid">
-          {categories.map((category) => (
-            <div className="rainy-day-card" key={category._id}>
-              {category.image ? (
-                <img
-                  src={getImageUrl(category.image)}
-                  alt={category.name}
-                  className="rainy-day-image"
-                />
-              ) : (
-                <div className="rainy-day-no-image">No Image</div>
-              )}
-            </div>
-          ))}
+          {categories.map((category) => {
+            const slug =
+              category.slug ||
+              category.name?.toLowerCase().replace(/\s+/g, "-") ||
+              category._id;
+
+            return (
+              <div
+                className="rainy-day-card"
+                key={category._id}
+                onClick={() =>
+                  navigate(`/category/${encodeURIComponent(slug)}`, {
+                    state: { categoryId: category._id, categoryName: category.name },
+                  })
+                }
+                style={{ cursor: "pointer" }}
+              >
+                {category.image ? (
+                  <img
+                    src={getImageUrl(category.image)}
+                    alt={category.name}
+                    className="rainy-day-image"
+                  />
+                ) : (
+                  <div className="rainy-day-no-image">No Image</div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

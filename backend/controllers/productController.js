@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import Product from "../models/Product.js";
+import Category from "../models/Category.js";
 import { emitHomepageUpdate } from "../socket/socketManager.js";
 
 import { getMultipleImageUrls } from "../utils/uploadToCloudinary.js";
@@ -259,7 +261,50 @@ const getProducts = async (req, res) => {
     */
 
     if (category) {
-      filter.$or = [{ category: category }, { categories: category }];
+      if (mongoose.Types.ObjectId.isValid(category)) {
+        const catObjId = new mongoose.Types.ObjectId(category);
+        const catDoc = await Category.findById(catObjId);
+        const catName = catDoc?.name || "";
+
+        const conditions = [
+          { category: catObjId },
+          { categories: catObjId },
+        ];
+
+        if (catName) {
+          const words = catName
+            .split(/[\s/&,-]+/)
+            .filter((w) => w.length > 2);
+          const regexPattern = words.length > 0 ? words.join("|") : catName;
+          conditions.push({ name: { $regex: regexPattern, $options: "i" } });
+          conditions.push({ description: { $regex: regexPattern, $options: "i" } });
+        }
+
+        filter.$or = conditions;
+      } else {
+        const cleanName = String(category).replace(/-/g, " ").trim();
+        const words = cleanName
+          .split(/[\s/&,-]+/)
+          .filter((w) => w.length > 2);
+        const regexPattern = words.length > 0 ? words.join("|") : cleanName;
+
+        const matchedCategories = await Category.find({
+          name: { $regex: regexPattern, $options: "i" },
+        }).select("_id");
+
+        const matchedIds = matchedCategories.map((c) => c._id);
+        const conditions = [
+          { name: { $regex: regexPattern, $options: "i" } },
+          { description: { $regex: regexPattern, $options: "i" } },
+        ];
+
+        if (matchedIds.length > 0) {
+          conditions.unshift({ category: { $in: matchedIds } });
+          conditions.unshift({ categories: { $in: matchedIds } });
+        }
+
+        filter.$or = conditions;
+      }
     }
 
     /*

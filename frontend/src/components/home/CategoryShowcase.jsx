@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "../../styles/home/CategoryShowcase.css";
 
@@ -6,6 +7,7 @@ import api from "../../api/axios";
 import socket from "../../socket/socket";
 
 const CategoryShowcase = ({ customCategories }) => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -148,17 +150,33 @@ const CategoryShowcase = ({ customCategories }) => {
   return (
     <section className="category-showcase">
       <div className="category-showcase-list">
-        {categories.map((category) => (
-          <div className="category-showcase-card" key={category._id}>
-            {category.image ? (
-              <img src={getImageUrl(category.image)} alt={category.name} />
-            ) : (
-              <div className="category-showcase-no-image">No Image</div>
-            )}
+        {categories.map((category) => {
+          const slug =
+            category.slug ||
+            category.name?.toLowerCase().replace(/\s+/g, "-") ||
+            category._id;
 
-            <div className="category-showcase-title">{category.name}</div>
-          </div>
-        ))}
+          return (
+            <div
+              className="category-showcase-card"
+              key={category._id}
+              onClick={() =>
+                navigate(`/category/${encodeURIComponent(slug)}`, {
+                  state: { categoryId: category._id, categoryName: category.name },
+                })
+              }
+              style={{ cursor: "pointer" }}
+            >
+              {category.image ? (
+                <img src={getImageUrl(category.image)} alt={category.name} />
+              ) : (
+                <div className="category-showcase-no-image">No Image</div>
+              )}
+
+              <div className="category-showcase-title">{category.name}</div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
