@@ -18,6 +18,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Profile from "./pages/Profile";
 import MyAccount from "./pages/MyAccount";
 import Wishlist from "./pages/Wishlist";
+import ProductDetail from "./pages/ProductDetail";
 import CategoryRoutes from "./routes/categoryRoutes";
 import {
   isTokenExpired,
@@ -98,6 +99,9 @@ function App() {
           />
 
           {CategoryRoutes}
+
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
 
           <Route path="/login" element={<UserLogin />} />
 

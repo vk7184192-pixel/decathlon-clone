@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "../../styles/home/StormProofSection.css";
 import "../../styles/ProductSizeModal.css";
 import toast from "react-hot-toast";
@@ -293,7 +294,11 @@ const StormProofSection = ({ customProducts }) => {
                   flex: `0 0 ${cardWidth}%`,
                 }}
               >
-                <div className="storm-product-image">
+                <Link
+                  to={`/product/${product._id}`}
+                  style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                  className="storm-product-image"
+                >
                   {product.images?.[0] ? (
                     <img
                       src={getImageUrl(product.images[0])}
@@ -302,12 +307,16 @@ const StormProofSection = ({ customProducts }) => {
                   ) : (
                     <div className="storm-product-no-image">No Image</div>
                   )}
-                </div>
+                </Link>
 
                 <div className="storm-product-info">
-                  <div className="storm-product-name">
+                  <Link
+                    to={`/product/${product._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                    className="storm-product-name"
+                  >
                     <strong>{product.brand || ""}</strong> {product.name}
-                  </div>
+                  </Link>
 
                   <div className="storm-product-rating">
                     <span className="storm-stars">★★★★★</span>

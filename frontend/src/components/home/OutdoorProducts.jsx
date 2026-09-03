@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import "../../styles/home/OutdoorProducts.css";
 import "../../styles/ProductSizeModal.css";
 import toast from "react-hot-toast";
@@ -272,21 +273,31 @@ const OutdoorProducts = ({ customProducts }) => {
                     </span>
                   )}
 
-                  {product.images?.[0] ? (
-                    <img
-                      src={getImageUrl(product.images[0])}
-                      alt={product.name || "Product"}
-                      className="outdoor-product-image"
-                    />
-                  ) : (
-                    <div className="outdoor-product-no-image">No Image</div>
-                  )}
+                  <Link
+                    to={`/product/${product._id}`}
+                    style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                  >
+                    {product.images?.[0] ? (
+                      <img
+                        src={getImageUrl(product.images[0])}
+                        alt={product.name || "Product"}
+                        className="outdoor-product-image"
+                      />
+                    ) : (
+                      <div className="outdoor-product-no-image">No Image</div>
+                    )}
+                  </Link>
                 </div>
 
                 <div className="outdoor-product-details">
-                  <p className="outdoor-product-name">
-                    <strong>{product.brand || ""}</strong> {product.name}
-                  </p>
+                  <Link
+                    to={`/product/${product._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <p className="outdoor-product-name">
+                      <strong>{product.brand || ""}</strong> {product.name}
+                    </p>
+                  </Link>
 
                   <div className="outdoor-rating">
                     <span className="stars">★★★★★</span>

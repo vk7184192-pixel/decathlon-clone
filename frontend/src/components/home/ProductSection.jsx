@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "../../styles/home/ProductSection.css";
 import "../../styles/ProductSizeModal.css";
 import toast from "react-hot-toast";
@@ -281,7 +282,11 @@ const ProductSection = ({ customProducts, title }) => {
                 }}
               >
                 <div className="product-card-content">
-                  <div className="product-image-wrapper">
+                  <Link
+                    to={`/product/${product._id}`}
+                    style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                    className="product-image-wrapper"
+                  >
                     {product.images?.[0] ? (
                       <img
                         src={getImageUrl(product.images[0])}
@@ -291,12 +296,16 @@ const ProductSection = ({ customProducts, title }) => {
                     ) : (
                       <div className="product-image-placeholder">No Image</div>
                     )}
-                  </div>
+                  </Link>
 
                   <div className="product-info">
-                    <div className="product-name">
+                    <Link
+                      to={`/product/${product._id}`}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                      className="product-name"
+                    >
                       <strong>{product.brand || ""}</strong> {product.name}
-                    </div>
+                    </Link>
 
                     <div className="product-rating">
                       <span className="rating-stars">★★★★★</span>

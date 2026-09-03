@@ -236,7 +236,11 @@ const MonsoonEssentials = () => {
       <div className="monsoon-product-card">
         {/* IMAGE */}
 
-        <div className="monsoon-product-image">
+        <Link
+          to={`/product/${product._id}`}
+          className="monsoon-product-image"
+          style={{ display: "block", textDecoration: "none" }}
+        >
           {product.stock <= 5 && product.stock > 0 && (
             <span className="limited-stock-badge">Limited stock</span>
           )}
@@ -245,12 +249,17 @@ const MonsoonEssentials = () => {
             src={getImageUrl(product.images?.[0])}
             alt={product.name || "Product"}
           />
-        </div>
+        </Link>
 
         {/* DETAILS */}
 
         <div className="monsoon-product-info">
-          <h3>{product.name}</h3>
+          <Link
+            to={`/product/${product._id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <h3>{product.name}</h3>
+          </Link>
 
           <div className="product-rating">
             <span>★★★★★</span>

@@ -250,11 +250,8 @@ const Navbar = () => {
   };
 
   const handleSelectProduct = (product) => {
-    setSelectedProduct(product);
-    setSelectedSize("");
-    setSelectedColor("");
-    setQuantity(1);
     setIsSearchFocused(false);
+    navigate(`/product/${product._id}`);
   };
 
   const handleCloseModal = () => {
