@@ -1,5 +1,28 @@
 import mongoose from "mongoose";
 
+const itemSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    image: {
+      type: String,
+      default: "",
+    },
+    link: {
+      type: String,
+      default: "",
+    },
+    tag: {
+      type: String,
+      default: "",
+    },
+  },
+  { _id: true, timestamps: true }
+);
+
 const sectionSchema = new mongoose.Schema(
   {
     name: {
@@ -9,7 +32,7 @@ const sectionSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["category", "product", "banner"],
+      enum: ["category", "product", "banner", "other"],
       required: true,
     },
     categories: [
@@ -30,6 +53,7 @@ const sectionSchema = new mongoose.Schema(
         ref: "Banner",
       },
     ],
+    items: [itemSchema],
     sortOrder: {
       type: Number,
       default: 0,

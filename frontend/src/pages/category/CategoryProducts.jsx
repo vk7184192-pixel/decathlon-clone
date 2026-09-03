@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { FiHeart, FiPlus, FiMinus } from "react-icons/fi";
+import { FiHeart, FiPlus, FiMinus, FiFilter, FiX } from "react-icons/fi";
+import axios from "axios";
+import toast from "react-hot-toast";
 import api, { useWishlist } from "../../api/axios";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/home/Footer";
@@ -16,18 +18,41 @@ const CATEGORY_NAMES = {
   monsoon: "Monsoon Essentials",
 };
 
-const filters = [
-  "Gender",
-  "Category",
-  "Size",
-  "Sport",
-  "Brand",
-  "Color",
-  "Discount",
-  "Rating",
-  "More Filters",
-  "Availability",
+const GENDER_OPTIONS = ["Men", "Women", "Kids", "Unisex"];
+const SIZE_OPTIONS = ["S", "M", "L", "XL", "2XL", "UK 6", "UK 7", "UK 8", "UK 9", "UK 10"];
+const SPORT_OPTIONS = ["Running", "Hiking & Trekking", "Fitness & Gym", "Football", "Swimming", "Cycling"];
+const COLOR_CONFIG = [
+  { name: "Black", hex: "#111111" },
+  { name: "Blue", hex: "#1976d2" },
+  { name: "Grey", hex: "#757575" },
+  { name: "White", hex: "#f5f5f5" },
+  { name: "Red", hex: "#e53935" },
+  { name: "Green", hex: "#388e3c" },
+  { name: "Khaki", hex: "#c3b091" },
 ];
+const DISCOUNT_OPTIONS = [
+  { label: "10% and above", value: 10 },
+  { label: "20% and above", value: 20 },
+  { label: "30% and above", value: 30 },
+  { label: "40% and above", value: 40 },
+];
+const RATING_OPTIONS = [
+  { label: "4★ and above", value: 4 },
+  { label: "3★ and above", value: 3 },
+];
+
+const getPrice = (product) => {
+  return Number(product.discountPrice || product.price || product.salePrice || 0);
+};
+
+const getMrp = (product) => {
+  return Number(
+    product.price ||
+      product.mrp ||
+      product.originalPrice ||
+      getPrice(product)
+  );
+};
 
 function CategoryProducts() {
   const { category } = useParams();
@@ -38,10 +63,48 @@ function CategoryProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("relevant");
+  const [error, setError] = useState("");
+
+  // Price range state
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(20000);
-  const [openFilters, setOpenFilters] = useState({});
-  const [error, setError] = useState("");
+
+  // Filter selection states
+  const [selectedGenders, setSelectedGenders] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [selectedSports, setSelectedSports] = useState([]);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedDiscount, setSelectedDiscount] = useState(null);
+  const [selectedRating, setSelectedRating] = useState(null);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // Accordion state (matches screenshot)
+  const [openFilters, setOpenFilters] = useState({
+    Price: true,
+    Gender: true,
+    Category: false,
+    Size: true,
+    Sport: true,
+    Brand: false,
+    Color: false,
+    Discount: false,
+    Rating: false,
+    Availability: false,
+  });
+
+  useEffect(() => {
+    if (mobileFilterOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileFilterOpen]);
 
   const activeCategoryId =
     location.state?.categoryId ||
@@ -72,7 +135,11 @@ function CategoryProducts() {
         setProducts(productList);
       } catch (err) {
         console.error(err);
-        setError("Unable to load products");
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || "Unable to load products");
+        } else {
+          setError("Unable to load products");
+        }
         setProducts([]);
       } finally {
         setLoading(false);
@@ -88,6 +155,78 @@ function CategoryProducts() {
       [filterName]: !prev[filterName],
     }));
   };
+
+  const toggleArrayFilter = (setter, item) => {
+    setter((prev) =>
+      prev.includes(item) ? prev.filter((x) => x !== item) : [...prev, item]
+    );
+  };
+
+  const handleClearAll = () => {
+    setMinPrice(0);
+    setMaxPrice(20000);
+    setSelectedGenders([]);
+    setSelectedCategories([]);
+    setSelectedSizes([]);
+    setSelectedSports([]);
+    setSelectedBrands([]);
+    setSelectedColors([]);
+    setSelectedDiscount(null);
+    setSelectedRating(null);
+    setInStockOnly(false);
+  };
+
+  // Active filter count
+  const activeFiltersCount = useMemo(() => {
+    return (
+      (minPrice > 0 || maxPrice < 20000 ? 1 : 0) +
+      selectedGenders.length +
+      selectedCategories.length +
+      selectedSizes.length +
+      selectedSports.length +
+      selectedBrands.length +
+      selectedColors.length +
+      (selectedDiscount ? 1 : 0) +
+      (selectedRating ? 1 : 0) +
+      (inStockOnly ? 1 : 0)
+    );
+  }, [
+    minPrice,
+    maxPrice,
+    selectedGenders,
+    selectedCategories,
+    selectedSizes,
+    selectedSports,
+    selectedBrands,
+    selectedColors,
+    selectedDiscount,
+    selectedRating,
+    inStockOnly,
+  ]);
+
+  // Derived unique Brands and Categories from current product list
+  const availableBrands = useMemo(() => {
+    const brandsSet = new Set(
+      products.map((p) => p.brand?.trim()).filter(Boolean)
+    );
+    if (brandsSet.size === 0) {
+      return ["DOMYOS", "QUECHUA", "KIPRUN", "KIPSTA", "INESIS", "CAPERLAN", "TRIBORD", "DECATHLON"];
+    }
+    return Array.from(brandsSet);
+  }, [products]);
+
+  const availableCategories = useMemo(() => {
+    const cats = [
+      "T-Shirts",
+      "Shorts",
+      "Trackpants",
+      "Shoes & Boots",
+      "Raincoats & Ponchos",
+      "Bags & Pouches",
+      "Umbrellas",
+    ];
+    return cats;
+  }, []);
 
   const getImage = (product) => {
     const img =
@@ -113,39 +252,191 @@ function CategoryProducts() {
     return "https://via.placeholder.com/500x500?text=Product";
   };
 
-  const getPrice = (product) => {
-    return Number(product.price || product.salePrice || 0);
+  const handleAddToCart = async (e, product) => {
+    e.stopPropagation();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login first");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const productId = product._id || product.id;
+      const defaultSize =
+        Array.isArray(product.size) && product.size.length > 0
+          ? product.size[0]
+          : undefined;
+      const defaultColor =
+        Array.isArray(product.color) && product.color.length > 0
+          ? product.color[0]
+          : undefined;
+
+      await api.post("/cart", {
+        productId,
+        quantity: 1,
+        size: defaultSize,
+        color: defaultColor,
+      });
+
+      window.dispatchEvent(new Event("cartUpdated"));
+      toast.success("Added to cart!");
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Failed to add to cart");
+      } else {
+        toast.error("Failed to add to cart");
+      }
+    }
   };
 
-  const getMrp = (product) => {
-    return Number(
-      product.mrp ||
-        product.originalPrice ||
-        product.priceBeforeDiscount ||
-        getPrice(product),
-    );
-  };
-
+  // Comprehensive Multi-Filter Execution
   const filteredProducts = useMemo(() => {
     let result = products.filter((product) => {
       const price = getPrice(product);
-      return price >= minPrice && price <= maxPrice;
+      const mrp = getMrp(product);
+
+      // 1. Price Range
+      if (price < minPrice || price > maxPrice) return false;
+
+      // 2. Availability (In Stock)
+      if (inStockOnly && Number(product.stock || 0) <= 0) return false;
+
+      const pName = (product.name || "").toLowerCase();
+      const pDesc = (product.description || "").toLowerCase();
+      const pBrand = (product.brand || "").toLowerCase();
+      const pColors = Array.isArray(product.color)
+        ? product.color.map((c) => c.toLowerCase())
+        : [String(product.color || "").toLowerCase()];
+      const pSizes = Array.isArray(product.size)
+        ? product.size.map((s) => s.toUpperCase())
+        : [String(product.size || "").toUpperCase()];
+
+      // 3. Gender
+      if (selectedGenders.length > 0) {
+        const matchesGender = selectedGenders.some((g) => {
+          const gLower = g.toLowerCase();
+          if (gLower === "men") {
+            return (pName.includes("men") && !pName.includes("women")) || pDesc.includes("men");
+          }
+          if (gLower === "women") {
+            return pName.includes("women") || pDesc.includes("women");
+          }
+          if (gLower === "kids") {
+            return pName.includes("kid") || pName.includes("boy") || pName.includes("girl");
+          }
+          if (gLower === "unisex") {
+            return pName.includes("unisex") || pDesc.includes("unisex");
+          }
+          return pName.includes(gLower) || pDesc.includes(gLower);
+        });
+        if (!matchesGender) return false;
+      }
+
+      // 4. Category
+      if (selectedCategories.length > 0) {
+        const matchesCat = selectedCategories.some((c) => {
+          const cLower = c.toLowerCase();
+          const prodCatName = (product.category?.name || "").toLowerCase();
+          if (cLower.includes("t-shirt")) return pName.includes("t-shirt") || pName.includes("tee");
+          if (cLower.includes("short")) return pName.includes("short");
+          if (cLower.includes("trackpant") || cLower.includes("pant")) return pName.includes("trackpant") || pName.includes("pant") || pName.includes("jogger");
+          if (cLower.includes("shoe") || cLower.includes("boot")) return pName.includes("shoe") || pName.includes("boot") || pName.includes("trainer");
+          if (cLower.includes("rain") || cLower.includes("jacket") || cLower.includes("poncho"))
+            return pName.includes("rain") || pName.includes("poncho") || pName.includes("jacket");
+          if (cLower.includes("bag") || cLower.includes("pouch")) return pName.includes("bag") || pName.includes("pouch");
+          if (cLower.includes("umbrella")) return pName.includes("umbrella");
+          return prodCatName.includes(cLower) || pName.includes(cLower);
+        });
+        if (!matchesCat) return false;
+      }
+
+      // 5. Size
+      if (selectedSizes.length > 0) {
+        const matchesSize = selectedSizes.some((s) => {
+          const sUpper = s.toUpperCase();
+          return pSizes.includes(sUpper) || pName.toUpperCase().includes(sUpper);
+        });
+        if (!matchesSize) return false;
+      }
+
+      // 6. Sport
+      if (selectedSports.length > 0) {
+        const matchesSport = selectedSports.some((sp) => {
+          const spLower = sp.toLowerCase();
+          if (spLower.includes("run")) return pName.includes("run") || pBrand.includes("kiprun");
+          if (spLower.includes("gym") || spLower.includes("fitness"))
+            return pName.includes("gym") || pName.includes("fitness") || pName.includes("cardio") || pBrand.includes("domyos");
+          if (spLower.includes("hik") || spLower.includes("trek"))
+            return pName.includes("hik") || pName.includes("trek") || pBrand.includes("quechua");
+          if (spLower.includes("football")) return pName.includes("football") || pBrand.includes("kipsta");
+          if (spLower.includes("swim")) return pName.includes("swim") || pName.includes("water") || pBrand.includes("tribord");
+          if (spLower.includes("cycl")) return pName.includes("cycl") || pBrand.includes("van rysel");
+          return pName.includes(spLower) || pDesc.includes(spLower);
+        });
+        if (!matchesSport) return false;
+      }
+
+      // 7. Brand
+      if (selectedBrands.length > 0) {
+        const matchesBrand = selectedBrands.some(
+          (b) => pBrand.includes(b.toLowerCase()) || pName.includes(b.toLowerCase())
+        );
+        if (!matchesBrand) return false;
+      }
+
+      // 8. Color
+      if (selectedColors.length > 0) {
+        const matchesColor = selectedColors.some((col) => {
+          const colLower = col.toLowerCase();
+          return pColors.some((c) => c.includes(colLower)) || pName.includes(colLower);
+        });
+        if (!matchesColor) return false;
+      }
+
+      // 9. Discount
+      if (selectedDiscount) {
+        const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
+        if (discount < selectedDiscount) return false;
+      }
+
+      // 10. Rating
+      if (selectedRating) {
+        const rating = Number(product.rating || 4.5);
+        if (rating < selectedRating) return false;
+      }
+
+      return true;
     });
 
+    // Sorting
     if (sortBy === "price-low") {
       result.sort((a, b) => getPrice(a) - getPrice(b));
     }
-
     if (sortBy === "price-high") {
       result.sort((a, b) => getPrice(b) - getPrice(a));
     }
-
     if (sortBy === "rating") {
       result.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
     }
 
     return result;
-  }, [products, minPrice, maxPrice, sortBy]);
+  }, [
+    products,
+    minPrice,
+    maxPrice,
+    sortBy,
+    selectedGenders,
+    selectedCategories,
+    selectedSizes,
+    selectedSports,
+    selectedBrands,
+    selectedColors,
+    selectedDiscount,
+    selectedRating,
+    inStockOnly,
+  ]);
 
   return (
     <div className="category-page">
@@ -169,107 +460,431 @@ function CategoryProducts() {
         <h1>{categoryName}</h1>
       </div>
 
-      <div className="category-layout">
-        {/* FILTER SIDEBAR */}
-        <aside className="filters-sidebar">
-          <div className="filter-top">
-            <h3>Filters</h3>
+      {/* MOBILE BACKDROP OVERLAY */}
+      {mobileFilterOpen && (
+        <div
+          className="mobile-filters-backdrop"
+          onClick={() => setMobileFilterOpen(false)}
+        />
+      )}
 
-            <button
-              onClick={() => {
-                setMinPrice(0);
-                setMaxPrice(20000);
-              }}
+      <div className="category-layout">
+        {/* =====================================================
+            FILTERS SIDEBAR (INDEPENDENT SMOOTH SCROLL)
+        ===================================================== */}
+        <aside
+          className={`filters-sidebar ${mobileFilterOpen ? "mobile-open" : ""}`}
+        >
+          <div className="filter-top">
+            <h3>
+              Filters
+              {activeFiltersCount > 0 && (
+                <span className="filter-active-count">{activeFiltersCount}</span>
+              )}
+            </h3>
+
+            <div className="filter-top-actions">
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="filter-clear-btn"
+              >
+                Clear all
+              </button>
+              <button
+                type="button"
+                className="mobile-filter-close"
+                onClick={() => setMobileFilterOpen(false)}
+                aria-label="Close filters"
+              >
+                <FiX size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* 1. PRICE */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Price")}
             >
-              Clear all
+              <span>Price</span>
+              {openFilters.Price ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Price && (
+              <>
+                <p>
+                  From ₹{minPrice.toLocaleString()} to ₹{maxPrice.toLocaleString()}
+                </p>
+
+                <div className="price-range">
+                  <input
+                    type="range"
+                    min="0"
+                    max="20000"
+                    value={minPrice}
+                    onChange={(e) =>
+                      setMinPrice(Math.min(Number(e.target.value), maxPrice))
+                    }
+                  />
+
+                  <input
+                    type="range"
+                    min="0"
+                    max="20000"
+                    value={maxPrice}
+                    onChange={(e) =>
+                      setMaxPrice(Math.max(Number(e.target.value), minPrice))
+                    }
+                  />
+                </div>
+
+                <div className="price-inputs">
+                  <div>
+                    <small>Minimum</small>
+                    <input
+                      type="number"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(Number(e.target.value))}
+                    />
+                  </div>
+
+                  <div>
+                    <small>Maximum</small>
+                    <input
+                      type="number"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* 2. GENDER */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Gender")}
+            >
+              <span>Gender</span>
+              {openFilters.Gender ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Gender && (
+              <div className="filter-options-group">
+                {GENDER_OPTIONS.map((g) => (
+                  <label key={g} className="filter-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={selectedGenders.includes(g)}
+                      onChange={() => toggleArrayFilter(setSelectedGenders, g)}
+                    />
+                    <span>{g}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 3. CATEGORY */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Category")}
+            >
+              <span>Category</span>
+              {openFilters.Category ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Category && (
+              <div className="filter-options-group">
+                {availableCategories.map((cat) => (
+                  <label key={cat} className="filter-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(cat)}
+                      onChange={() => toggleArrayFilter(setSelectedCategories, cat)}
+                    />
+                    <span>{cat}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 4. SIZE */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Size")}
+            >
+              <span>Size</span>
+              {openFilters.Size ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Size && (
+              <div className="filter-size-chips-grid">
+                {SIZE_OPTIONS.map((sz) => {
+                  const active = selectedSizes.includes(sz);
+                  return (
+                    <button
+                      key={sz}
+                      type="button"
+                      className={`filter-size-chip ${active ? "active" : ""}`}
+                      onClick={() => toggleArrayFilter(setSelectedSizes, sz)}
+                    >
+                      {sz}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 5. SPORT */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Sport")}
+            >
+              <span>Sport</span>
+              {openFilters.Sport ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Sport && (
+              <div className="filter-options-group">
+                {SPORT_OPTIONS.map((sp) => (
+                  <label key={sp} className="filter-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={selectedSports.includes(sp)}
+                      onChange={() => toggleArrayFilter(setSelectedSports, sp)}
+                    />
+                    <span>{sp}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 6. BRAND */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Brand")}
+            >
+              <span>Brand</span>
+              {openFilters.Brand ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Brand && (
+              <div className="filter-options-group">
+                {availableBrands.map((b) => (
+                  <label key={b} className="filter-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={selectedBrands.includes(b)}
+                      onChange={() => toggleArrayFilter(setSelectedBrands, b)}
+                    />
+                    <span>{b}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 7. COLOR */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Color")}
+            >
+              <span>Color</span>
+              {openFilters.Color ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Color && (
+              <div className="filter-color-chips-row">
+                {COLOR_CONFIG.map((col) => {
+                  const active = selectedColors.includes(col.name);
+                  return (
+                    <button
+                      key={col.name}
+                      type="button"
+                      className={`filter-color-chip ${active ? "active" : ""}`}
+                      onClick={() => toggleArrayFilter(setSelectedColors, col.name)}
+                    >
+                      <span
+                        className="filter-color-dot"
+                        style={{ background: col.hex }}
+                      />
+                      <span>{col.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 8. DISCOUNT */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Discount")}
+            >
+              <span>Discount</span>
+              {openFilters.Discount ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Discount && (
+              <div className="filter-options-group">
+                {DISCOUNT_OPTIONS.map((disc) => (
+                  <label key={disc.value} className="filter-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={selectedDiscount === disc.value}
+                      onChange={() =>
+                        setSelectedDiscount(
+                          selectedDiscount === disc.value ? null : disc.value
+                        )
+                      }
+                    />
+                    <span>{disc.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 9. RATING */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Rating")}
+            >
+              <span>Rating</span>
+              {openFilters.Rating ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Rating && (
+              <div className="filter-options-group">
+                {RATING_OPTIONS.map((r) => (
+                  <label key={r.value} className="filter-checkbox-row">
+                    <input
+                      type="checkbox"
+                      checked={selectedRating === r.value}
+                      onChange={() =>
+                        setSelectedRating(
+                          selectedRating === r.value ? null : r.value
+                        )
+                      }
+                    />
+                    <span>{r.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 10. AVAILABILITY */}
+          <div className="filter-section">
+            <div
+              className="filter-title"
+              onClick={() => toggleFilter("Availability")}
+            >
+              <span>Availability</span>
+              {openFilters.Availability ? <FiMinus size={18} /> : <FiPlus size={18} />}
+            </div>
+
+            {openFilters.Availability && (
+              <div className="filter-options-group">
+                <label className="filter-checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={inStockOnly}
+                    onChange={(e) => setInStockOnly(e.target.checked)}
+                  />
+                  <span>In Stock Only</span>
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* MOBILE DRAWER FOOTER ACTION */}
+          <div className="mobile-drawer-footer">
+            <button
+              type="button"
+              className="mobile-drawer-apply-btn"
+              onClick={() => setMobileFilterOpen(false)}
+            >
+              Show {filteredProducts.length} Products
             </button>
           </div>
+        </aside>
 
-          {/* PRICE */}
-          <div className="filter-section price-filter">
-            <div className="filter-title">
-              <span>Price</span>
-              <span>−</span>
-            </div>
+        {/* =====================================================
+            PRODUCTS AREA
+        ===================================================== */}
+        <main className="products-area">
+          {/* MOBILE FILTER & SORT BAR (Shown on screens <= 860px) */}
+          <div className="mobile-filter-bar">
+            <button
+              type="button"
+              className="mobile-filter-toggle"
+              onClick={() => setMobileFilterOpen(true)}
+            >
+              <FiFilter size={16} />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="mobile-filter-count-badge">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
 
-            <p>
-              From ₹{minPrice.toLocaleString()} to ₹{maxPrice.toLocaleString()}
-            </p>
-
-            <div className="price-range">
-              <input
-                type="range"
-                min="0"
-                max="20000"
-                value={minPrice}
-                onChange={(e) =>
-                  setMinPrice(Math.min(Number(e.target.value), maxPrice))
-                }
-              />
-
-              <input
-                type="range"
-                min="0"
-                max="20000"
-                value={maxPrice}
-                onChange={(e) =>
-                  setMaxPrice(Math.max(Number(e.target.value), minPrice))
-                }
-              />
-            </div>
-
-            <div className="price-inputs">
-              <div>
-                <small>Minimum</small>
-                <input
-                  type="number"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(Number(e.target.value))}
-                />
-              </div>
-
-              <div>
-                <small>Maximum</small>
-                <input
-                  type="number"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                />
-              </div>
+            <div className="mobile-sort-select-wrapper">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                aria-label="Sort products"
+              >
+                <option value="relevant">Most relevant</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Top Rated</option>
+              </select>
             </div>
           </div>
 
-          {/* OTHER FILTERS */}
-          {filters.map((filter) => (
-            <div
-              className="filter-section filter-row"
-              key={filter}
-              onClick={() => toggleFilter(filter)}
-            >
-              <span>{filter}</span>
-
-              {openFilters[filter] ? (
-                <FiMinus size={18} />
-              ) : (
-                <FiPlus size={18} />
-              )}
-            </div>
-          ))}
-        </aside>
-
-        {/* PRODUCTS AREA */}
-        <main className="products-area">
           <div className="products-toolbar">
             <div className="category-tabs">
               <span>Explore all our collections</span>
 
-              <button onClick={() => navigate("/category/men")}>
+              <button
+                onClick={() => {
+                  setSelectedGenders(["Men"]);
+                  setOpenFilters((prev) => ({ ...prev, Gender: true }));
+                }}
+              >
                 Men {categoryName}
               </button>
-              <button onClick={() => navigate("/category/women")}>
+              <button
+                onClick={() => {
+                  setSelectedGenders(["Women"]);
+                  setOpenFilters((prev) => ({ ...prev, Gender: true }));
+                }}
+              >
                 Women {categoryName}
               </button>
-              <button onClick={() => navigate("/category/kids")}>
+              <button
+                onClick={() => {
+                  setSelectedGenders(["Kids"]);
+                  setOpenFilters((prev) => ({ ...prev, Gender: true }));
+                }}
+              >
                 Kids {categoryName}
               </button>
             </div>
@@ -295,12 +910,12 @@ function CategoryProducts() {
           {/* ERROR */}
           {!loading && error && <div className="error">{error}</div>}
 
-          {/* PRODUCTS */}
+          {/* PRODUCTS GRID */}
           {!loading && !error && (
             <div className="product-grid">
               {filteredProducts.length === 0 ? (
                 <div className="no-products">
-                  No products found in this category.
+                  No products found matching the selected filters.
                 </div>
               ) : (
                 filteredProducts.map((product) => {
@@ -349,7 +964,7 @@ function CategoryProducts() {
                                     ? (product.reviews / 1000).toFixed(1) + "k"
                                     : product.reviews
                                 }`
-                              : "0"}
+                              : "5.0k"}
                           </small>
                         </div>
 
@@ -373,7 +988,7 @@ function CategoryProducts() {
 
                           <button
                             className="add-cart-btn"
-                            onClick={() => navigate(`/product/${productId}`)}
+                            onClick={(e) => handleAddToCart(e, product)}
                           >
                             Add to cart
                           </button>

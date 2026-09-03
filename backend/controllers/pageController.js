@@ -1,5 +1,30 @@
 import Page from "../models/Page.js";
 import { emitHomepageUpdate } from "../socket/socketManager.js";
+import cloudinary from "../config/cloudinary.js";
+
+const processSectionItems = async (items) => {
+  if (!items || !Array.isArray(items)) return [];
+  const processed = [];
+  for (const item of items) {
+    let img = item.image || "";
+    if (img && typeof img === "string" && img.startsWith("data:image/")) {
+      try {
+        const uploadRes = await cloudinary.uploader.upload(img, {
+          folder: "pages",
+          resource_type: "image",
+        });
+        img = uploadRes.secure_url;
+      } catch (err) {
+        console.error("Cloudinary base64 upload failed:", err.message);
+      }
+    }
+    processed.push({
+      ...item,
+      image: img,
+    });
+  }
+  return processed;
+};
 
 /*
 ========================================
@@ -205,7 +230,7 @@ ADD SECTION TO PAGE
 export const addPageSection = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, type, categories, products, banners, sortOrder, isActive } =
+    const { name, type, categories, products, banners, items, sortOrder, isActive } =
       req.body;
 
     if (!name || !type) {
@@ -219,12 +244,15 @@ export const addPageSection = async (req, res) => {
       return res.status(404).json({ message: "Page not found" });
     }
 
+    const processedItems = items !== undefined ? await processSectionItems(items) : [];
+
     const newSection = {
       name,
       type,
       categories: categories || [],
       products: products || [],
       banners: banners || [],
+      items: processedItems,
       sortOrder: sortOrder !== undefined ? Number(sortOrder) : page.sections.length,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
     };
@@ -258,7 +286,7 @@ UPDATE PAGE SECTION
 export const updatePageSection = async (req, res) => {
   try {
     const { id, sectionId } = req.params;
-    const { name, type, categories, products, banners, sortOrder, isActive } =
+    const { name, type, categories, products, banners, items, sortOrder, isActive } =
       req.body;
 
     const page = await Page.findById(id);
@@ -276,6 +304,7 @@ export const updatePageSection = async (req, res) => {
     if (categories !== undefined) section.categories = categories;
     if (products !== undefined) section.products = products;
     if (banners !== undefined) section.banners = banners;
+    if (items !== undefined) section.items = await processSectionItems(items);
     if (sortOrder !== undefined) section.sortOrder = Number(sortOrder);
     if (isActive !== undefined) section.isActive = Boolean(isActive);
 

@@ -48,17 +48,25 @@ const ProductSection = ({ customProducts, title }) => {
         (item) => item.name === "Product Section" || item.name === "ProductSection" || item.type === "product"
       );
 
-      if (!section) {
-        setProducts([]);
-        setCurrentIndex(0);
-        return;
-      }
+      const validProds = (section?.products || []).filter(
+        (p) => p && typeof p === "object" && p.name
+      );
 
-      setProducts(section.products || []);
+      if (validProds.length > 0) {
+        setProducts(validProds);
+      } else {
+        const prodRes = await api.get("/products?limit=12");
+        setProducts(prodRes.data.products || []);
+      }
       setCurrentIndex(0);
     } catch (error) {
       console.error("Product Section Error:", error);
-      setProducts([]);
+      try {
+        const prodRes = await api.get("/products?limit=12");
+        setProducts(prodRes.data.products || []);
+      } catch {
+        setProducts([]);
+      }
       setCurrentIndex(0);
     } finally {
       setLoading(false);

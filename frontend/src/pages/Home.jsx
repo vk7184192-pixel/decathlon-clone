@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import "../styles/home/Home.css";
+
 import api from "../api/axios";
 import socket from "../socket/socket";
 
 import CouponBanner from "../components/home/CouponBanner";
-import PopularCategories from "../components/home/PopularCategories";
+import CategoryCarousel from "../components/home/CategoryCarousel";
 import PromoBanner from "../components/home/PromoBanner";
 import CategoryShowcase from "../components/home/CategoryShowcase";
 import ProductSection from "../components/home/ProductSection";
@@ -18,105 +21,415 @@ import EquippingChampions from "../components/home/EquippingChampions";
 import Footer from "../components/home/Footer";
 
 const Home = () => {
-  const [pageSections, setPageSections] = useState([]);
+  const navigate = useNavigate();
+
+  const [pageSections, setPageSections] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_home_sections");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !sessionStorage.getItem("cached_home_sections");
+    } catch {
+      return true;
+    }
+  });
+
+  /* ========================================
+     FETCH HOME SECTIONS
+  ======================================== */
 
   const fetchHomeSections = async () => {
     try {
       const response = await api.get("/pages/slug/home");
+
       const secs = response.data?.page?.sections || [];
+
       setPageSections(secs);
+
+      try {
+        sessionStorage.setItem("cached_home_sections", JSON.stringify(secs));
+      } catch (e) {
+        // Ignore quota error
+      }
     } catch (error) {
       console.error("Fetch Home Page Builder Sections Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  /* ========================================
+     INITIAL LOAD + SOCKET
+  ======================================== */
 
   useEffect(() => {
     fetchHomeSections();
 
+    let debounceTimer;
     const handleUpdate = (data) => {
       if (data?.slug === "home" || !data?.slug) {
-        fetchHomeSections();
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          fetchHomeSections();
+        }, 250);
       }
     };
 
     socket.on("homepage_updated", handleUpdate);
-    return () => socket.off("homepage_updated", handleUpdate);
+
+    return () => {
+      clearTimeout(debounceTimer);
+      socket.off("homepage_updated", handleUpdate);
+    };
   }, []);
 
+  /* ========================================
+     IMAGE URL
+  ======================================== */
+
+  const getImageUrl = (image) => {
+    if (!image) return "";
+
+    if (
+      typeof image === "string" &&
+      (image.startsWith("http://") || image.startsWith("https://"))
+    ) {
+      return image;
+    }
+
+    const apiBaseUrl = api.defaults.baseURL || "";
+
+    const backendUrl = apiBaseUrl.replace(/\/api\/?$/, "");
+
+    if (image.startsWith("/uploads/")) {
+      return `${backendUrl}${image}`;
+    }
+
+    if (image.startsWith("uploads/")) {
+      return `${backendUrl}/${image}`;
+    }
+
+    return `${backendUrl}${image.startsWith("/") ? "" : "/"}${image}`;
+  };
+
+  /* ========================================
+     OTHER SECTION
+  ======================================== */
+
+  const OtherSection = ({ section }) => {
+    const items = Array.isArray(section.items) ? section.items : [];
+
+    if (!items.length) {
+      return null;
+    }
+
+    return (
+      <section className="custom-other-section">
+        {section.name &&
+          !section.name.toLowerCase().includes("carousel") &&
+          !section.name.toLowerCase().includes("popular") &&
+          !section.name.toLowerCase().includes("category") && (
+            <div className="custom-other-header">
+              <h2 className="custom-other-title">{section.name}</h2>
+            </div>
+          )}
+
+        <div className="custom-other-grid">
+          {items.map((item, itemIdx) => {
+            const imageUrl = getImageUrl(item.image);
+
+            const hasLink = Boolean(item.link);
+
+            const handleClick = () => {
+              if (!item.link) {
+                return;
+              }
+
+              navigate(item.link);
+            };
+
+            return (
+              <div
+                key={item._id || itemIdx}
+                className={`custom-other-card ${hasLink ? "clickable" : ""}`}
+                onClick={handleClick}
+              >
+                {/* IMAGE */}
+
+                <div className="custom-other-image-wrapper">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={item.name || "Category"}
+                      className="custom-other-img"
+                    />
+                  ) : (
+                    <div className="custom-other-no-img">No Image</div>
+                  )}
+                </div>
+
+                {/* NAME */}
+
+                <div className="custom-other-info">
+                  <h3 className="custom-other-item-title">{item.name}</h3>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    );
+  };
+
+  /* ========================================
+     RENDER SECTION
+  ======================================== */
+
   const renderSection = (sec, idx) => {
+    if (!sec) {
+      return null;
+    }
+
+    /* ========================================
+       OTHER
+    ======================================== */
+
+    if (sec.type === "other") {
+      return <OtherSection key={sec._id || idx} section={sec} />;
+    }
+
     const nameLower = (sec.name || "").toLowerCase();
+
+    /* ========================================
+       COUPON
+    ======================================== */
 
     if (nameLower.includes("coupon")) {
       return <CouponBanner key={sec._id || idx} customBanners={sec.banners} />;
     }
-    if (nameLower.includes("popular")) {
-      return <PopularCategories key={sec._id || idx} customCategories={sec.categories} title={sec.name} />;
+
+    /* ========================================
+       CATEGORY CAROUSEL
+    ======================================== */
+
+    if (nameLower.includes("carousel") || nameLower.includes("popular")) {
+      return (
+        <CategoryCarousel
+          key={sec._id || idx}
+          customCategories={sec.categories}
+          title={sec.name}
+        />
+      );
     }
-    if (nameLower.includes("promo banner 2") || nameLower.includes("promobanner2")) {
+
+    /* ========================================
+       PROMO BANNER 2
+    ======================================== */
+
+    if (
+      nameLower.includes("promo banner 2") ||
+      nameLower.includes("promobanner2")
+    ) {
       return <PromoBanner2 key={sec._id || idx} customBanners={sec.banners} />;
     }
+
+    /* ========================================
+       PROMO
+    ======================================== */
+
     if (nameLower.includes("promo")) {
       return <PromoBanner key={sec._id || idx} customBanners={sec.banners} />;
     }
+
+    /* ========================================
+       SHOWCASE
+    ======================================== */
+
     if (nameLower.includes("showcase")) {
-      return <CategoryShowcase key={sec._id || idx} customCategories={sec.categories} />;
-    }
-    if (nameLower.includes("product section")) {
-      return <ProductSection key={sec._id || idx} customProducts={sec.products} title={sec.name} />;
-    }
-    if (nameLower.includes("sports")) {
-      return <SportsCategories key={sec._id || idx} customCategories={sec.categories} />;
-    }
-    if (nameLower.includes("storm")) {
-      return <StormProofSection key={sec._id || idx} customProducts={sec.products} />;
-    }
-    if (nameLower.includes("rainy")) {
-      return <RainyDayCollection key={sec._id || idx} customCategories={sec.categories} />;
-    }
-    if (nameLower.includes("loved")) {
-      return <LovedCategories key={sec._id || idx} customCategories={sec.categories} />;
-    }
-    if (nameLower.includes("champions")) {
-      return <EquippingChampions key={sec._id || idx} customCategories={sec.categories} />;
-    }
-    if (nameLower.includes("outdoor")) {
-      return <OutdoorProducts key={sec._id || idx} customProducts={sec.products} />;
+      return (
+        <CategoryShowcase
+          key={sec._id || idx}
+          customCategories={sec.categories}
+        />
+      );
     }
 
-    // Generic fallbacks based on section type
+    /* ========================================
+       PRODUCT
+    ======================================== */
+
+    if (nameLower.includes("product section")) {
+      return (
+        <ProductSection
+          key={sec._id || idx}
+          customProducts={sec.products}
+          title={sec.name}
+        />
+      );
+    }
+
+    /* ========================================
+       SPORTS
+    ======================================== */
+
+    if (nameLower.includes("sports")) {
+      return (
+        <SportsCategories
+          key={sec._id || idx}
+          customCategories={sec.categories}
+        />
+      );
+    }
+
+    /* ========================================
+       STORM
+    ======================================== */
+
+    if (nameLower.includes("storm")) {
+      return (
+        <StormProofSection key={sec._id || idx} customProducts={sec.products} />
+      );
+    }
+
+    /* ========================================
+       RAINY / MONSOON
+    ======================================== */
+
+    if (nameLower.includes("rainy") || nameLower.includes("monsoon")) {
+      return (
+        <RainyDayCollection
+          key={sec._id || idx}
+          customCategories={sec.categories}
+        />
+      );
+    }
+
+    /* ========================================
+       LOVED
+    ======================================== */
+
+    if (nameLower.includes("loved")) {
+      return (
+        <LovedCategories
+          key={sec._id || idx}
+          customCategories={sec.categories}
+        />
+      );
+    }
+
+    /* ========================================
+       CHAMPIONS
+    ======================================== */
+
+    if (nameLower.includes("champions")) {
+      return (
+        <EquippingChampions
+          key={sec._id || idx}
+          customCategories={sec.categories}
+        />
+      );
+    }
+
+    /* ========================================
+       OUTDOOR
+    ======================================== */
+
+    if (nameLower.includes("outdoor")) {
+      return (
+        <OutdoorProducts key={sec._id || idx} customProducts={sec.products} />
+      );
+    }
+
+    /* ========================================
+       GENERIC BANNER
+    ======================================== */
+
     if (sec.type === "banner") {
       return <PromoBanner key={sec._id || idx} customBanners={sec.banners} />;
     }
+
+    /* ========================================
+       GENERIC CATEGORY
+    ======================================== */
+
     if (sec.type === "category") {
-      return <PopularCategories key={sec._id || idx} customCategories={sec.categories} title={sec.name} />;
+      return (
+        <CategoryCarousel
+          key={sec._id || idx}
+          customCategories={sec.categories}
+          title={sec.name}
+        />
+      );
     }
+
+    /* ========================================
+       GENERIC PRODUCT
+    ======================================== */
+
     if (sec.type === "product") {
-      return <ProductSection key={sec._id || idx} customProducts={sec.products} title={sec.name} />;
+      return (
+        <ProductSection
+          key={sec._id || idx}
+          customProducts={sec.products}
+          title={sec.name}
+        />
+      );
     }
 
     return null;
   };
+
+  /* ========================================
+     RENDER
+  ======================================== */
 
   const hasDynamicSections = pageSections.length > 0;
 
   return (
     <main className="home-page">
       <div className="home-container">
-        {hasDynamicSections ? (
+        {loading && pageSections.length === 0 ? (
+          <div className="home-skeleton-wrapper">
+            <div className="home-skeleton-banner"></div>
+            <div className="home-skeleton-row">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="home-skeleton-card"></div>
+              ))}
+            </div>
+            <div className="home-skeleton-banner"></div>
+          </div>
+        ) : hasDynamicSections ? (
           pageSections.map((sec, idx) => renderSection(sec, idx))
         ) : (
           <>
             <CouponBanner />
-            <PopularCategories />
+
+            <CategoryCarousel />
+
             <PromoBanner />
+
             <CategoryShowcase />
+
             <ProductSection />
+
             <SportsCategories />
+
             <PromoBanner2 />
+
             <StormProofSection />
+
             <RainyDayCollection />
+
             <LovedCategories />
+
             <OutdoorProducts />
+
             <EquippingChampions />
           </>
         )}

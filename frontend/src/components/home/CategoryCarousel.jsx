@@ -1,15 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import "../../styles/home/PopularCategories.css";
+import "../../styles/home/CategoryCarousel.css";
 
 import api from "../../api/axios";
 import socket from "../../socket/socket";
 
-const PopularCategories = ({ customCategories, title }) => {
+const CategoryCarousel = ({ customCategories, title }) => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
   /*
@@ -17,7 +16,6 @@ const PopularCategories = ({ customCategories, title }) => {
   IMAGE URL
   ========================================
   */
-
   const getImageUrl = (image) => {
     if (!image) return "";
     if (image.startsWith("http://") || image.startsWith("https://")) {
@@ -35,7 +33,6 @@ const PopularCategories = ({ customCategories, title }) => {
   FETCH HOMEPAGE SECTION
   ========================================
   */
-
   const fetchSection = useCallback(async () => {
     try {
       setLoading(true);
@@ -44,7 +41,10 @@ const PopularCategories = ({ customCategories, title }) => {
       const pageSections = response.data?.page?.sections || [];
 
       const section = pageSections.find(
-        (item) => item.name === "PopularCategories" || item.type === "category"
+        (item) =>
+          item.name === "PopularCategories" ||
+          item.name === "CategoryCarousel" ||
+          item.type === "category"
       );
 
       const validCategories = (section?.categories || []).filter(
@@ -58,7 +58,7 @@ const PopularCategories = ({ customCategories, title }) => {
         setCategories(catRes.data.categories || []);
       }
     } catch (error) {
-      console.error("Popular Categories Error:", error);
+      console.error("Category Carousel Error:", error);
       try {
         const catRes = await api.get("/categories");
         setCategories(catRes.data.categories || []);
@@ -75,7 +75,6 @@ const PopularCategories = ({ customCategories, title }) => {
   INITIAL LOAD
   ========================================
   */
-
   useEffect(() => {
     const valid = (customCategories || []).filter(
       (c) => c && typeof c === "object" && c.name
@@ -93,15 +92,19 @@ const PopularCategories = ({ customCategories, title }) => {
   REALTIME UPDATE
   ========================================
   */
-
   useEffect(() => {
+    // If customCategories is supplied by parent, parent handles socket updates
+    if (customCategories && customCategories.length > 0) {
+      return;
+    }
+
+    let timer;
     const handleHomepageUpdate = (data) => {
       const events = [
         "section_created",
         "section_updated",
         "section_deleted",
         "section_reordered",
-
         "category_created",
         "category_updated",
         "category_deleted",
@@ -109,34 +112,27 @@ const PopularCategories = ({ customCategories, title }) => {
       ];
 
       if (events.includes(data?.type)) {
-        fetchSection();
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          fetchSection();
+        }, 200);
       }
     };
 
     socket.on("homepage_updated", handleHomepageUpdate);
 
     return () => {
+      clearTimeout(timer);
       socket.off("homepage_updated", handleHomepageUpdate);
     };
-  }, [fetchSection]);
+  }, [customCategories, fetchSection]);
 
   /*
   ========================================
-  LOADING
+  LOADING / EMPTY
   ========================================
   */
-
-  if (loading) {
-    return null;
-  }
-
-  /*
-  ========================================
-  EMPTY
-  ========================================
-  */
-
-  if (!categories.length) {
+  if (loading || !categories.length) {
     return null;
   }
 
@@ -145,29 +141,36 @@ const PopularCategories = ({ customCategories, title }) => {
   UI
   ========================================
   */
-
   return (
-    <section className="popular-categories">
-      {categories.map((category) => (
-        <div
-          className="category-card"
-          key={category._id}
-          onClick={() => navigate("/monsoon-essentials")}
-          style={{ cursor: "pointer" }}
-        >
-          {category.image ? (
-            <img src={getImageUrl(category.image)} alt={category.name} />
-          ) : (
-            <div className="category-no-image">No Image</div>
-          )}
+    <section className="category-carousel-section">
+      <div className="category-carousel-track">
+        {categories.map((category) => (
+          <div
+            className="category-carousel-card"
+            key={category._id}
+            onClick={() =>
+              navigate("/monsoon-essentials", {
+                state: {
+                  categoryId: category._id,
+                  categoryName: category.name,
+                },
+              })
+            }
+          >
+            {category.image ? (
+              <img src={getImageUrl(category.image)} alt={category.name} />
+            ) : (
+              <div className="category-carousel-no-image">No Image</div>
+            )}
 
-          <div className="category-overlay">
-            <h3>{category.name}</h3>
+            <div className="category-carousel-badge-wrapper">
+              <span className="category-carousel-badge">{category.name}</span>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </section>
   );
 };
 
-export default PopularCategories;
+export default CategoryCarousel;
