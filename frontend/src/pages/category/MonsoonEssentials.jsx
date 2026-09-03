@@ -246,16 +246,6 @@ const MonsoonEssentials = () => {
             src={getImageUrl(product.images?.[0])}
             alt={product.name || "Product"}
           />
-
-          <button
-            type="button"
-            className={`product-wishlist ${
-              isWishlisted(product._id) ? "active" : ""
-            }`}
-            onClick={() => handleToggle(product._id)}
-          >
-            {isWishlisted(product._id) ? <MdFavorite /> : <MdFavoriteBorder />}
-          </button>
         </div>
 
         {/* DETAILS */}
