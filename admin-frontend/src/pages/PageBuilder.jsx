@@ -23,8 +23,23 @@ const PageBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [page, setPage] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem(`cached_admin_page_${id}`);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !sessionStorage.getItem(`cached_admin_page_${id}`);
+    } catch {
+      return true;
+    }
+  });
+
   const [draggedIndex, setDraggedIndex] = useState(null);
 
   /* ========================================
@@ -89,9 +104,11 @@ const PageBuilder = () => {
      FETCH PAGE
   ======================================== */
 
-  const fetchPageDetails = async () => {
+  const fetchPageDetails = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
 
       const token = localStorage.getItem("adminToken");
 
@@ -101,7 +118,14 @@ const PageBuilder = () => {
         },
       });
 
-      setPage(response.data.page);
+      const pageData = response.data.page;
+      setPage(pageData);
+      try {
+        sessionStorage.setItem(
+          `cached_admin_page_${id}`,
+          JSON.stringify(pageData)
+        );
+      } catch (e) {}
     } catch (error) {
       console.error("Fetch Page Details Error:", error);
       toast.error("Failed to load page builder details");
@@ -357,7 +381,7 @@ const PageBuilder = () => {
 
       setShowSectionModal(false);
 
-      fetchPageDetails();
+      fetchPageDetails(false);
     } catch (error) {
       console.error("Save Section Error:", error);
 
@@ -374,6 +398,17 @@ const PageBuilder = () => {
   ======================================== */
 
   const handleToggleSectionActive = async (sec) => {
+    // 1. Optimistic update
+    setPage((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: (prev.sections || []).map((s) =>
+          s._id === sec._id ? { ...s, isActive: !s.isActive } : s
+        ),
+      };
+    });
+
     try {
       const token = localStorage.getItem("adminToken");
 
@@ -393,10 +428,11 @@ const PageBuilder = () => {
         `Section ${sec.isActive ? "disabled" : "enabled"}`
       );
 
-      fetchPageDetails();
+      fetchPageDetails(false);
     } catch (error) {
       console.error("Toggle Section Error:", error);
       toast.error("Failed to update section");
+      fetchPageDetails(false);
     }
   };
 
@@ -413,6 +449,15 @@ const PageBuilder = () => {
       return;
     }
 
+    // 1. Optimistic delete
+    setPage((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: (prev.sections || []).filter((s) => s._id !== sec._id),
+      };
+    });
+
     try {
       const token = localStorage.getItem("adminToken");
 
@@ -424,11 +469,12 @@ const PageBuilder = () => {
 
       toast.success("Section deleted successfully");
 
-      fetchPageDetails();
+      fetchPageDetails(false);
     } catch (error) {
       console.error("Delete Section Error:", error);
 
       toast.error("Failed to delete section");
+      fetchPageDetails(false);
     }
   };
 
@@ -460,12 +506,13 @@ const PageBuilder = () => {
       );
 
       toast.success("Section layout order updated");
+      fetchPageDetails(false);
     } catch (error) {
       console.error("Reorder Error:", error);
 
       toast.error("Failed to update section order");
 
-      fetchPageDetails();
+      fetchPageDetails(false);
     }
   };
 
@@ -542,10 +589,15 @@ const PageBuilder = () => {
      LOADING
   ======================================== */
 
-  if (loading) {
+  if (loading && !page) {
     return (
-      <div className="page-builder-loading">
-        Loading Page Builder...
+      <div className="page-builder-loading-skeleton">
+        <div className="builder-header-skeleton"></div>
+        <div className="builder-sections-skeleton">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="builder-row-skeleton"></div>
+          ))}
+        </div>
       </div>
     );
   }

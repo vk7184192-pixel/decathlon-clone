@@ -1,3 +1,55 @@
+/* ========================================
+   PAGE BUILDER SKELETON LOADER
+======================================== */
+.page-builder-loading-skeleton {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.builder-header-skeleton {
+  width: 100%;
+  height: 60px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: builderShimmer 1.5s infinite;
+}
+
+.builder-sections-skeleton {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.builder-row-skeleton {
+  height: 72px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f8fafc 25%, #e2e8f0 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: builderShimmer 1.5s infinite;
+}
+
+@keyframes builderShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.page-builder-loading {
+  display: none;
+}
+
 .page-builder {
   padding: 24px;
   max-width: 1200px;

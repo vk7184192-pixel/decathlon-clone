@@ -16,8 +16,23 @@ import "../styles/Pages.css";
 const Pages = () => {
   const navigate = useNavigate();
 
-  const [pages, setPages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pages, setPages] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("cached_admin_pages");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !sessionStorage.getItem("cached_admin_pages");
+    } catch {
+      return true;
+    }
+  });
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -25,14 +40,18 @@ const Pages = () => {
   const [newPageDescription, setNewPageDescription] = useState("");
   const [creating, setCreating] = useState(false);
 
-  const fetchPages = async () => {
+  const fetchPages = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const token = localStorage.getItem("adminToken");
       const response = await api.get("/pages", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPages(response.data.pages || []);
+      const data = response.data.pages || [];
+      setPages(data);
+      try {
+        sessionStorage.setItem("cached_admin_pages", JSON.stringify(data));
+      } catch (e) {}
     } catch (error) {
       console.error("Fetch Pages Error:", error);
       toast.error(error?.response?.data?.message || "Failed to load pages");
@@ -70,7 +89,7 @@ const Pages = () => {
       setShowAddModal(false);
       setNewPageName("");
       setNewPageDescription("");
-      fetchPages();
+      fetchPages(false);
     } catch (error) {
       console.error("Create Page Error:", error);
       toast.error(error?.response?.data?.message || "Failed to create page");
@@ -80,6 +99,10 @@ const Pages = () => {
   };
 
   const handleToggleActive = async (page) => {
+    setPages((prev) =>
+      prev.map((p) => (p._id === page._id ? { ...p, isActive: !p.isActive } : p))
+    );
+
     try {
       const token = localStorage.getItem("adminToken");
       await api.put(
@@ -88,10 +111,11 @@ const Pages = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(`Page '${page.name}' ${page.isActive ? "disabled" : "enabled"}`);
-      fetchPages();
+      fetchPages(false);
     } catch (error) {
       console.error("Toggle Page Active Error:", error);
       toast.error("Failed to update page status");
+      fetchPages(false);
     }
   };
 
@@ -105,23 +129,24 @@ const Pages = () => {
       return;
     }
 
+    setPages((prev) => prev.filter((p) => p._id !== page._id));
+
     try {
       const token = localStorage.getItem("adminToken");
       await api.delete(`/pages/${page._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Page deleted successfully");
-      fetchPages();
+      fetchPages(false);
     } catch (error) {
       console.error("Delete Page Error:", error);
       toast.error(error?.response?.data?.message || "Failed to delete page");
+      fetchPages(false);
     }
   };
 
-  const filteredPages = pages.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.slug.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredPages = pages.filter((page) =>
+    page.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -157,8 +182,12 @@ const Pages = () => {
       </div>
 
       {/* PAGES LIST */}
-      {loading ? (
-        <div className="pages-loading">Loading pages...</div>
+      {loading && pages.length === 0 ? (
+        <div className="pages-skeleton-grid">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="pages-skeleton-card"></div>
+          ))}
+        </div>
       ) : filteredPages.length === 0 ? (
         <div className="pages-empty">No pages found</div>
       ) : (
