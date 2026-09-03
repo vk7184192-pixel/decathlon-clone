@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
@@ -462,13 +462,56 @@ const MonsoonEssentials = () => {
 
   const ProductSection = ({ section }) => {
     // Only use products selected by admin.
-    // No unused "products" variable.
+    const sliderRef = useRef(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
 
-    const adminProducts = Array.isArray(section.products)
-      ? section.products.filter(
-          (product) => product && typeof product === "object" && product.name,
-        )
-      : [];
+    const adminProducts = useMemo(() => {
+      return Array.isArray(section.products)
+        ? section.products.filter(
+            (product) => product && typeof product === "object" && product.name,
+          )
+        : [];
+    }, [section.products]);
+
+    const updateScrollButtons = useCallback(() => {
+      const el = sliderRef.current;
+      if (!el) return;
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      setCanScrollLeft(scrollLeft > 2);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 2);
+    }, []);
+
+    useEffect(() => {
+      const el = sliderRef.current;
+      if (!el) return;
+
+      updateScrollButtons();
+      const timeoutId = setTimeout(updateScrollButtons, 120);
+
+      el.addEventListener("scroll", updateScrollButtons, { passive: true });
+      window.addEventListener("resize", updateScrollButtons);
+
+      return () => {
+        clearTimeout(timeoutId);
+        el.removeEventListener("scroll", updateScrollButtons);
+        window.removeEventListener("resize", updateScrollButtons);
+      };
+    }, [adminProducts, updateScrollButtons]);
+
+    const handleScroll = (direction) => {
+      const el = sliderRef.current;
+      if (!el) return;
+      const card = el.querySelector(".monsoon-product-card");
+      const cardWidth = card ? card.offsetWidth : 220;
+      const gap = 20;
+      const scrollDistance = (cardWidth + gap) * 2;
+
+      el.scrollBy({
+        left: direction === "next" ? scrollDistance : -scrollDistance,
+        behavior: "smooth",
+      });
+    };
 
     if (!adminProducts.length) {
       return null;
@@ -482,17 +525,29 @@ const MonsoonEssentials = () => {
           </h2>
 
           <div className="product-section-arrows">
-            <button type="button" className="section-arrow">
+            <button
+              type="button"
+              className="section-arrow"
+              onClick={() => handleScroll("prev")}
+              disabled={!canScrollLeft}
+              aria-label="Previous products"
+            >
               <MdChevronLeft />
             </button>
 
-            <button type="button" className="section-arrow">
+            <button
+              type="button"
+              className="section-arrow"
+              onClick={() => handleScroll("next")}
+              disabled={!canScrollRight}
+              aria-label="Next products"
+            >
               <MdChevronRight />
             </button>
           </div>
         </div>
 
-        <div className="monsoon-products-grid">
+        <div className="monsoon-products-slider" ref={sliderRef}>
           {adminProducts.map((product, index) => (
             <ProductCard key={product._id || index} product={product} />
           ))}

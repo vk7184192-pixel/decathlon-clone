@@ -304,6 +304,15 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.section-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: #e5e5e5;
+  color: #aaa;
+  pointer-events: none;
 }
 
 
@@ -313,14 +322,26 @@
 
 
 /* =====================================================
-   PRODUCTS GRID
+   PRODUCTS SLIDER / CAROUSEL
 ===================================================== */
 
+.monsoon-products-slider,
 .monsoon-products-grid {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 28px;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 2px 14px;
+  box-sizing: border-box;
+}
+
+.monsoon-products-slider::-webkit-scrollbar,
+.monsoon-products-grid::-webkit-scrollbar {
+  display: none;
 }
 
 
@@ -329,8 +350,11 @@
 ===================================================== */
 
 .monsoon-product-card {
-  min-width: 0;
+  flex: 0 0 calc((100% - (4 * 20px)) / 5);
+  min-width: calc((100% - (4 * 20px)) / 5);
+  max-width: calc((100% - (4 * 20px)) / 5);
   background: #fff;
+  box-sizing: border-box;
 }
 
 
@@ -571,8 +595,15 @@
     grid-template-columns: repeat(6, 1fr);
   }
 
+  .monsoon-products-slider,
   .monsoon-products-grid {
-    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .monsoon-product-card {
+    flex: 0 0 calc((100% - (3 * 16px)) / 4);
+    min-width: calc((100% - (3 * 16px)) / 4);
+    max-width: calc((100% - (3 * 16px)) / 4);
   }
 
 }
@@ -602,9 +633,15 @@
   }
 
 
+  .monsoon-products-slider,
   .monsoon-products-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 14px;
+  }
+
+  .monsoon-product-card {
+    flex: 0 0 calc((100% - (2 * 14px)) / 3);
+    min-width: calc((100% - (2 * 14px)) / 3);
+    max-width: calc((100% - (2 * 14px)) / 3);
   }
 
 }
@@ -648,9 +685,15 @@
   }
 
 
+  .monsoon-products-slider,
   .monsoon-products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 12px;
+  }
+
+  .monsoon-product-card {
+    flex: 0 0 calc((100% - 12px) / 2.2);
+    min-width: calc((100% - 12px) / 2.2);
+    max-width: calc((100% - 12px) / 2.2);
   }
 
 
@@ -679,8 +722,10 @@
   }
 
 
-  .monsoon-products-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .monsoon-product-card {
+    flex: 0 0 calc((100% - 10px) / 1.7);
+    min-width: calc((100% - 10px) / 1.7);
+    max-width: calc((100% - 10px) / 1.7);
   }
 
 }
