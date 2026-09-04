@@ -53,69 +53,6 @@ const Activewear = () => {
   };
 
   /* =========================================================
-     DEFAULT CATEGORIES
-     Used only if Page Builder data is unavailable
-  ========================================================= */
-
-  const defaultCategories = [
-    {
-      name: "Jackets",
-      image:
-        "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500",
-      link: "/category/jackets",
-    },
-
-    {
-      name: "Trackpants",
-      image:
-        "https://images.unsplash.com/photo-1506629905607-d9f1c8f4f1a1?w=500",
-      link: "/category/trackpants",
-    },
-
-    {
-      name: "Trousers",
-      image:
-        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500",
-      link: "/category/trousers",
-    },
-
-    {
-      name: "T-shirt",
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
-      link: "/category/t-shirt",
-    },
-
-    {
-      name: "Caps",
-      image:
-        "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500",
-      link: "/category/caps",
-    },
-
-    {
-      name: "Polo Shirt",
-      image:
-        "https://images.unsplash.com/photo-1625910513413-5fc45a9a0b8a?w=500",
-      link: "/category/polo-shirt",
-    },
-
-    {
-      name: "Shoes",
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500",
-      link: "/category/shoes",
-    },
-
-    {
-      name: "Sunglasses",
-      image:
-        "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=500",
-      link: "/category/sunglasses",
-    },
-  ];
-
-  /* =========================================================
      DEFAULT BANNER
   ========================================================= */
 
@@ -221,7 +158,7 @@ const Activewear = () => {
             item.categoryRoute ||
             "#",
         }))
-      : defaultCategories;
+      : [];
 
   /* =========================================================
      FIND BANNER SECTION
@@ -452,7 +389,7 @@ const Activewear = () => {
         <section className="men-collection-section">
 
           <h2>
-            Men's Collection
+            {menCollectionSection?.name || menCollectionSection?.title || "Men's Collection"}
           </h2>
 
           <div className="category-scroll">
