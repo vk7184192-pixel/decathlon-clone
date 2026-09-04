@@ -50,7 +50,7 @@ const UserRegister = () => {
 
       console.log("Sending OTP:", payload);
 
-      const response = await api.post("/otp/send-otp", payload);
+      const response = await api.post("/registration/send-otp", payload);
 
       console.log("OTP RESPONSE:", response.data);
 

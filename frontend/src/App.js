@@ -20,6 +20,7 @@ import MyAccount from "./pages/MyAccount";
 import Wishlist from "./pages/Wishlist";
 import ProductDetail from "./pages/ProductDetail";
 import CategoryRoutes from "./routes/categoryRoutes";
+import ScrollToTop from "./components/ScrollToTop";
 import {
   isTokenExpired,
   getTokenRemainingTime,
@@ -85,6 +86,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <div className="App">
         <Routes>
           <Route

@@ -40,10 +40,22 @@ router.post(
 
 // Public route for Store Frontend
 router.get("/slug/:slug", getPageBySlug);
+router.get("/public/:slug", getPageBySlug);
+
+// Public or Admin by ID/slug
+router.get("/:idOrSlug", (req, res, next) => {
+  if (req.params.idOrSlug && req.params.idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
+    return authMiddleware(req, res, () => adminMiddleware(req, res, () => {
+      req.params.id = req.params.idOrSlug;
+      return getPageById(req, res, next);
+    }));
+  }
+  req.params.slug = req.params.idOrSlug;
+  return getPageBySlug(req, res, next);
+});
 
 // Admin protected routes
 router.get("/", authMiddleware, adminMiddleware, getPages);
-router.get("/:id", authMiddleware, adminMiddleware, getPageById);
 router.post("/", authMiddleware, adminMiddleware, createPage);
 router.put("/:id", authMiddleware, adminMiddleware, updatePage);
 router.delete("/:id", authMiddleware, adminMiddleware, deletePage);

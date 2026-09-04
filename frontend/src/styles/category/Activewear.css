@@ -1,0 +1,630 @@
+/* =========================================================
+   ACTIVEWEAR PAGE
+========================================================= */
+
+.activewear-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  color: #111111;
+}
+
+
+/* =========================================================
+   TOP NAVIGATION
+========================================================= */
+
+.activewear-top-nav {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 16px 58px 8px;
+  box-sizing: border-box;
+}
+
+.activewear-nav-link {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 400;
+
+  color: #111111;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.activewear-nav-link:hover {
+  color: #1746d1;
+}
+
+.activewear-nav-link.active {
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   DELIVERY
+========================================================= */
+
+.activewear-delivery {
+  width: 100%;
+  box-sizing: border-box;
+
+  text-align: right;
+
+  padding: 0 58px 12px;
+
+  font-size: 12px;
+
+  color: #333333;
+}
+
+.activewear-delivery span {
+  color: #153cc9;
+}
+
+
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+.activewear-container {
+  width: 100%;
+
+  padding: 0 58px 40px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   MEN'S COLLECTION
+========================================================= */
+
+.men-collection-section {
+  width: 100%;
+}
+
+.men-collection-section h2 {
+  margin: 6px 0 16px;
+
+  font-size: 16px;
+  line-height: 1.3;
+
+  font-weight: 600;
+
+  color: #111111;
+}
+
+
+/* =========================================================
+   CATEGORY SCROLL
+========================================================= */
+
+.category-scroll {
+  width: 100%;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  overflow-x: auto;
+
+  padding-bottom: 8px;
+
+  scrollbar-width: none;
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* =========================================================
+   CATEGORY ITEM
+========================================================= */
+
+.collection-item {
+  flex: 0 0 auto;
+
+  width: 145px;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.collection-item:hover {
+  transform: translateY(-3px);
+}
+
+.collection-item:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================================================
+   CATEGORY CIRCLE
+========================================================= */
+
+.collection-image {
+  width: 145px;
+  height: 145px;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  background: #edf1f2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collection-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  border-radius: 50%;
+}
+
+
+/* =========================================================
+   IMAGE PLACEHOLDER
+========================================================= */
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 15px;
+
+  box-sizing: border-box;
+
+  text-align: center;
+
+  background: #edf1f2;
+
+  color: #777777;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   CATEGORY NAME
+========================================================= */
+
+.collection-item p {
+  margin: 8px 0 0;
+
+  font-size: 12px;
+
+  line-height: 1.3;
+
+  font-weight: 500;
+
+  color: #111111;
+}
+
+
+/* =========================================================
+   BANNER SECTION
+========================================================= */
+
+.activewear-banner-section {
+  width: 100%;
+
+  margin-top: 17px;
+}
+
+
+/* =========================================================
+   BANNER
+========================================================= */
+
+.activewear-banner {
+  position: relative;
+
+  width: 100%;
+  height: 294px;
+
+  overflow: hidden;
+
+  border-radius: 22px;
+
+  background: #eeeeee;
+}
+
+.activewear-banner.clickable-banner {
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   BANNER IMAGE
+========================================================= */
+
+.banner-background {
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  z-index: 1;
+}
+
+
+/* =========================================================
+   BANNER PLACEHOLDER
+========================================================= */
+
+.banner-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eeeeee;
+
+  color: #777777;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   BANNER ARROWS
+========================================================= */
+
+.banner-arrow {
+  position: absolute;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: 1px solid #dddddd;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  color: #111111;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  z-index: 5;
+
+  font-size: 22px;
+
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.12);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.banner-arrow:hover {
+  transform: translateY(-50%) scale(1.06);
+
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+.banner-arrow.prev {
+  left: 10px;
+}
+
+.banner-arrow.next {
+  right: 10px;
+}
+
+
+/* =========================================================
+   BANNER DOTS (OVERLAY PILL INDICATORS)
+========================================================= */
+
+.banner-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 10;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+.banner-dots span {
+  width: 10px;
+  height: 10px;
+  display: block;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.banner-dots span.active {
+  width: 28px;
+  height: 10px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.activewear-loading {
+  min-height: 500px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 15px;
+
+  color: #555555;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .activewear-top-nav {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+
+  .activewear-delivery {
+    padding-right: 35px;
+    padding-left: 35px;
+  }
+
+  .activewear-container {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+
+  .category-scroll {
+    justify-content: flex-start;
+
+    gap: 18px;
+  }
+
+  .collection-item {
+    width: 125px;
+  }
+
+  .collection-image {
+    width: 125px;
+    height: 125px;
+  }
+
+  .activewear-banner {
+    height: 270px;
+  }
+}
+
+
+/* =========================================================
+   TABLET SMALL
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .activewear-top-nav {
+    padding: 15px 24px 8px;
+
+    gap: 25px;
+  }
+
+  .activewear-delivery {
+    padding: 0 24px 12px;
+
+    font-size: 11px;
+  }
+
+  .activewear-container {
+    padding: 0 24px 30px;
+  }
+
+  .activewear-banner {
+    height: 240px;
+
+    border-radius: 18px;
+  }
+
+  .banner-arrow {
+    width: 31px;
+    height: 31px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .activewear-top-nav {
+    padding: 14px 16px 8px;
+
+    gap: 20px;
+  }
+
+  .activewear-nav-link {
+    font-size: 13px;
+  }
+
+
+  .activewear-delivery {
+    padding: 3px 16px 12px;
+
+    text-align: left;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+
+
+  .activewear-container {
+    padding: 0 16px 30px;
+  }
+
+
+  .men-collection-section h2 {
+    margin: 6px 0 14px;
+
+    font-size: 15px;
+  }
+
+
+  .category-scroll {
+    justify-content: flex-start;
+
+    gap: 14px;
+
+    overflow-x: auto;
+  }
+
+
+  .collection-item {
+    width: 105px;
+  }
+
+
+  .collection-image {
+    width: 105px;
+    height: 105px;
+  }
+
+
+  .collection-item p {
+    margin-top: 7px;
+
+    font-size: 11px;
+  }
+
+
+  .activewear-banner-section {
+    margin-top: 14px;
+  }
+
+
+  .activewear-banner {
+    height: 190px;
+
+    border-radius: 15px;
+  }
+
+
+  .banner-arrow {
+    width: 28px;
+    height: 28px;
+
+    font-size: 18px;
+  }
+
+
+  .banner-arrow.prev {
+    left: 7px;
+  }
+
+
+  .banner-arrow.next {
+    right: 7px;
+  }
+
+
+  .banner-dots {
+    margin-top: 8px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .activewear-top-nav {
+    gap: 15px;
+  }
+
+
+  .collection-item {
+    width: 90px;
+  }
+
+
+  .collection-image {
+    width: 90px;
+    height: 90px;
+  }
+
+
+  .activewear-banner {
+    height: 170px;
+
+    border-radius: 13px;
+  }
+}
